@@ -23,8 +23,8 @@ class media {
 	function __construct() {
 		$this->jomHelper = new jomHelper ( );
 		$this->date_now = JFactory::getDate ();
-		$this->mainframe = & JFactory::getApplication ();
-		$this->db = & JFactory::getDBO (); // set database object
+		$this->mainframe = JFactory::getApplication ();
+		$this->db = JFactory::getDBO (); // set database object
 		$this->IJUserID = $this->mainframe->getUserState ( 'com_ijoomeradv.IJUserID', 0 ); //get login user id
 		$this->my = CFactory::getUser ( $this->IJUserID ); // set the login user object
 		$this->config = CFactory::getConfig ();
@@ -278,7 +278,7 @@ class media {
 		CFactory::load ( 'models', 'photos' );
 		CFactory::load ( 'helpers', 'url' );
 
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $albumID );
 
 		//$postData	= JRequest::get('POST');
@@ -448,7 +448,7 @@ class media {
 		// Load libraries
 		CFactory::load ( 'models', 'photos' );
 		CFactory::load ( 'libraries', 'activities' );
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $albumID );
 		$handler = $this->_getHandler ( $album );
 		CFactory::load ( 'helpers', 'owner' );
@@ -541,7 +541,7 @@ class media {
 				break;
 			case 'albums' :
 			default :
-				$album = & JTable::getInstance ( 'Album', 'CTable' );
+				$album = JTable::getInstance ( 'Album', 'CTable' );
 				$album->load ( $uniqueID );
 				$deleteAllowed = intval ( ($this->IJUserID == $album->creator or COwnerHelper::isCommunityAdmin ( $this->IJUserID )) );
 				break;
@@ -662,7 +662,7 @@ class media {
 		CFactory::load ( 'helpers', 'friends' );
 		CFactory::load ( 'helpers', 'group' );
 
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $uniqueId );
 
 		$handler = $this->_getHandler ( $album );
@@ -763,10 +763,10 @@ class media {
 		CFactory::load ( 'helpers', 'friends' );
 		CFactory::load ( 'helpers', 'group' );
 
-		$photo = & JTable::getInstance ( 'Photo', 'CTable' );
+		$photo = JTable::getInstance ( 'Photo', 'CTable' );
 		$photo->load ( $uniqueId );
 
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $photo->albumid );
 
 		$handler = $this->_getHandler ( $album );
@@ -840,7 +840,7 @@ class media {
 			$ijparams = new CParameter($puser->jomsocial_params);
 
 			CFactory::load ( 'helpers', 'group' );
-			$album = & JTable::getInstance ( 'Album', 'CTable' );
+			$album = JTable::getInstance ( 'Album', 'CTable' );
 			$album->load ($photo->albumid);
 			$pushcontentdata['albumdetail']['id'] = $album->id;
 			$pushcontentdata['albumdetail']['deleteAllowed'] = intval ( ($photo->creator == $album->creator or COwnerHelper::isCommunityAdmin ( $photo->creator )) );
@@ -922,7 +922,7 @@ class media {
 
 				//Send push notification
 				CFactory::load ( 'helpers', 'group' );
-				$album = & JTable::getInstance ( 'Album', 'CTable' );
+				$album = JTable::getInstance ( 'Album', 'CTable' );
 				$album->load ($photo->albumid);
 				$pushcontentdata['albumdetail']['id'] = $album->id;
 				$pushcontentdata['albumdetail']['deleteAllowed'] = intval ( ($photo->creator == $album->creator or COwnerHelper::isCommunityAdmin ( $photo->creator )) );
@@ -1395,7 +1395,7 @@ class media {
 
 		$wallsModel = & CFactory::getModel ( 'wall' );
 		$wall = $wallsModel->get ( $wallId );
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $wall->contentid );
 
 		if ($this->my->id == $album->creator || COwnerHelper::isCommunityAdmin ()) {
@@ -1431,7 +1431,7 @@ class media {
 
 		$wallsModel = & CFactory::getModel ( 'wall' );
 		$wall = $wallsModel->get ( $wallId );
-		$photo = & JTable::getInstance ( 'Photo', 'CTable' );
+		$photo = JTable::getInstance ( 'Photo', 'CTable' );
 		$photo->load ( $wall->contentid );
 
 		if ($this->my->id == $photo->creator || COwnerHelper::isCommunityAdmin ()) {
@@ -1476,7 +1476,7 @@ class media {
 		// Only allow wall removal by admin or owner of the video.
 		$wallsModel = & CFactory::getModel ( 'wall' );
 		$wall = $wallsModel->get ( $wallId );
-		$video = & JTable::getInstance ( 'Video', 'CTable' );
+		$video = JTable::getInstance ( 'Video', 'CTable' );
 		$video->load ( $wall->contentid );
 
 		if (COwnerHelper::isCommunityAdmin () || ($this->my->id == $video->creator)) {
@@ -1711,7 +1711,7 @@ class media {
 		CFactory::load ( 'models', 'photos' );
 		CFactory::load ( 'helpers', 'image' );
 
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 
 		if ($profile) { // upload photo from profile
 			$query = "SELECT id
@@ -1790,7 +1790,7 @@ class media {
 		$apps = & CAppPlugins::getInstance ();
 		$apps->loadApplications ();
 		$params = array ();
-		$params [] = & $photoTable;
+		$params [] = $photoTable;
 		$apps->triggerEvent ( 'onPhotoCreate', $params );
 
 		// Set image as default if necessary
@@ -1831,7 +1831,7 @@ class media {
 		// Store group info
 		// I hate to load group here, but unfortunately, album does
 		// not store group permission setting
-		$group = & JTable::getInstance ( 'Group', 'CTable' );
+		$group = JTable::getInstance ( 'Group', 'CTable' );
 		$group->load ( $album->groupid );
 
 		$act->groupid = $album->groupid;
@@ -1896,7 +1896,7 @@ class media {
 		$model = CFactory::getModel ( 'photos' );
 		$photo = $model->getPhoto ( $photoID );
 
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $photo->albumid );
 		$handler = $this->_getHandler ( $album );
 
@@ -2033,7 +2033,7 @@ class media {
 			}*/
 
 			$access_limit = $this->jomHelper->getUserAccess ( $this->IJUserID, $user->id );
-			$params = & $user->getParams ();
+			$params = $user->getParams ();
 			$profileview = $params->get ( 'privacyProfileView' ); // get profile view access
 			if ($profileview == 40 or $profileview > $access_limit) {
 				$profileview = 0;
@@ -2150,7 +2150,7 @@ class media {
 				$photo			=& JTable::getInstance( 'Photo' , 'CTable' );
 				$photo->load( $uniqueID );
 				//album detail
-				$album = & JTable::getInstance ( 'Album', 'CTable' );
+				$album = JTable::getInstance ( 'Album', 'CTable' );
 				$album->load ( $photo->albumid );
 				$pushcontentdata['albumdetail']['id'] = $album->id;
 				$pushcontentdata['albumdetail']['deleteAllowed'] = intval ( ($userID == $album->creator or COwnerHelper::isCommunityAdmin ( $this->IJUserID )) );
@@ -2206,7 +2206,7 @@ class media {
 				// for push notification
 				$message= COM_COMMUNITY_EMAIL_VIDEOS_TAGGING_TEXT;
 				//video detail
-				$video = & JTable::getInstance ( 'Video', 'CTable' );
+				$video = JTable::getInstance ( 'Video', 'CTable' );
 				$video->load ($uniqueID);
 
 				$video_file = $video->path;
@@ -2615,7 +2615,7 @@ class media {
 		//add notification: New group album is added
 		if ($video->groupid != 0) {
 			CFactory::load ( 'libraries', 'notification' );
-			$group = & JTable::getInstance ( 'Group', 'CTable' );
+			$group = JTable::getInstance ( 'Group', 'CTable' );
 			$group->load ( $video->groupid );
 
 			CFactory::load ( 'models', 'groups' );
@@ -3308,7 +3308,7 @@ class media {
 		// Preset the redirect url according to group type or user type
 		CFactory::load ( 'helpers', 'videos' );
 		//$redirect = CVideosHelper::getVideoReturnUrlFromRequest ();
-		$group = & JTable::getInstance ( 'Group', 'CTable' );
+		$group = JTable::getInstance ( 'Group', 'CTable' );
 		$group->load ( $groupID );
 
 		if ($group->approvals) {
@@ -3357,7 +3357,7 @@ class media {
 		//add notification: New group album is added
 		if ($video->groupid != 0) {
 			CFactory::load ( 'libraries', 'notification' );
-			$group = & JTable::getInstance ( 'Group', 'CTable' );
+			$group = JTable::getInstance ( 'Group', 'CTable' );
 			$group->load ( $video->groupid );
 
 			$modelGroup = & CFactory::getModel ( 'groups' );
@@ -3521,7 +3521,7 @@ class media {
 		$apps = & CAppPlugins::getInstance ();
 		$apps->loadApplications ();
 		$params = array ();
-		$params [] = & $args;
+		$params [] = $args;
 		$apps->triggerEvent ( $event, $params );
 	}
 
@@ -3704,7 +3704,7 @@ class media {
 		$maxHeight = round ( $maxHeight, - 1 );
 
 		$photoModel = CFactory::getModel ( 'photos' );
-		$photo = & JTable::getInstance ( 'Photo', 'CTable' );
+		$photo = JTable::getInstance ( 'Photo', 'CTable' );
 		$photo->loadFromImgPath ( $imgid );
 
 		CFactory::load ( 'helpers', 'image' );
@@ -3786,7 +3786,7 @@ class media {
 		$imgType = image_type_to_mime_type ( $info [2] );
 
 		// Load the tables
-		$photoTable = & JTable::getInstance ( 'Photo', 'CTable' );
+		$photoTable = JTable::getInstance ( 'Photo', 'CTable' );
 
 		// @todo: configurable paths?
 		$storage = JPATH_ROOT . DS . $this->config->getString ( 'photofolder' );
@@ -4158,7 +4158,7 @@ class media {
 
 		CFactory::load ( 'models', 'photos' );
 		CFactory::load ( 'helpers', 'owner' );
-		$album = & JTable::getInstance ( 'Album', 'CTable' );
+		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $albumID );
 		$model = CFactory::getModel ( 'Photos' );
 		$photo = $model->getPhoto ( $uniqueID );
@@ -4204,7 +4204,7 @@ class media {
 			return false;
 		}
 
-		$photo = & JTable::getInstance ( 'Photo', 'CTable' );
+		$photo = JTable::getInstance ( 'Photo', 'CTable' );
 		$photo->load ( $uniqueID );
 
 		if ($this->my->id != $photo->creator) {
@@ -4248,7 +4248,7 @@ class media {
 				IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 				return false;
 			}
-			$jConfig = & JFactory::getConfig ();
+			$jConfig = JFactory::getConfig ();
 			$photoPath = $jConfig->getValue ( 'tmp_path' ) . DS . md5 ( $photo->image );
 
 			// Store image on temporary location

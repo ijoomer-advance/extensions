@@ -551,7 +551,7 @@ class event {
 		$type 		= IJReq::getTaskData('type');
 		$limit		= PAGE_MEMBER_LIMIT;
 
-		$event = & JTable::getInstance ( 'Event', 'CTable' );
+		$event = JTable::getInstance ( 'Event', 'CTable' );
 		$event->load ($uniqueID);
 
 		if($pageNO == 0 || $pageNO == 1){
@@ -821,7 +821,7 @@ class event {
 		CFactory::load ( 'libraries', 'notification' );
 		CFactory::load ( 'helpers', 'owner' );
 		CFactory::load ( 'models', 'events' );
-		$event = & JTable::getInstance ( 'Event', 'CTable' );
+		$event = JTable::getInstance ( 'Event', 'CTable' );
 		$event->load ($uniqueID);
 
 		CFactory::load('helpers','event');
@@ -1158,7 +1158,7 @@ class event {
 			return false;
 		}
 
-		$event = & JTable::getInstance ( 'Event', 'CTable' );
+		$event = JTable::getInstance ( 'Event', 'CTable' );
 		$event->load($uniqueID);
 
 		CFactory::load ( 'helpers', 'event' );
@@ -1176,14 +1176,14 @@ class event {
 			return false;
 		}
 
-		$eventMember = & JTable::getInstance ( 'EventMembers', 'CTable' );
+		$eventMember = JTable::getInstance ( 'EventMembers', 'CTable' );
 		$eventMember->load ( $this->my->id, $uniqueID );
 
 		if ($eventMember->permission != 1 && $eventMember->permission != 2) {
 			$eventMember->permission = 3; //always a member
 		}
 
-		$date = & JFactory::getDate ();
+		$date = JFactory::getDate ();
 		$eventMember->created 	= $date->toMySQL();
 		$eventMember->status 	= $status;
 		$eventMember->store();
@@ -1266,7 +1266,7 @@ class event {
 			IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 			return false;
 		}
-		$event = & JTable::getInstance ( 'Event', 'CTable' );
+		$event = JTable::getInstance ( 'Event', 'CTable' );
 		$event->load($uniqueID);
 
 		CFactory::load ( 'helpers', 'event' );
