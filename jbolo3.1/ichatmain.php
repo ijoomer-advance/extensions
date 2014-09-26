@@ -14,19 +14,19 @@ jimport( 'joomla.filesystem.folder' );
 class ichatmain
 {
 	private $IJUserID;
-	private $mainframe; 
+	private $mainframe;
 	private $db;
 	private $my;
 	private $jsonarray=array();
 	protected $options;
-	
+
 	function __construct($options = null)
     {
 		$this->mainframe	=	& JFactory::getApplication();
 		$this->db			=	& JFactory::getDBO(); // set database object
 		$this->IJUserID		=	$this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
 		$this->my			=	JFactory::getUser($this->IJUserID);
-		
+
     	$this->options = array(
 			'script_url' => '',//$this->get_full_url().'/',
 			'upload_dir' => JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'uploads'.DS,//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
@@ -104,20 +104,20 @@ class ichatmain
     }
 	 /**
      * @uses to fetch all online users detail,status,status mrssage and their messages
-     * @example the json string will be like, : 
+     * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
  	 *		"extTask":"polling",
 	 * 		"taskData":{
 	 * 		}
-	 * 	} 
+	 * 	}
      */
 	function polling()
 	{
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
 		$uid = $this->IJUserID;
 		$user=JFactory::getUser($uid);
 		if(!$uid){
@@ -301,7 +301,7 @@ class ichatmain
 	}
 	 /**
      * @uses to get nodeId of whatever user selected(depending upon userId passed in pid).
-     * @example the json string will be like, : 
+     * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -309,12 +309,12 @@ class ichatmain
 	 * 		"taskData":{
 	 * 			"pid":"pid"
 	 * 		}
-	 * 	} 
+	 * 	}
      */
 	function initiateNode(){
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
 		$uid = $this->IJUserID;
 		$pid = IJReq::getTaskData('pid',0,'int');
 		if(!$uid){
@@ -360,7 +360,7 @@ class ichatmain
 				WHERE node_id=".$new_node_id;
 		$this->db->setQuery($query);
 		$node_d=$this->db->loadObject();
-		
+
 		$this->jsonarray['code'] = 200;
 		$this->jsonarray['nodeinfo']=$node_d;
 		//get chat window title(wt)
@@ -409,7 +409,7 @@ class ichatmain
 	}
 	 /**
      * @uses to send message to nid of particular userid(whom we want to send a message)
-     * @example the json string will be like, : 
+     * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -418,13 +418,13 @@ class ichatmain
 	 * 			"nid":"nid",
 	 * 			"message":"message"
 	 * 		}
-	 * 	} 
+	 * 	}
      */
 	function pushChatToNode()
 	{
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid',0,'int');
 		$msg = IJReq::getTaskData('message','');
@@ -445,7 +445,7 @@ class ichatmain
 		}
 		$user =& JFactory::getUser($uid);
 		$msg = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($msg)); //2.9.5
-		$msg= html_entity_decode($msg,null,'UTF-8');//2.9.5	
+		$msg= html_entity_decode($msg,null,'UTF-8');//2.9.5
 		$msg = str_replace("\'","'",$msg);
 		$nodesHelper=new nodesHelper();
 		$isNodeParticipant=$nodesHelper->isNodeParticipant($uid,$nid);
@@ -514,7 +514,7 @@ class ichatmain
 			}
 		}
 		//prepare json response
-	 	$query="SELECT chm.to_node_id AS nid, chm.from AS uid, chm.msg_id AS mid, chm.sent, 
+	 	$query="SELECT chm.to_node_id AS nid, chm.from AS uid, chm.msg_id AS mid, chm.sent,
 	 			chm.msg, chm.time, chm.msg_type as msgtype
 	 			FROM #__jbolo_chat_msgs AS chm
 	 			WHERE chm.msg_id=".$new_mid;
@@ -522,7 +522,7 @@ class ichatmain
 		$node_d=$this->db->loadObject();
 		//$usersHelper=new usersHelper();
 		$u_data=jbolousersHelper::getLoggedinUserInfo($uid);
-		
+
 		$this->jsonarray['messages']['msgID'] = $node_d->mid;
 		$this->jsonarray['messages']['message'] = $node_d->msg;
 		$this->jsonarray['messages']['timestamp'] = strtotime($node_d->time);
@@ -582,7 +582,7 @@ class ichatmain
 	}
 	 /**
      * @uses to fetch chat history between two users.
-     * @example the json string will be like, : 
+     * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -591,12 +591,12 @@ class ichatmain
 	 * 			"nid":"nid",
 	 * 			"pageNO":"pageNO"
 	 * 		}
-	 * 	} 
+	 * 	}
      */
 	function chatHistory(){
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
 		$uid        = $this->IJUserID;
 		$nid        = IJReq::getTaskData('nid',0,'int');
 		$pageNO     = IJReq::getTaskData('pageNO');
@@ -636,7 +636,7 @@ class ichatmain
 		$chats = $this->db->loadObjectList();
 		$this->db->setQuery($queryLimit);
 	    $total = count($this->db->loadObjectList());
-		$me = JText::_('me');	
+		$me = JText::_('me');
 		//$usersHelper = new usersHelper();
 		$data = jbolousersHelper::getOnlineUsersInfo($uid);
 		$u_data=jbolousersHelper::getLoggedinUserInfo($uid);
@@ -668,7 +668,7 @@ class ichatmain
 					$this->jsonarray['messages'][$i]['avtr'] = $u_data->avtr;
 				}
 			}
-		}	
+		}
 		$this->jsonarray['code'] = ($total>0) ? 200 : 204;
 		$this->jsonarray['total'] = $total;
 		$this->jsonarray['pageLimit'] = $pageLimit;
@@ -677,7 +677,7 @@ class ichatmain
 	}
 	/**
      * @uses to upload file of different extensions which allowed from jbolo config.
-     * @example the json string will be like, : 
+     * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -685,7 +685,7 @@ class ichatmain
 	 * 		"taskData":{(FILES Array)
 	 * 			"nid":"nid"
 	 * 			}
-	 * 	} 
+	 * 	}
      */
 	function uploadFile($print_response = true)
 	{
@@ -797,7 +797,7 @@ class ichatmain
 		$myobj->msg_type=$msgType;
 		$myobj->time=date("Y-m-d H:i:s");
 		$myobj->sent=1;
-		
+
 		$this->db->insertObject('#__jbolo_chat_msgs',$myobj);
 		//get last insert id
 		$new_mid=$this->db->insertid();
@@ -965,7 +965,7 @@ return 1;
 	/** @uses to upload file of different extensions which allowed from jbolo config.
      //called by get_file_name(Function uploadFile)
     */
-	function trim_file_name($name, $type, $index, $content_range,$uploaded_file) 
+	function trim_file_name($name, $type, $index, $content_range,$uploaded_file)
 	{
 		$fileInfo=pathinfo($name);
 		$fileExt=$fileInfo['extension'];//file extension
@@ -1398,7 +1398,7 @@ return 1;
      //called by get,delete,uploadFile(Function uploadFile)
     */
 	function generate_response($content, $print_response = true) {
-		if ($print_response) 
+		if ($print_response)
 		{
 			$json = json_encode($content);
 			$redirect = isset($_REQUEST['redirect']) ?
@@ -1586,7 +1586,7 @@ return 1;
 	}
 	/**
 	 * @uses to get users to invite for group chat based on search
-	 * @example the json string will be like, : 
+	 * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -1597,9 +1597,9 @@ return 1;
 	 * 	}
 	 */
 	function getAutoCompleteUserList(){
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
 		$uid = $this->IJUserID;
 		if(!$uid){
 			IJReq::setResponse( 704 );
@@ -1623,7 +1623,7 @@ return 1;
 	}
 	/**
 	 * @uses to invite users to join group chat
-	 * @example the json string will be like, : 
+	 * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -1636,10 +1636,10 @@ return 1;
 	 */
 	function addNodeUser()
 	{
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php';
 		$uid = $this->IJUserID;
 		if(!$uid){
 			IJReq::setResponse( 704 );
@@ -1819,7 +1819,7 @@ return 1;
 			//if entry for node found in session, update it
 			if(in_array($this->jsonarray['nodeinfo']->nid,$node_ids))
 			{
-				
+
 			}
 			else//if node data not session, push new nodedata at end
 			{
@@ -1837,7 +1837,7 @@ return 1;
 	}
 	/**
 	 * @uses to change status of particular user
-	 * @example the json string will be like, : 
+	 * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -1847,7 +1847,7 @@ return 1;
 	 * 			"statusMsg":"statusMsg
 	 * 		}
 	 * 	}
-	 * 
+	 *
 	 */
 	function changeStatus(){
 		$uid = $this->IJUserID;
@@ -1924,7 +1924,7 @@ return 1;
 	}
 	/**
 	 * @uses to get participants online and involved in particular groupchat of particular nodeid
-	 * @example the json string will be like, : 
+	 * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -1936,10 +1936,10 @@ return 1;
 	 * 	}
 	 */
 	function getgroupParticipants(){
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid',0,'int');
 		if(!$uid){
@@ -1998,7 +1998,7 @@ return 1;
 	}
 	/**
 	 * @uses If particular login user wants to leave groupchat for particular nodeid
-	 * @example the json string will be like, : 
+	 * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"jbolo",
 	 *		"extView":"ichatmain",
@@ -2009,10 +2009,10 @@ return 1;
 	 * 	}
 	 */
 	function leaveChat(){
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php');
-		//require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php');
-		require(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php');
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
+		//require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php';
 		$actorid = $this->IJUserID;
 		if(!$actorid){
 			IJReq::setResponse( 704 );
@@ -2105,7 +2105,7 @@ return 1;
 		$messages=$this->db->loadObjectList();
 		return $messages;
 	}
-	
+
 	function getBlockedUser($uid)
 	{
 		$db = JFactory::getDBO();

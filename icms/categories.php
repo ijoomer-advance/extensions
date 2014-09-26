@@ -42,8 +42,8 @@ class categories
 	// to fetch parent/children categories
 	private function getCategories($id){
 		JRequest::setVar('id',$id);
-		include_once ( JPATH_SITE . DS . 'libraries' . DS . 'joomla' . DS . 'application' . DS . 'categories.php' );
-		include_once ( JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'categories.php' );
+		include_once  JPATH_SITE . DS . 'libraries' . DS . 'joomla' . DS . 'application' . DS . 'categories.php' ;
+		include_once  JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'categories.php' ;
 
 		if($id == 0){
 			$ContentModelCategories = new ContentModelCategories();
@@ -58,8 +58,8 @@ class categories
 	// to fetch articles
 	private function getArticles($id){
 		JRequest::setVar('id',$id);
-		include_once ( JPATH_SITE . DS . 'libraries' . DS . 'joomla' . DS . 'application' . DS . 'categories.php' );
-		include_once ( JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'categories.php' );
+		include_once  JPATH_SITE . DS . 'libraries' . DS . 'joomla' . DS . 'application' . DS . 'categories.php' ;
+		include_once  JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'categories.php' ;
 
 		if($id == 0){
 			$articles 	= array();
