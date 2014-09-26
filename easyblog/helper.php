@@ -9,15 +9,15 @@
 # Technical Support: Forum - http://www.ijoomer.com/Forum/
 ----------------------------------------------------------------------------------*/
 
-defined( '_JEXEC' ) or die( 'Restricted access' );
+defined( '_JEXEC' ) or die;
 class easyblog_helper {
-	
+
 	private $db_helper;
-	
+
 	function __construct(){
 		$this->db_helper =& JFactory::getDBO();
 	}
-	
+
 	function getAllBlogList() {
 		require_once JPATH_ADMINISTRATOR.'/components/com_easyblog/models/blogs.php';
 		$class = new EasyBlogModelBlogs();
@@ -25,7 +25,7 @@ class easyblog_helper {
 
 		$this->db_helper->setQuery($query);
 		$result = $this->db_helper->loadObjectList();
-		return $result; 
+		return $result;
 	}
 	function getAllBlogCategory() {
 		require_once JPATH_ADMINISTRATOR.'/components/com_easyblog/models/categories.php';
@@ -34,9 +34,9 @@ class easyblog_helper {
 
 		$this->db_helper->setQuery($query);
 		$result = $this->db_helper->loadObjectList();
-		return $result; 
+		return $result;
 	}
-	
+
 	/*function getParseData($results){
 		$safeHtmlFilter = JFilterInput::getInstance(null, null, 1, 1);
 		$resultData = array();
@@ -46,21 +46,21 @@ class easyblog_helper {
 				$resultData['itemview']='IcmsSingleArticle';
 				$resultData['itemdata']['id']=$results['id'];
 			break;
-			
+
 			case 'featured':
 				$resultData['itemview']='IcmsFeaturedArticles';
 			break;
-			
+
 			case 'category':
 				$resultData['itemview']=($results['layout']=='blog')?'IcmsCategoryBlog':'IcmsAllCategory';
 				$resultData['itemdata']['id']=$results['id'];
 			break;
 		}
-		
+
 		if(!empty($resultData)){
 			$resultData['type'] = 'icms';
 		}
-		
+
 		return $resultData;
 	}*/
 }

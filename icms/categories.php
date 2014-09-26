@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*--------------------------------------------------------------------------------
 # Ijoomeradv Extension : ICMS_1.5 (compatible with joomla 2.5)
 # ------------------------------------------------------------------------
@@ -9,28 +9,28 @@
 # Technical Support: Forum - http://www.ijoomer.com/Forum/
 ----------------------------------------------------------------------------------*/
 
-defined( '_JEXEC' ) or die( 'Restricted access' );
+defined( '_JEXEC' ) or die;
 
 class categories
 {
-	
+
 	private $db;
-	
+
 	function __construct()
 	{
 		$this->db =& JFactory::getDBO();
 	}
-	
+
 	/**
      * @uses Category list
-     * @example the json string will be like, : 
+     * @example the json string will be like, :
 	 * 	{
 	 * 		"extName":"icms",
 	 *		"extView":"categories",
  	 *		"extTask":"allCategories",
 	 * 		"taskData":{}
 	 * 	}
-     * 
+     *
      */
 	public function category(){
 		$id = IJReq::getTaskData('id',0,'int');
@@ -38,13 +38,13 @@ class categories
 		$articles 	= ($id <= 0) ? array() : $this->getArticles($id);
 		return $this->prepareObject($articles,$categories);
 	}
-	
+
 	// to fetch parent/children categories
 	private function getCategories($id){
 		JRequest::setVar('id',$id);
 		include_once ( JPATH_SITE . DS . 'libraries' . DS . 'joomla' . DS . 'application' . DS . 'categories.php' );
 		include_once ( JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'categories.php' );
-		
+
 		if($id == 0){
 			$ContentModelCategories = new ContentModelCategories();
 			$categories 	= $ContentModelCategories->getItems();
@@ -54,13 +54,13 @@ class categories
 		}
 		return (json_decode(json_encode($categories)));
 	}
-	
+
 	// to fetch articles
 	private function getArticles($id){
 		JRequest::setVar('id',$id);
 		include_once ( JPATH_SITE . DS . 'libraries' . DS . 'joomla' . DS . 'application' . DS . 'categories.php' );
 		include_once ( JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'categories.php' );
-		
+
 		if($id == 0){
 			$articles 	= array();
 		}else{
@@ -70,7 +70,7 @@ class categories
 		}
 		return (json_decode(json_encode($articles)));
 	}
-	
+
 	/**
 	 * Function for prepare object with list of articles and categories
 	 *
@@ -82,12 +82,12 @@ class categories
 		$totalarticles = count($articles);
 		$totalcategories = count($categories);
 		$articlepageno = IJReq::getTaskData('pageNO',1,'int');
-		
+
 		if($totalarticles <= 0 && $totalcategories <= 0){
 			$jsonarray['code']		= 204;
-			return $jsonarray; 
+			return $jsonarray;
 		}
-		
+
 		if($totalarticles<=0){
 			$articleArray['articles'] 	= array();
 		}else{
@@ -95,7 +95,7 @@ class categories
 			$articlesObj = new articles();
 			$articleArray = $articlesObj->getArticleList($articles,$totalarticles,true);
 		}
-		
+
 		if($totalcategories <= 0 or $articlepageno>1){
 			$categoryArray['categories'] = array();
 		}else{
@@ -112,7 +112,7 @@ class categories
 					$categoryArray['categories'][$inc]['categoryid'] 	= $value->id;
 					$categoryArray['categories'][$inc]['title'] 		= $value->title;
 					$categoryArray['categories'][$inc]['description'] 	= strip_tags($value->description);
-					
+
 					$images=array();
 					preg_match_all('/(src)=("[^"]*")/i',$value->description, $images);
 					$imgpath=str_replace(array('src="','"'),"",$images[0]);
@@ -122,12 +122,12 @@ class categories
 							$imgpath[0] = JUri::base().$imgpath[0];
 						}
 					}
-					
+
 					$categoryArray['categories'][$inc]['image'] 		= ($imgpath) ? $imgpath[0]:'';
 					$categoryArray['categories'][$inc]['parent_id'] 	= $value->parent_id;
 					$categoryArray['categories'][$inc]['hits'] 			= $value->hits;
 					$categoryArray['categories'][$inc]['totalarticles']	= ($value->numitems)?$value->numitems:0;
-					
+
 					$query = 'SELECT count(id)
 				  			  FROM #__categories
 				  			  WHERE parent_id='.$value->id.' AND published = 1';
@@ -149,10 +149,10 @@ class categories
 		$jsonarray['pageLimit']	= ICMS_ARTICLE_LIMIT;
 		$jsonarray['articles']	= $articleArray['articles'];
 		$jsonarray['categories']= $categoryArray['categories'];
-		
+
 		return $jsonarray;
 	}
-	
+
 	// to fetch category child count.
 	private function getChildCount($id){
 		$childcategory	= $this->getCategories($id);
