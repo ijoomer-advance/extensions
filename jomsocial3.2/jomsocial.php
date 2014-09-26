@@ -13,27 +13,27 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 class jomsocial{
 	var $classname = 'jomsocial';
 	var $sessionWhiteList=array("user.profileTypes");
-	
+
 	function init(){
 		jimport('joomla.utilities.date');
 		jimport('joomla.html.pagination');
-		
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' .DS. 'time.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' .DS. 'url.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' . DS . 'owner.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'libraries' .DS. 'core.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'libraries' .DS. 'template.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'controllers' . DS . 'controller.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'models' . DS . 'models.php' );
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'views' .DS. 'views.php');
-		require_once( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'views' .DS.'inbox' .DS. 'view.html.php');
-		
+
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' .DS. 'time.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' .DS. 'url.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' . DS . 'owner.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'libraries' .DS. 'core.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'libraries' .DS. 'template.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'controllers' . DS . 'controller.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'models' . DS . 'models.php' ;
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'views' .DS. 'views.php';
+		require_once  JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'views' .DS.'inbox' .DS. 'view.html.php';
+
 		$lang =& JFactory::getLanguage();
 		$lang->load('com_community');
 		$plugin_path = JPATH_COMPONENT_SITE.DS.'extensions';
 		$lang->load('jomsocial',$plugin_path.DS.'jomsocial', $lang->getTag(), true);
 		if(file_exists(JPATH_COMPONENT_SITE.DS.'extensions'.DS.'jomsocial'.DS."helper.php")){
-			require_once(JPATH_COMPONENT_SITE.DS.'extensions'.DS.'jomsocial'.DS."helper.php"); 
+			require_once JPATH_COMPONENT_SITE.DS.'extensions'.DS.'jomsocial'.DS."helper.php";
 		}
 	}
 
@@ -51,19 +51,19 @@ class jomsocial{
 		$jsonarray['termsObject']='{"extName":"jomsocial","extView":"user","extTask":"getTermsNCondition"}';
 		//List ijoomeradv jomsocial config in applicationConfig
 		$db =& JFactory::getDBO();
-		$query="SELECT * 
+		$query="SELECT *
 				From #__ijoomeradv_jomsocial_config
 				WHERE name='ENABLE_VOICE'";
 		$db->setQuery($query);
 		$config_array=$db->loadObject();
 		$jsonarray['isEnableVoice']=intval($config_array->value);
-		
+
 		return $jsonarray;
 	}
-	
+
 	function write_configuration( &$d ) {
 		$db =& JFactory::getDBO();
-		$query="SELECT * 
+		$query="SELECT *
 				From #__ijoomeradv_jomsocial_config";
 		$db->setQuery($query);
 		$config_array=$db->loadObjectList();
@@ -73,14 +73,14 @@ class jomsocial{
 				if(is_array($d[$config_name])){
 					$d[$config_name] = implode(',',$d[$config_name]);
 				}
-				$query="UPDATE #__ijoomeradv_jomsocial_config 
-						SET value = '{$d[$config_name]}' 
+				$query="UPDATE #__ijoomeradv_jomsocial_config
+						SET value = '{$d[$config_name]}'
 						WHERE name = '{$config_name}' ";
 				$db->setQuery($query);
 				$db->query();
 			}
 		}
-	   return true;	
+	   return true;
    }
 	/*
     * Prepares special type of html for jomsocial
@@ -90,15 +90,15 @@ class jomsocial{
 		foreach($config as $key=>$value){
 			$config[$key]->caption=JText::_($value->caption);
 			$config[$key]->description=JText::_($value->description);
-			
+
 			switch($value->type){
 				case 'jom_field':
-					$query="SELECT * 
-							FROM #__community_fields 
+					$query="SELECT *
+							FROM #__community_fields
 							WHERE type!='group'";
 					$db->setQuery($query);
 					$fields=$db->loadObjectList();
-					
+
 					$input='<select name="'.$value->name.'" id="'.$value->name.'">';
 					$input.='<option value="">Select Field...</option>';
 					if($fields){
@@ -109,7 +109,7 @@ class jomsocial{
 					}
 					$input.='</select>';
 					$config[$key]->html=$input;
-					break;	
+					break;
 			}
 		}
 	}
