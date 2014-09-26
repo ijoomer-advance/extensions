@@ -91,8 +91,8 @@ class isobipro extends SPEntryCtrl {
 	private $jsonarray=array();
 
 	function __construct(){
-		$this->mainframe	=	& JFactory::getApplication();
-		$this->db			=	& JFactory::getDBO(); // set database object
+		$this->mainframe = JFactory::getApplication();
+		$this->db		 = JFactory::getDBO(); // set database object
 		$this->IJUserID		=	$this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
 		$this->my			=	JFactory::getUser($this->IJUserID); // set the login user object
 
