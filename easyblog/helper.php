@@ -9,7 +9,7 @@
 # Technical Support: Forum - http://www.ijoomer.com/Forum/
 ----------------------------------------------------------------------------------*/
 
-defined( '_JEXEC' ) or die;
+defined('_JEXEC') or die;
 class easyblog_helper {
 
 	private $db_helper;

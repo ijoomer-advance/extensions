@@ -9,7 +9,7 @@
 # Technical Support: Forum - http://www.ijoomer.com/Forum/
 ----------------------------------------------------------------------------------*/
 
-defined( '_JEXEC' ) or die;
+defined('_JEXEC') or die;
 class icms {
 	public $classname = "icms";
 	public $sessionWhiteList=array('articles.archive','articles.featured','articles.singleArticle','articles.articleDetail','categories.allCategories','categories.singleCategory','categories.category','categories.categoryBlog');

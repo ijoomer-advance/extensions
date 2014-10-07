@@ -9,7 +9,7 @@
 # Technical Support: Forum - http://www.ijoomer.com/Forum/
 ----------------------------------------------------------------------------------*/
 
-defined( '_JEXEC' ) or die;
+defined('_JEXEC') or die;
 class easyblog {
 	public $classname = "easyblog";
 	public $sessionWhiteList=array('categories.allCategories','categories.singleCategory','categories.category','categories.categoryBlog');
