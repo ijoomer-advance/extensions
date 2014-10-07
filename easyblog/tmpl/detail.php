@@ -12,7 +12,7 @@
 defined('_JEXEC') or die;
 JHTML::_('behavior.tooltip');
 
-require_once JPATH_COMPONENT_SITE.DS.'extensions'.DS.'easyblog'.DS.'helper.php';
+require_once JPATH_COMPONENT_SITE . '/extensions/easyblog/helper.php';
 $icms_helper = new easyblog_helper();
 $categories = $icms_helper->getAllBlogCategory();
 
