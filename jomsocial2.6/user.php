@@ -289,7 +289,7 @@ class user{
 					JFile::copy( $storageImage , JPATH_ROOT . '/images/watermarks/original'.'/'.md5($this->my->id.'_avatar').CImageHelper::getExtension($file['type']));
 					JFile::copy( $storageThumbnail , JPATH_ROOT . '/images/watermarks/original'.'/'.md5($this->my->id.'_thumb').CImageHelper::getExtension($file['type']));
 
-					$watermarkPath	= JPATH_ROOT . '/' . CString::str_ireplace('/' . '/' . $multiprofile->watermark);
+					$watermarkPath	= JPATH_ROOT . '/' . CString::str_ireplace('/' . DIRECTORY_SEPARATOR . $multiprofile->watermark);
 
 					list( $watermarkWidth , $watermarkHeight )	= getimagesize( $watermarkPath );
 					list( $avatarWidth , $avatarHeight ) 		= getimagesize( $storageImage );

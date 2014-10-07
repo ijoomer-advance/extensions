@@ -1583,7 +1583,7 @@ class event {
 			}
 
 			if($eventData->thumb != 'components/com_community/assets/event_thumb.png' && !empty( $eventData->avatar ) ){
-				$file	= JPATH_ROOT . '/' . JString::str_ireplace('/', '/', $eventData->thumb);
+				$file	= JPATH_ROOT . '/' . JString::str_ireplace('/', DIRECTORY_SEPARATOR, $eventData->thumb);
 				if(JFile::exists($file)){
 					JFile::delete($file);
 				}
