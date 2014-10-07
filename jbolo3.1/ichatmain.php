@@ -29,8 +29,8 @@ class ichatmain
 
     	$this->options = array(
 			'script_url' => '',//$this->get_full_url().'/',
-			'upload_dir' => JPATH_SITE . '/components/com_jbolo/uploads'.DS,//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-			'upload_url' => 'components/com_jbolo/uploads'.DS,// $this->get_full_url().'/files/',
+			'upload_dir' => JPATH_SITE . '/components/com_jbolo/uploads' . '/',//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
+			'upload_url' => 'components/com_jbolo/uploads' . '/',// $this->get_full_url().'/files/',
 			'user_dirs' => false,
 			'mkdir_mode' => 0755,
 			'param_name' => 'files',
