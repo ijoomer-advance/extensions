@@ -259,8 +259,8 @@ class media {
 			IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 			return false;
     	}
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'controllers' . DS . 'controller.php';
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'controllers' . DS . 'photos.php';
+		require_once JPATH_ROOT . '/components/com_community/controllers/controller.php';
+		require_once JPATH_ROOT . '/components/com_community/controllers/photos.php';
 
 		$albumID = IJReq::getTaskData ( 'albumID', null, 'int' );
 		$name = IJReq::getTaskData ( 'name', $aname );
@@ -315,7 +315,7 @@ class media {
 		}
 
 		$albumPath = $handler->getAlbumPath ( $album->id );
-		$albumPath = CString::str_ireplace ( JPATH_ROOT . DS, '', $albumPath );
+		$albumPath = CString::str_ireplace ( JPATH_ROOT . '/', '', $albumPath );
 		$albumPath = CString::str_ireplace ( '\\', '/', $albumPath );
 		$album->path = $albumPath;
 
@@ -879,7 +879,7 @@ class media {
 				if (! empty ( $s3BucketPath ))
 					$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 			} else {
-				if (! file_exists ( JPATH_SITE . DS . $photo->image ))
+				if (! file_exists ( JPATH_SITE . '/' . $photo->image ))
 					$photo->image = $photo->original;
 			}
 			$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
@@ -960,7 +960,7 @@ class media {
 					if (! empty ( $s3BucketPath ))
 						$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 				} else {
-					if (! file_exists ( JPATH_SITE . DS . $photo->image ))
+					if (! file_exists ( JPATH_SITE . '/' . $photo->image ))
 						$photo->image = $photo->original;
 				}
 				$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
@@ -1107,7 +1107,7 @@ class media {
 				if ($video->type == 'file') {
 					$ext = JFile::getExt ( $video->path );
 
-					if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+					if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 						$video_file = JURI::root () . $video->path;
 					} else {
 						$lastpos = strrpos ( $video->path, '.' );
@@ -1125,7 +1125,7 @@ class media {
 
 				$videodata['id'] = $video->id;
 				$videodata['caption'] = $video->title;
-				$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+				$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 				$videodata['url'] = $video_file;
 				$videodata['description'] = $video->description;
 				$videodata['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );
@@ -1207,7 +1207,7 @@ class media {
 				if ($video->type == 'file') {
 					$ext = JFile::getExt ( $video->path );
 
-					if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+					if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 						$video_file = JURI::root () . $video->path;
 					} else {
 						$lastpos = strrpos ( $video->path, '.' );
@@ -1225,7 +1225,7 @@ class media {
 				//video detail
 				$videodata['id'] = $video->id;
 				$videodata['caption'] = $video->title;
-				$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+				$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 				$videodata['url'] = $video_file;
 				$videodata['description'] = $video->description;
 				$videodata['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );
@@ -1399,7 +1399,7 @@ class media {
 	// called by removeComment
 	// copied from com_community/controller/photos.php
 	private function removeAlbumComment($wallId) {
-		require_once JPATH_SITE . DS . 'components' . DS . 'com_community' . DS . 'libraries' . DS . 'activities.php';
+		require_once JPATH_SITE . '/components/com_community/libraries/activities.php';
 
 		$filter = JFilterInput::getInstance ();
 		$wallId = $filter->clean ( $wallId, 'int' );
@@ -1435,7 +1435,7 @@ class media {
 	// called by removePhotoComment
 	// copied from com_community/controllers/photos.php
 	private function removePhotoComment($wallId) {
-		require_once JPATH_SITE . DS . 'components' . DS . 'com_community' . DS . 'libraries' . DS . 'activities.php';
+		require_once JPATH_SITE . '/components/com_community/libraries/activities.php';
 
 		$filter = JFilterInput::getInstance ();
 		$wallId = $filter->clean ( $wallId, 'int' );
@@ -1477,7 +1477,7 @@ class media {
 	// called by removeComment
 	// copied from com_community/controllers/photos.php
 	private function removeVideoComment($wallId) {
-		require_once JPATH_SITE . DS . 'components' . DS . 'com_community' . DS . 'libraries' . DS . 'activities.php';
+		require_once JPATH_SITE . '/components/com_community/libraries/activities.php';
 
 		$filter = JFilterInput::getInstance ();
 		$wallId = $filter->clean ( $wallId, 'int' );
@@ -1630,7 +1630,7 @@ class media {
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		require_once JPATH_SITE . DS . 'components' . DS . 'com_community' . DS . 'models' . DS . 'photos.php';
+		require_once JPATH_SITE . '/components/com_community/models/photos.php';
 		$obj = new CommunityModelPhotos ( );
 		$photos = $obj->getPhotos ( $albumID, $limit, $startFrom, false );
 
@@ -1653,7 +1653,7 @@ class media {
 				if (! empty ( $s3BucketPath ))
 					$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 			} else {
-				if (! file_exists ( JPATH_SITE . DS . $photo->image ))
+				if (! file_exists ( JPATH_SITE . '/' . $photo->image ))
 					$photo->image = $photo->original;
 			}
 			$this->jsonarray ['photos'] [$key] ['thumb'] = $p_url . $photo->thumbnail;
@@ -1779,16 +1779,16 @@ class media {
 		// Set the relative path.
 		// @todo: configurable path?
 		$storedPath = $handler->getStoredPath ( $result ['storage'], $album->id );
-		$storedPath = $storedPath . DS . $result ['albumPath'] . $result ['hashFilename'] . CImageHelper::getExtension ( $photos ['type'] );
+		$storedPath = $storedPath . '/' . $result ['albumPath'] . $result ['hashFilename'] . CImageHelper::getExtension ( $photos ['type'] );
 
-		$photoTable->image = CString::str_ireplace ( JPATH_ROOT . DS, '', $storedPath );
-		$photoTable->thumbnail = CString::str_ireplace ( JPATH_ROOT . DS, '', $result ['thumbPath'] );
+		$photoTable->image = CString::str_ireplace ( JPATH_ROOT . '/', '', $storedPath );
+		$photoTable->thumbnail = CString::str_ireplace ( JPATH_ROOT . '/', '', $result ['thumbPath'] );
 
 		//In joomla 1.6, CString::str_ireplace is not replacing the path properly. Need to do a check here
 		if ($photoTable->image == $storedPath)
-			$photoTable->image = str_ireplace ( JPATH_ROOT . DS, '', $storedPath );
+			$photoTable->image = str_ireplace ( JPATH_ROOT . '/', '', $storedPath );
 		if ($photoTable->thumbnail == $result ['thumbPath'])
-			$photoTable->thumbnail = str_ireplace ( JPATH_ROOT . DS, '', $result ['thumbPath'] );
+			$photoTable->thumbnail = str_ireplace ( JPATH_ROOT . '/', '', $result ['thumbPath'] );
 
 		//photo filesize, use sprintf to prevent return of unexpected results for large file.
 		$photoTable->filesize = sprintf ( "%u", filesize ( $result ['originalPath'] ) );
@@ -2049,7 +2049,7 @@ class media {
 			/*if ($user->_thumb) {
 				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . $user->_thumb;
 			} else {
-				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'photo_thumb.png';
+				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . 'components/com_community/assets/photo_thumb.png';
 			}*/
 
 			$access_limit = $this->jomHelper->getUserAccess ( $this->IJUserID, $user->id );
@@ -2192,7 +2192,7 @@ class media {
 					if (! empty ( $s3BucketPath ))
 						$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 				} else {
-					if (! file_exists ( JPATH_SITE . DS . $photo->image ))
+					if (! file_exists ( JPATH_SITE . '/' . $photo->image ))
 						$photo->image = $photo->original;
 				}
 				$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
@@ -2236,7 +2236,7 @@ class media {
 				if ($video->type == 'file') {
 					$ext = JFile::getExt ( $video->path );
 
-					if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+					if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 						$video_file = JURI::root () . $video->path;
 					} else {
 						$lastpos = strrpos ( $video->path, '.' );
@@ -2254,7 +2254,7 @@ class media {
 
 				$pushcontentdata['id'] = $video->id;
 				$pushcontentdata['caption'] = $video->title;
-				$pushcontentdata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+				$pushcontentdata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 				$pushcontentdata['url'] = $video_file;
 				$pushcontentdata['description'] = $video->description;
 				$pushcontentdata['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );
@@ -2585,8 +2585,8 @@ class media {
 			CFactory::load ( 'helpers', 'file' );
 			$folderPath = CVideoLibrary::getPath ( $this->my->id, 'original' );
 			$randomFileName = CFileHelper::getRandomFilename ( $folderPath, $videoFile ['name'], '' );
-			$destination = JPATH::clean ( $folderPath . DS . $randomFileName );
-			$tempFile = JPATH::clean ( $folderPath . DS . "temp_" . $randomFileName );
+			$destination = JPATH::clean ( $folderPath . '/' . $randomFileName );
+			$tempFile = JPATH::clean ( $folderPath "/temp_" . $randomFileName );
 
 			if (! CFileHelper::upload ( $videoFile, $destination )) {
 				IJReq::setResponse( 500,JText::_ ( 'COM_COMMUNITY_VIDEOS_UPLOAD_ERROR' ) );
@@ -2661,7 +2661,7 @@ class media {
 			if ($video->type == 'file') {
 				$ext = JFile::getExt ( $video->path );
 
-				if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+				if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 					$video_file = JURI::root () . $video->path;
 				} else {
 					$lastpos = strrpos ( $video->path, '.' );
@@ -2680,7 +2680,7 @@ class media {
 			$videodata['groupid'] = $group->id;
 			$videodata['id'] = $video->id;
 			$videodata['caption'] = $video->title;
-			$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+			$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 			$videodata['url'] = $video_file;
 			$videodata['description'] = $video->description;
 			$videodata['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );
@@ -2769,7 +2769,7 @@ class media {
 		if ($videos->type == 'file') {
 			$ext = JFile::getExt ( $video->path );
 
-			if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $videos->path )) {
+			if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $videos->path )) {
 				$video_file = JURI::root () . $videos->path;
 			} else {
 				$lastpos = strrpos ( $video->path, '.' );
@@ -3074,7 +3074,7 @@ class media {
 			if ($video->type == 'file') {
 				$ext = JFile::getExt ( $video->path );
 
-				if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+				if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 					$video_file = JURI::root () . $video->path;
 				} else {
 					$lastpos = strrpos ( $video->path, '.' );
@@ -3092,7 +3092,7 @@ class media {
 
 			$this->jsonarray ['videos'] [$key] ['id'] = $video->id;
 			$this->jsonarray ['videos'] [$key] ['caption'] = $video->title;
-			$this->jsonarray ['videos'] [$key] ['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+			$this->jsonarray ['videos'] [$key] ['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 			$this->jsonarray ['videos'] [$key] ['url'] = $video_file;
 			$this->jsonarray ['videos'] [$key] ['description'] = $video->description;
 			$this->jsonarray ['videos'] [$key] ['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );
@@ -3331,12 +3331,12 @@ class media {
 		$groupID	= IJReq::getTaskData ( 'groupID', 0, 'int' );
 		$type 		= ($groupID) ? VIDEO_GROUP_TYPE : VIDEO_USER_TYPE;
 
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' . DS . 'remote.php';
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' . DS . 'videos.php';
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'helpers' . DS . 'limits.php';
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'libraries' . DS . 'videos.php';
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'models' . DS . 'models.php';
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'models' . DS . 'videos.php';
+		require_once JPATH_ROOT . '/components/com_community/helpers/remote.php';
+		require_once JPATH_ROOT . '/components/com_community/helpers/videos.php';
+		require_once JPATH_ROOT . '/components/com_community/helpers/limits.php';
+		require_once JPATH_ROOT . '/components/com_community/libraries/videos.php';
+		require_once JPATH_ROOT . '/components/com_community/models/models.php';
+		require_once JPATH_ROOT . '/components/com_community/models/videos.php';
 
 		// Preset the redirect url according to group type or user type
 		CFactory::load ( 'helpers', 'videos' );
@@ -3418,7 +3418,7 @@ class media {
 			if ($video->type == 'file') {
 				$ext = JFile::getExt ( $video->path );
 
-				if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+				if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 					$video_file = JURI::root () . $video->path;
 				} else {
 					$lastpos = strrpos ( $video->path, '.' );
@@ -3437,7 +3437,7 @@ class media {
 			$videodata['groupid'] = $group->id;
 			$videodata['id'] = $video->id;
 			$videodata['caption'] = $video->title;
-			$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+			$videodata['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 			$videodata['url'] = $video_file;
 			$videodata['description'] = $video->description;
 			$videodata['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );
@@ -3583,7 +3583,7 @@ class media {
 
 			$videoLib = new CVideoLibrary ( );
 
-			$videoFullPath = JPATH::clean ( JPATH_ROOT . DS . $table->path );
+			$videoFullPath = JPATH::clean ( JPATH_ROOT . '/' . $table->path );
 			if (! JFile::exists ( $videoFullPath )) {
 				IJReq::setResponse ( 404 );
 				IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
@@ -3653,7 +3653,7 @@ class media {
 
 				$thumbPath = CVideoLibrary::getPath ( $table->creator, 'thumb' );
 				$thumbFileName = CFileHelper::getRandomFilename ( $thumbPath );
-				$tmpThumbPath = $thumbPath . DS . $thumbFileName;
+				$tmpThumbPath = $thumbPath . '/' . $thumbFileName;
 				if (! JFile::write ( $tmpThumbPath, $body )) {
 					IJReq::setResponse ( 404,JText::_ ( 'COM_COMMUNITY_INVALID_FILE_REQUEST' ) );
 					IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
@@ -3669,7 +3669,7 @@ class media {
 				$thumbExtension = CImageHelper::getExtension ( $mime );
 
 				$thumbFilename = $thumbFileName . $thumbExtension;
-				$thumbPath = $thumbPath . DS . $thumbFilename;
+				$thumbPath = $thumbPath . '/' . $thumbFilename;
 				if (! JFile::move ( $tmpThumbPath, $thumbPath )) {
 					IJReq::setResponse ( 500 );
 					IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
@@ -3699,8 +3699,8 @@ class media {
 			$storage = CStorage::getStorage ( $storageType );
 			$storage->delete ( $oldThumb );
 
-			$localThumb = JPATH::clean ( JPATH_ROOT . DS . $table->thumb );
-			$tempThumbname = JPATH::clean ( JPATH_ROOT . DS . md5 ( $table->thumb ) );
+			$localThumb = JPATH::clean ( JPATH_ROOT . '/' . $table->thumb );
+			$tempThumbname = JPATH::clean ( JPATH_ROOT . '/' . md5 ( $table->thumb ) );
 
 			if (JFile::exists ( $localThumb )) {
 				JFile::copy ( $localThumb, $tempThumbname );
@@ -3712,8 +3712,8 @@ class media {
 				JFile::delete ( $tempThumbname );
 			}
 		} else {
-			if (JFile::exists ( JPATH_ROOT . DS . $oldThumb )) {
-				JFile::delete ( JPATH_ROOT . DS . $oldThumb );
+			if (JFile::exists ( JPATH_ROOT . '/' . $oldThumb )) {
+				JFile::delete ( JPATH_ROOT . '/' . $oldThumb );
 			}
 		}
 
@@ -3742,18 +3742,18 @@ class media {
 
 		CFactory::load ( 'helpers', 'image' );
 
-		$photoPath = JPATH_ROOT . DS . $photo->image;
+		$photoPath = JPATH_ROOT . '/' . $photo->image;
 
 		if (! JFile::exists ( $photoPath )) {
 			$displayWidth = $this->config->getInt ( 'photodisplaysize' );
-			$info = getimagesize ( JPATH_ROOT . DS . $photo->original );
+			$info = getimagesize ( JPATH_ROOT . '/' . $photo->original );
 			$imgType = image_type_to_mime_type ( $info [2] );
 			$displayWidth = ($info [0] < $displayWidth) ? $info [0] : $displayWidth;
 
-			CImageHelper::resizeProportional ( JPATH_ROOT . DS . $photo->original, $photoPath, $imgType, $displayWidth );
+			CImageHelper::resizeProportional ( JPATH_ROOT . '/' . $photo->original, $photoPath, $imgType, $displayWidth );
 
 			if ($this->config->get ( 'deleteoriginalphotos' )) {
-				$originalPath = JPATH_ROOT . DS . $photo->original;
+				$originalPath = JPATH_ROOT . '/' . $photo->original;
 				if (JFile::exists ( $originalPath )) {
 					JFile::delete ( $originalPath );
 				}
@@ -3762,7 +3762,7 @@ class media {
 
 		// Show photo if required
 		if ($showPhoto) {
-			$info = getimagesize ( JPATH_ROOT . DS . $photo->image );
+			$info = getimagesize ( JPATH_ROOT . '/' . $photo->image );
 			// @rule: Clean whitespaces as this might cause errors when header is used.
 			$ob_active = ob_get_length () !== FALSE;
 
@@ -3782,7 +3782,7 @@ class media {
 
 	// called by uploadPhotos
 	private function _checkUploadedFile($imageFile, $album, $handler) {
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'controllers' . DS . 'photos.php';
+		require_once JPATH_ROOT . '/components/com_community/controllers/photos.php';
 
 		if (! $this->_validImage ( $imageFile )) {
 			IJReq::setResponse(415);
@@ -3822,8 +3822,8 @@ class media {
 		$photoTable = JTable::getInstance ( 'Photo', 'CTable' );
 
 		// @todo: configurable paths?
-		$storage = JPATH_ROOT . DS . $this->config->getString ( 'photofolder' );
-		$albumPath = (empty ( $album->path )) ? '' : $album->id . DS;
+		$storage = JPATH_ROOT . '/' . $this->config->getString ( 'photofolder' );
+		$albumPath = (empty ( $album->path )) ? '' : $album->id . '/';
 
 		// Test if the photos path really exists.
 		jimport ( 'joomla.filesystem.file' );
@@ -3859,7 +3859,7 @@ class media {
 				IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 				return false;
 			}
-			JFile::copy ( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'index.html', $originalPath . DS . 'index.html' );
+			JFile::copy ( JPATH_ROOT . '/components/com_community/index.html', $originalPath '/index.html' );
 		}
 
 		$locationPath = $handler->getLocationPath ( $storage, $albumPath, $album->id );
@@ -3870,11 +3870,11 @@ class media {
 				IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 				return false;
 			}
-			JFile::copy ( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'index.html', $locationPath . DS . 'index.html' );
+			JFile::copy ( JPATH_ROOT . '/components/com_community/index.html', $locationPath '/index.html' );
 		}
 
 		$thumbPath = $handler->getThumbPath ( $storage, $album->id );
-		$thumbPath = $thumbPath . DS . $albumPath . 'thumb_' . $hashFilename . CImageHelper::getExtension ( $imageFile ['type'] );
+		$thumbPath = $thumbPath . '/' . $albumPath . 'thumb_' . $hashFilename . CImageHelper::getExtension ( $imageFile ['type'] );
 		CPhotos::generateThumbnail ( $imageFile ['tmp_name'], $thumbPath, $imgType );
 
 		// Original photo need to be kept to make sure that, the gallery works
@@ -3885,11 +3885,11 @@ class media {
 			return false;
 		}
 
-		$photoTable->original = CString::str_ireplace ( JPATH_ROOT . DS, '', $originalFile );
+		$photoTable->original = CString::str_ireplace ( JPATH_ROOT . '/', '', $originalFile );
 
 		// In joomla 1.6, CString::str_ireplace is not replacing the path properly. Need to do a check here
 		if ($photoTable->original == $originalFile)
-			$photoTable->original = str_ireplace ( JPATH_ROOT . DS, '', $originalFile );
+			$photoTable->original = str_ireplace ( JPATH_ROOT . '/', '', $originalFile );
 
 		// Set photos properties
 		$caption = IJReq::getTaskData('caption','');
@@ -3950,7 +3950,7 @@ class media {
 
 	//
 	private function _rotatePhoto($imageFile, $photoTable, $storedPath, $thumbPath) {
-		require_once JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'controllers' . DS . 'photos.php';
+		require_once JPATH_ROOT . '/components/com_community/controllers/photos.php';
 
 		// Read orientation data from original file
 		$orientation = CImageHelper::getOrientation ( $imageFile ['tmp_name'] );
@@ -4005,13 +4005,13 @@ class media {
 		// @todo: We assume now that the config is using the relative path to the
 		// default images folder in Joomla.
 		// @todo:  this folder creation should really be in its own function
-		$albumPath = ($albumId == 0) ? '' : DS . $albumId;
-		$originalPathFolder = JPATH_ROOT . DS . $this->config->getString ( 'photofolder' ) . DS . JPath::clean ( $this->config->get ( 'originalphotopath' ) );
-		$originalPathFolder = $originalPathFolder . DS . $this->my->id . $albumPath;
+		$albumPath = ($albumId == 0) ? '' . '/' . $albumId;
+		$originalPathFolder = JPATH_ROOT . '/' . $this->config->getString ( 'photofolder' ) . '/' . JPath::clean ( $this->config->get ( 'originalphotopath' ) );
+		$originalPathFolder = $originalPathFolder . '/' . $this->my->id . $albumPath;
 
 		if (! JFile::exists ( $originalPathFolder )) {
 			JFolder::create ( $originalPathFolder, ( int ) octdec ( $this->config->get ( 'folderpermissionsphoto' ) ) );
-			JFile::copy ( JPATH_ROOT . DS . 'components' . DS . 'com_community' . DS . 'index.html', $originalPathFolder . DS . 'index.html' );
+			JFile::copy ( JPATH_ROOT . '/components/com_community/index.html', $originalPathFolder '/index.html' );
 		}
 
 		if (! JFile::copy ( $tmpPath, $destPath )) {
@@ -4024,7 +4024,7 @@ class media {
 
 	//
 	private function _getHandler(CTableAlbum $album) {
-		require_once JPATH_ROOT . DS . "components" . DS . "com_community" . DS . "controllers" . DS . "photos.php";
+		require_once JPATH_ROOT . "/components/com_community/controllers/photos.php";
 		$handler = null;
 
 		// During AJAX calls, we might not be able to determine the groupid
@@ -4257,13 +4257,13 @@ class media {
 		// Get a hash for the file name.
 		$fileName = JUtility::getHash ( $photo->id . time () );
 		$hashFileName = JString::substr ( $fileName, 0, 24 );
-		$photoPath = JPATH_ROOT . DS . $photo->image; //$photo->original;
+		$photoPath = JPATH_ROOT . '/' . $photo->image; //$photo->original;
 
 
 		if ($photo->storage == 'file') {
 			// @rule: If photo original file still exists, we will use the original file.
 			if (! JFile::exists ( $photoPath )) {
-				$photoPath = JPATH_ROOT . DS . $photo->image;
+				$photoPath = JPATH_ROOT . '/' . $photo->image;
 			}
 
 			// @rule: If photo still doesn't exists, we should not allow the photo to be changed.
@@ -4282,7 +4282,7 @@ class media {
 				return false;
 			}
 			$jConfig = JFactory::getConfig ();
-			$photoPath = $jConfig->getValue ( 'tmp_path' ) . DS . md5 ( $photo->image );
+			$photoPath = $jConfig->getValue ( 'tmp_path' ) . '/' . md5 ( $photo->image );
 
 			// Store image on temporary location
 			JFile::write ( $photoPath, $content );
@@ -4291,9 +4291,9 @@ class media {
 		$info = getimagesize ( $photoPath );
 		$extension = CImageHelper::getExtension ( $info ['mime'] );
 
-		$storage = JPATH_ROOT . DS . $this->config->getString ( 'imagefolder' ) . DS . 'avatar';
-		$storageImage = $storage . DS . $hashFileName . $extension;
-		$storageThumbnail = $storage . DS . 'thumb_' . $hashFileName . $extension;
+		$storage = JPATH_ROOT . '/' . $this->config->getString ( 'imagefolder' ) '/avatar';
+		$storageImage = $storage . '/' . $hashFileName . $extension;
+		$storageThumbnail = $storage '/thumb_' . $hashFileName . $extension;
 		$image = $this->config->getString ( 'imagefolder' ) . '/avatar/' . $hashFileName . $extension;
 		$thumbnail = $this->config->getString ( 'imagefolder' ) . '/avatar/' . 'thumb_' . $hashFileName . $extension;
 		$userModel = CFactory::getModel ( 'user' );
@@ -4467,7 +4467,7 @@ class media {
 			if ($video->type == 'file') {
 				$ext = JFile::getExt ( $video->path );
 
-				if ($ext == 'mov' && file_exists ( JPATH_SITE . DS . $video->path )) {
+				if ($ext == 'mov' && file_exists ( JPATH_SITE . '/' . $video->path )) {
 					$video_file = JURI::root () . $video->path;
 				} else {
 					$lastpos = strrpos ( $video->path, '.' );
@@ -4485,7 +4485,7 @@ class media {
 
 			$this->jsonarray ['videos'] [$key] ['id'] = $video->id;
 			$this->jsonarray ['videos'] [$key] ['caption'] = $video->title;
-			$this->jsonarray ['videos'] [$key] ['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components' . DS . 'com_community' . DS . 'assets' . DS . 'video_thumb.png';
+			$this->jsonarray ['videos'] [$key] ['thumb'] = ($video->thumb) ? $p_url . $video->thumb : JURI::base () . 'components/com_community/assets/video_thumb.png';
 			$this->jsonarray ['videos'] [$key] ['url'] = $video_file;
 			$this->jsonarray ['videos'] [$key] ['description'] = $video->description;
 			$this->jsonarray ['videos'] [$key] ['date'] = $this->jomHelper->timeLapse ( $this->jomHelper->getDate ( $video->created ) );

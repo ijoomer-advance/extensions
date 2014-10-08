@@ -35,7 +35,7 @@ class items
      *
      */
 	function archive(){
-		include_once  JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'archive.php' ;
+		include_once  JPATH_SITE . '/components/com_content/models/archive.php' ;
 		$ContentModelArchive = new ContentModelArchive();
 		$items = $ContentModelArchive->getItems();
 
@@ -61,7 +61,7 @@ class items
      *
      */
 	function featured(){
-		JModel::addIncludePath(JPATH_SITE.'/components/com_content/models', 'ContentModel');
+		JModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 		$model =& JModel::getInstance('Featured', 'ContentModel', array('ignore_request'=>true));
 
 		$appParams = JComponentHelper::getParams('com_content');
@@ -102,7 +102,7 @@ class items
 	public function search(){
 		$keyword = IJReq::getTaskData('key','');
 
-		JModel::addIncludePath(JPATH_SITE.'/components/com_content/models', 'ContentModel');
+		JModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 		$model =& JModel::getInstance('Articles', 'ContentModel', array('ignore_request'=>true));
 		$appParams = JComponentHelper::getParams('com_content');
 		//set search type
@@ -227,7 +227,7 @@ class items
 	 *
 	 */
 	private function getarticleDetail($id){
-		include_once  JPATH_SITE . DS . 'components' . DS . 'com_content' . DS . 'models' . DS . 'article.php' ;
+		include_once  JPATH_SITE . '/components/com_content/models/article.php' ;
 		$ContentModelArticle = new ContentModelArticle();
 		$items = $ContentModelArticle->getItem($id);
 

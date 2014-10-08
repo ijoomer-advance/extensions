@@ -261,7 +261,7 @@ class items {
         		$this->db->setQuery($query);
         		$created_by_name = $this->db->loadResult();
         		$itemArray['items'][$key]['createdByName']    = $created_by_name;
-				require_once JPATH_SITE.DS.'components'.DS.'com_k2'.DS.'models'.DS.'item.php';
+				require_once JPATH_SITE . '/components/com_k2/models/item.php';
 				$K2ModelItem = new K2ModelItem();
 
 				$itemArray['items'][$key]['tags'] = (count($K2ModelItem->getItemTags($value->id))>0) ? $K2ModelItem->getItemTags($value->id) : '';
@@ -435,7 +435,7 @@ class items {
         	$this->db->setQuery($query);
         	$created_by_name = $this->db->loadResult();
         	$itemArray['items'][$key]['createdByName']    = $created_by_name;
-			require_once JPATH_SITE.DS.'components'.DS.'com_k2'.DS.'models'.DS.'item.php';
+			require_once JPATH_SITE . '/components/com_k2/models/item.php';
 			$K2ModelItem = new K2ModelItem();
 			$itemArray['items'][$key]['tags'] = (count($K2ModelItem->getItemTags($value->id))>0) ? $K2ModelItem->getItemTags($value->id) : '';
 			$itemArray['items'][$key]['ratings'] = (count($K2ModelItem->getRating($value->id))>0) ? $K2ModelItem->getRating($value->id) : '';
@@ -641,7 +641,7 @@ class items {
         		$this->db->setQuery($query);
         		$created_by_name = $this->db->loadResult();
         		$itemArray['items'][$key]['createdByName']    = $created_by_name;
-				require_once JPATH_SITE.DS.'components'.DS.'com_k2'.DS.'models'.DS.'item.php';
+				require_once JPATH_SITE . '/components/com_k2/models/item.php';
 				$K2ModelItem = new K2ModelItem();
 				$itemArray['items'][$key]['tags'] = (count($K2ModelItem->getItemTags($value->id))>0) ? $K2ModelItem->getItemTags($value->id) : '';
 				$itemArray['items'][$key]['ratings'] = (count($K2ModelItem->getRating($value->id))>0) ? $K2ModelItem->getRating($value->id) : '';
@@ -841,7 +841,7 @@ class items {
         		$this->db->setQuery($query);
         		$created_by_name = $this->db->loadResult();
         		$itemArray['items'][$key]['createdByName']    = $created_by_name;
-				require_once JPATH_SITE.DS.'components'.DS.'com_k2'.DS.'models'.DS.'item.php';
+				require_once JPATH_SITE . '/components/com_k2/models/item.php';
 				$K2ModelItem = new K2ModelItem();
 				$itemArray['items'][$key]['tags'] = (count($K2ModelItem->getItemTags($value->id))>0) ? $K2ModelItem->getItemTags($value->id) : '';
 				$itemArray['items'][$key]['ratings'] = (count($K2ModelItem->getRating($value->id))>0) ? $K2ModelItem->getRating($value->id) : '';
@@ -1046,7 +1046,7 @@ class items {
         		$this->db->setQuery($query);
         		$created_by_name = $this->db->loadResult();
         		$itemArray['items'][$key]['createdByName']    = $created_by_name;
-				require_once JPATH_SITE.DS.'components'.DS.'com_k2'.DS.'models'.DS.'item.php';
+				require_once JPATH_SITE . '/components/com_k2/models/item.php';
 				$K2ModelItem = new K2ModelItem();
 				$itemArray['items'][$key]['tags'] = (count($K2ModelItem->getItemTags($value->id))>0) ? $K2ModelItem->getItemTags($value->id) : '';
 				$itemArray['items'][$key]['ratings'] = (count($K2ModelItem->getRating($value->id))>0) ? $K2ModelItem->getRating($value->id) : '';
