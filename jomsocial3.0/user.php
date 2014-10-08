@@ -132,17 +132,6 @@ class user{
 		$this->jsonarray['disliked']	= $likes->disliked;
 		$this->jsonarray['isprofilelike']=($user->getParams()->get('profileLikes', true)) ? 1 : 0;
 
-		/*$query="SELECT coverpic
-				FROM #__ijoomeradv_users
-				WHERE `userid`={$userID}";
-		$this->db->setQuery($query);
-		$coverpic = $this->db->loadResult();
-
-		if($coverpic){
-			$photos =& JTable::getInstance('Photo', 'CTable');
-			$photos->load($coverpic);
-			$this->jsonarray['coverpic']=JURI::base() .$photos->original;
-		}*/
 		if($usr->cover)
 		{
 			$this->jsonarray['coverpic']=$usr->cover;
@@ -220,7 +209,6 @@ class user{
      */
 	function updateProfile(){
 		$name		= IJReq::getTaskData('name','');
-		//$message	= IJReq::getTaskData('status','');
 		$file = JRequest::getVar('image','','FILES','array');
 
 		// check if avatar is uploaded to change.
@@ -370,7 +358,6 @@ class user{
 			//trim it here so that it wun go into activities stream.
 			$message = JString::trim($message);
 			CFactory::load( 'models' , 'status' );
-			//$status	=CFactory::getModel('status');
 
 			// @rule: Spam checks
 			if( $this->config->get( 'antispam_akismet_status') ){
@@ -703,18 +690,12 @@ class user{
 			$isNew=($this->db->loadResult() <= 0) ? true : false;
 
 			if(!$isNew){
-				/*$query="UPDATE #__community_fields_values
-						SET `value`='{$fvalue[0]}',
-						`access`={$fvalue[1]}
-						WHERE `user_id` ={$this->IJUserID}
-						AND `field_id`={$fid}";	*/
+
 				$fvalue[0] = addslashes($fvalue[0]);
 				$query = " UPDATE #__community_fields_values
 						SET `value`='$fvalue[0]', `access`=$fvalue[1]
 						WHERE `user_id`=$this->IJUserID AND `field_id`=$fid";
 			}else{
-				/*$query="INSERT INTO #__community_fields_values'
-            			SET `user_id`={$this->IJUserID}, `field_id`={$fid}, `value`='{$fvalue[0]}', `access`='{$fvalue[1]}'";*/
 				$fvalue[0] = addslashes($fvalue[0]);
 				$query="INSERT INTO #__community_fields_values (user_id,field_id,value,access)
             			VALUES ({$this->IJUserID}, {$fid}, '{$fvalue[0]}', '{$fvalue[1]}')";
@@ -1159,28 +1140,6 @@ class user{
 		//update notification counter
 		return $this->jsonarray;
 	}
-
-
-	/**
-	 * @uses function to get activities
-	 * @example the json string will be like, :
-	 * 	{
-	 * 		"extName":"jomsocial",
-	 *		"extView":"user",
- 	 *		"extTask":"activities",
-	 * 		"taskData":{
-	 * 			"pageNO":"pageNO"
-	 * 		}
-	 * 	}
-	 *
-	 */
-	/*function activities(){
-
-
-
-		return $this->jsonarray;
-	}*/
-
 
 	/**
 	 * @uses function to get activities

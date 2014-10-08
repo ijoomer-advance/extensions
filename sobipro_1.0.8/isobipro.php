@@ -1829,7 +1829,7 @@ class isobipro extends SPEntryCtrl {
             $en[ 'author' ] = $entry->get( 'owner' );
             $en[ 'counter' ] = $entry->get( 'counter' );
             $en[ 'approved' ] = $entry->get( 'approved' );
-            //		$en[ 'confirmed' ] = $entry->get( 'confirmed' );
+
             if ( Sobi::Cfg( 'list.entry_cats', true ) ) {
                 $cats = $entry->get( 'categories' );
                 $categories = array();

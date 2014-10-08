@@ -77,7 +77,7 @@ jimport('joomla.html.pane');
 				}
 		   		varToBox.options[varToBox.length] = newOption; //Append the item in Target Listbox
 		   		varFromBox.options[varFromBox.options.selectedIndex].selected=false;
-		   	   //varFromBox.remove(varFromBox.options.selectedIndex); //Remove the item from Source Listbox
+		   	    //Remove the item from Source Listbox
 			}
 			for(i=0;i<varToBox.length;i++){
 				varToBox.options[i].selected=true;
@@ -261,16 +261,7 @@ jimport('joomla.html.pane');
 									</select>
 								</td>
 							</tr>
-							<!-- <tr>
-								<td class="paramlist_key" width="40%">
-									<span class="hasTip" title="<?php //echo JText::_( 'SOBIPRO_MAX_RADIUS_SEARCH' ); ?>::<?php //echo JText::_('SOBIPRO_MAX_RADIUS_SEARCH_EXPLAIN'); ?>">
-									<?php //echo JText::_( 'SOBIPRO_MAX_RADIUS_SEARCH' ); ?>
-									</span>
-								</td>
-								<td>
-									<input type="text" name="sobipro_Max_Radius_Search" id="sobipro_Max_Radius_Search" value="<?php //echo $this->cfg["sobipro_Max_Radius_Search"];?>" />
-								</td>
-							</tr> -->
+
 							<tr>
 								<td class="paramlist_key" width="40%">
 									<span class="hasTip" title="<?php echo JText::_( 'SOBIPRO_MAX_SEARCH' ); ?>::<?php echo JText::_('SOBIPRO_MAX_SEARCH_EXPLAIN'); ?>">

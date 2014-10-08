@@ -2707,17 +2707,6 @@ class media {
 				$videodata['shareLink'] = JURI::base () . "index.php?option=com_community&view=videos&task=video&userid={$video->creator}&videoid={$video->id}";
 			}
 
-			/*$photoModel	=& CFactory::getModel( 'photos' );
-			$albums		= $photoModel->getGroupAlbums($group->id);
-
-			$pushcontentdata['id']	= $group->id;
-			$allowManageVideos	= CGroupHelper::allowManageVideo( $group->id );
-			if( $allowManageVideos && $this->config->get('groupvideos') && $this->config->get('enablevideos') ){
-				$pushcontentdata['addVideo'] = 1;
-			}else{
-				$pushcontentdata['addVideo'] = 0;
-			}*/
-
 			$query = "SELECT count(id)
 					FROM #__community_videos_tag
 					WHERE `videoid`={$video->id}";

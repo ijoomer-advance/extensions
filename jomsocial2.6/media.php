@@ -2034,12 +2034,6 @@ class media {
 			$user = &CFactory::getUser ( $value->userid );
 			$this->jsonarray ['tags'] [$key] ['user_id'] = ($this->IJUserID == $user->id) ? 0 : $user->id;
 			$this->jsonarray ['tags'] [$key] ['user_name'] = $this->jomHelper->getName ( $user );
-			/*if ($user->_thumb) {
-				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . $user->_thumb;
-			} else {
-				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . 'components/com_community/assets/photo_thumb.png';
-			}*/
-
 			$access_limit = $this->jomHelper->getUserAccess ( $this->IJUserID, $user->id );
 			$params = $user->getParams ();
 			$profileview = $params->get ( 'privacyProfileView' ); // get profile view access
@@ -3756,8 +3750,6 @@ class media {
 			}
 
 			header ( 'Content-type: ' . $info ['mime'] );
-			//echo JFile::read( $photoPath );
-		//exit;
 		}
 	}
 

@@ -359,7 +359,7 @@ class friend{
 				$act->cmd 		= 'friends.request.approve';
 				$act->actor   	= $connected[0];
 				$act->target  	= $connected[1];
-				$act->title	  	= '';//JText::_('COM_COMMUNITY_ACTIVITY_FRIENDS_NOW');
+				$act->title	  	= '';
 				$act->content	= '';
 				$act->app		= 'friends.connect';
 				$act->cid		= 0;

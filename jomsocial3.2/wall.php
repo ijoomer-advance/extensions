@@ -515,16 +515,12 @@ class wall{
 						$activeGroup = $groupsModel->getMostActiveGroup();
 						if( !is_null($activeGroup)) {
 							$this->getGroupData($activeGroup->id,$this->jsonarray['update'][$inc]['group_data']);
-//							$this->jsonarray['update'][$inc]['group_data']['groupname'] 	= $activeGroup->name;
-//							$this->jsonarray['update'][$inc]['group_data']['groupmembercount'] = JText::sprintf( (CStringHelper::isPlural( $activeGroup->getMembersCount())) ? 'COM_COMMUNITY_GROUPS_MEMBER_COUNT_MANY' : 'COM_COMMUNITY_GROUPS_MEMBER_COUNT' , $activeGroup->getMembersCount() );
+
 						}
 						$this->jsonarray['update'][$inc]['titletag'] = $titletag;
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete','activities.'.$html->id));
 						break;
 					case 'groups':
-						/*$srch = array("&#9658;","&quot;");
-						$rplc = array("►","\"");
-						$this->jsonarray['update'][$inc]['titletag'] = str_replace($srch,$rplc,strip_tags($titletag));*/
 						$this->jsonarray['update'][$inc]['titletag'] = $titletag;
 						$content_id = $this->getActivityContentID($html->id);
 						$this->jsonarray['update'][$inc]['type'] = 'group';
@@ -604,7 +600,7 @@ class wall{
 							$this->jsonarray['update'][$inc]['content_data']['date'] 			= CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 							$this->jsonarray['update'][$inc]['content_data']['isLocked']		= $discussion->lock;
 
-							if($type=='group'){//echo '<pre>';print_r($html);exit;
+							if($type=='group'){
 								$this->jsonarray['update'][$inc]['liked'] 			= ($html->userLiked>=0) ? 0 : 1 ;
 							}
 
@@ -811,8 +807,7 @@ class wall{
 						break;
 
 					default:
-//						$srch = array("&#9658;","&quot;");
-//						$rplc = array("►","\"");
+
 						$actor = CFactory::getUser($html->actor);
 						$srch = array('{actor}',"&#9658;","&quot;");
 						$rplc = array($actor->getDisplayName(),"►","\"");
@@ -1564,7 +1559,6 @@ class wall{
 			$table->store();
 
 			$comment = CWall::formatComment($act);
-			//$objResponse->addScriptCall('joms.miniwall.insert', $actid, $comment);
 
 			//notification for activity comment
 			//case 1: user's activity
@@ -2074,7 +2068,6 @@ class wall{
 			}
 		}else{
 			// Cannot comment on non-friend stream.
-			//IJReq::setResponse(706,JText::_('Permission denied'));
 			IJReq::setResponse(704,JText::_('Session expire'));
 			IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 			return false;
@@ -2140,43 +2133,6 @@ class wall{
 			$activity->delete($type);
 		}
 
-		/*switch($type){
-			case 'groups.wall':
-				$act	=& JTable::getInstance( 'Activity' , 'CTable' );
-				$act->load($uniqueID);
-				$group_id = $act->groupid;
-
-				$group		  =& JTable::getInstance( 'Group' , 'CTable' );
-				$group->load( $group_id );
-
-				//superadmin, group creator can delete all the activity while normal user can delete thier own post only
-				if($user->authorise('community.delete','activities.'.$uniqueID, $group)){
-					$model->deleteActivity( $type, $uniqueID, $group );
-				}
-				break;
-			case 'events.wall':
-				//to retrieve the event id
-				$act	=& JTable::getInstance( 'Activity' , 'CTable' );
-				$act->load($uniqueID);
-				$event_id = $act->eventid;
-
-				$event		  =& JTable::getInstance( 'Event' , 'CTable' );
-				$event->load( $event_id );
-
-				if($user->authorise('community.delete','activities.'.$uniqueID, $event)){
-					$model->deleteActivity( $type, $uniqueID, $event);
-					$wall =CFactory::getModel('wall');
-					$wall->deleteAllChildPosts($uniqueID, $type);
-				}
-				break;
-			default:
-				//delete if this activity belongs to the current user
-				if($user->authorise('community.delete','activities.'.$uniqueID)){
-					$model->deleteActivity( $type, $uniqueID );
-				}else{
-					$model->hide( $id, $uniqueID );
-				}
-			}*/
 		$this->jsonarray['code']=200;
 		return $this->jsonarray;
 	}
@@ -2186,7 +2142,6 @@ class wall{
 		$filter = JFilterInput::getInstance();
 		$wallid = $filter->clean($wallid, 'int');
 
-		//CFactory::load('helper', 'owner');
 		$table =& JTable::getInstance('Wall', 'CTable');
 		$table->load($wallid);
 		if($table->delete()){

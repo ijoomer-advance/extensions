@@ -68,13 +68,6 @@ class jomHelper{
 
 	function getjomsocialversion(){
 
-		/*$parser		=& JFactory::getXMLParser('Simple');
-		$xml		= JPATH_ROOT . '/administrator/components/com_community/community.xml';
-		$parser->loadFile( $xml );
-		$doc		=& $parser->document;
-		$element	=& $doc->getElementByPath( 'version' );
-		return	$version= $element->data();*/
-
 		$xmlfile		= JPATH_ROOT . '/administrator/components/com_community/community.xml';
 		$xml = JFactory::getXML($xmlfile,1);
 		$version = (string)$xml->version;
@@ -244,17 +237,13 @@ class jomHelper{
 		stream_context_set_option($ctx, 'ssl', 'local_cert', $keyCertFilePath);
 
 		// assume the private key passphase was removed.
-		//stream_context_set_option($ctx, 'ssl', 'passphrase', $pass);
 
 		$fp = stream_socket_client($server, $err, $errstr, 60, STREAM_CLIENT_CONNECT, $ctx);
 		// for production change the server to ssl://gateway.push.apple.com:219
 
 		if (!$fp){
-			//print "Failed to connect $err $errstr\n";
 			return;
 		}
-		//
-		//$payload = '{"aps": {"badge": 1, "alert": "Hello from iJoomer!", "sound": "cow","type":"online"}}';//json_encode($body);
 		$payload = json_encode($body);
 
 		$msg = chr(0) . pack("n",32) . pack('H*', str_replace(' ', '', $device_token)) . pack("n",strlen($payload)) . $payload;
@@ -293,25 +282,6 @@ class jomHelper{
 			}
 		}
 		return $address;
-		/*$myKey = GOOGLEAPI;
-		$base_url = 'http://maps.google.com/maps/geo?output=xml'.'&key='.$myKey;
-
-		if($lattitude!='' && $longitude!=''){
-			$location=array($lattitude,$longitude);
-			$loc=implode(',',$location);
-			$request_url = $base_url.'&q='.urlencode($loc);
-			$xml = simplexml_load_file($request_url) or die('url not loading');
-			$status = $xml->Response->Status->code;
-			if(strcmp($status, '200') == 0){
-				// Successful geocode
-				$add = (string)$xml->Response->Placemark->address;
-				return $add;
-			}else{
-				return '';
-			}
-		}else{
-			return '';
-		}*/
 	}
 
 	// get title from location.
@@ -345,8 +315,6 @@ class jomHelper{
                 	}else{
                 		return '';
 					}
-					 //exit;
-					//echo "<pre>";print_r($address);exit;
 				}else{
 					return '';
 				}
@@ -356,41 +324,6 @@ class jomHelper{
 		}else{
 				return '';
 			}
-		/*$myKey = GOOGLEAPI;
-		$base_url = 'http://maps.google.com/maps/geo?output=xml'.'&key='.$myKey;
-		if($location!=''){
-			$request_url = $base_url.'&q='.urlencode($location);
-			$xml = simplexml_load_file($request_url) or die('url not loading');
-			$status = $xml->Response->Status->code;
-			$title=array();
-			if(strcmp($status, '200') == 0){
-				// Successful geocode
-				$locality = (string)$xml->Response->Placemark->AddressDetails->Country->AdministrativeArea->Locality->LocalityName;
-				if($locality==''){
-					$locality = (string)$xml->Response->Placemark->AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->LocalityName;
-					if($locality==''){
-						$locality = (string)$xml->Response->Placemark->AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->SubAdministrativeAreaName;
-					}
-				}
-                $title[] = $locality;
-
-                $locality1 = (string)$xml->Response->Placemark->AddressDetails->Country->CountryName;
-                if($locality1==''){
-                	$locality1 = (string)$xml->Response->Placemark->AddressDetails->Country->AdministrativeArea->AdministrativeAreaName;
-                }
-				$title[] = $locality1;
-				if(count($title)){
-					$add=implode(', ',$title);
-					return  addslashes($add);
-                }else{
-                	return '';
-				}
-			}else{
-				return '';
-			}
-		}else{
-			return '';
-		}*/
 	}
 
 	function timeLapse($date){
@@ -720,24 +653,6 @@ class jomHelper{
 				}
 				break;
 			case 'album':
-				/*$album	=& JTable::getInstance( 'Album' , 'CTable' );
-				$album->load( $itemId );
-				if($album->id){
-					$query="SELECT `jomsocial_params`,`device_token`,`device_type`
-						FROM #__ijoomeradv_users
-						WHERE `userid`={$album->creator}";
-					$this->db->setQuery($query);
-					$puser=$this->db->loadObjectList();
-					$ijparams = new CParameter($puser->jomsocial_params);
-					if($ijparams->get('pushnotif_videos_like')==1 && $album->creator!=$this->IJUserID && !empty($puser)){
-						$sendpushflag = true;
-
-						$usr=$this->getUserDetail($this->IJUserID);
-						$search = array('{actor}','{album}');
-						$replace = array($usr->name,$album->title);
-						$message = str_replace($search,$replace,JText::_('COM_COMMUNITY_ALBUM_LIKE_EMAIL_SUBJECT'));
-					}
-				}*/
 				break;
 			case 'videos':
 				$video			=& JTable::getInstance( 'Video' , 'CTable' );
@@ -1449,24 +1364,6 @@ class jomHelper{
 				}
 				break;
 			case 'album':
-				/*$album	=& JTable::getInstance( 'Album' , 'CTable' );
-				$album->load( $itemId );
-				if($album->id){
-					$query="SELECT `jomsocial_params`,`device_token`,`device_type`
-						FROM #__ijoomeradv_users
-						WHERE `userid`={$album->creator}";
-					$this->db->setQuery($query);
-					$puser=$this->db->loadObjectList();
-					$ijparams = new CParameter($puser->jomsocial_params);
-					if($ijparams->get('pushnotif_videos_like')==1 && $album->creator!=$this->IJUserID && !empty($puser)){
-						$sendpushflag = true;
-
-						$usr=$this->getUserDetail($this->IJUserID);
-						$search = array('{actor}','{album}');
-						$replace = array($usr->name,$album->title);
-						$message = str_replace($search,$replace,JText::_('COM_COMMUNITY_ALBUM_LIKE_EMAIL_SUBJECT'));
-					}
-				}*/
 				break;
 			case 'videos':
 				$video			=& JTable::getInstance( 'Video' , 'CTable' );
@@ -1996,7 +1893,7 @@ class jomHelper{
 						$date         = CTimeHelper::getDate();
 
 						$users 			 = $usersModel->getUserRegisteredByMonth($now->format('Y-m'));
-						$totalRegistered = count($users); //$usersModel->getTotalRegisteredByMonth($now->format('Y-m'));
+						$totalRegistered = count($users);
 
 						$titletag	= JText::_('COM_COMMUNITY_TOTAL_USERS_REGISTERED_THIS_MONTH');
 						$titletag   .= "\n".JText::sprintf('COM_COMMUNITY_TOTAL_USERS_REGISTERED_THIS_MONTH_ACTIVITY_TITLE',$totalRegistered,$date->monthToString($now->format('%m')));
@@ -2205,7 +2102,6 @@ class jomHelper{
     			$sec 	= explode('.',$duration[2]);
 
     			$voicefiletext = $randomname.'.'.$fileext;
-    			//$durationtext = $minute.':'.$sec[0];
     			$durationtext = (($minute*60)+$sec[0]);
 
     			$fileinfo['voicetext'] 	=  '{voice}'.$voicefiletext.'&'.$durationtext.'{/voice}';

@@ -36,31 +36,4 @@ class easyblog_helper {
 		$result = $this->db_helper->loadObjectList();
 		return $result;
 	}
-
-	/*function getParseData($results){
-		$safeHtmlFilter = JFilterInput::getInstance(null, null, 1, 1);
-		$resultData = array();
-		switch ($results['view']){
-			case 'article':
-				$results['id'] = $safeHtmlFilter->clean($results['id'], 'int');
-				$resultData['itemview']='IcmsSingleArticle';
-				$resultData['itemdata']['id']=$results['id'];
-			break;
-
-			case 'featured':
-				$resultData['itemview']='IcmsFeaturedArticles';
-			break;
-
-			case 'category':
-				$resultData['itemview']=($results['layout']=='blog')?'IcmsCategoryBlog':'IcmsAllCategory';
-				$resultData['itemdata']['id']=$results['id'];
-			break;
-		}
-
-		if(!empty($resultData)){
-			$resultData['type'] = 'icms';
-		}
-
-		return $resultData;
-	}*/
 }
