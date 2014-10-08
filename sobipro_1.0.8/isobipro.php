@@ -24,48 +24,48 @@ jimport( 'joomla.application.component.view' );
 
 define( 'SOBIPRO'		,	true);
 define( 'SOBI_ROOT'		,	JPATH_ROOT );
-define( 'SOBI_PATH'		,	SOBI_ROOT.DS.'components'.DS.'com_sobipro' );
+define( 'SOBI_PATH'		,	SOBI_ROOT . '/components' . '/com_sobipro' );
 define( 'SOBI_DEFLANG'	,	JFactory::getConfig()->getValue( 'config.language' ) );
 define( 'SOBI_TASK'		,	'task' );
 define( 'SOBI_CMS'		,	'joomla16' );
 
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "fs" . DS . "loader.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "env" . DS . "cookie.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "object.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "config.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "factory.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "registry.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "request.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "const.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "cms"  . DS ."joomla16" . DS ."base" . DS . "lang.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "cms"  . DS ."joomla_common" . DS ."base" . DS . "lang.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "sobi.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/fs/loader.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/env/cookie.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/object.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/config.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/factory.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/registry.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/request.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/const.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/cms/joomla16/base/lang.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/cms/joomla_common/base/lang.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/sobi.php";
 if (file_exists(JPATH_SITE .'/components/com_sobipro/lib/models/review.php')) {
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" . DS . "review.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/review.php";
 }
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" . DS . "fields". DS . "interface.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "opt" . DS . "fields" . DS . "fieldtype.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/fields""/interface.php";
+require_once JPATH_SITE . "/components/com_sobipro/opt/fields/fieldtype.php";
 if (file_exists(JPATH_SITE .'/components/com_sobipro/opt/fields/geomap.php')) {
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "opt" . DS . "fields" . DS . "geomap.php";
+require_once JPATH_SITE . "/components/com_sobipro/opt/fields/geomap.php";
 }
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "cms" . DS . "joomla_common" . DS . "base"  .DS . "mainframe.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "interface.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "controller.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "exception.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" . DS . "fs" . DS . "loader.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/cms/joomla_common/base"  .'/'. "mainframe.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/interface.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/controller.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/exception.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/fs/loader.php";
 SPLoader::loadView( 'view' );
 SPLoader::loadClass( 'cms.base.fs' );
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "base" .DS . "filter.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" . DS ."section.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" .DS . "datamodel.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" .DS . "dbobject.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "entry.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" .DS . "entry.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" .DS . "category.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "views" .DS . "view.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "views" .DS . "entry.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "entry.php";
-require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "section.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/base/filter.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/section.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/datamodel.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/dbobject.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/entry.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/entry.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/models/category.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/views/view.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/views/entry.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/entry.php";
+require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/section.php";
 if (file_exists(JPATH_SITE .'/components/com_sobipro/lib/models/review.php')) {
 	class tmprating extends SPReview{
 		function __construct($rid=0){
@@ -2647,9 +2647,9 @@ class isobipro extends SPEntryCtrl {
 	    	$jsonarray['search']     = $addentryArray['addentry'];
 			return $jsonarray;
 	    }else{
-			require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "models" . DS . "entry.php";
-			require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "interface.php";
-			require_once JPATH_SITE . DS . "components" . DS . "com_sobipro" . DS . "lib" . DS . "ctrl" . DS . "entry.php";
+			require_once JPATH_SITE . "/components/com_sobipro/lib/models/entry.php";
+			require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/interface.php";
+			require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/entry.php";
 			defined( 'SOBI_ACL' ) || define( 'SOBI_ACL', 'front' );
 			$SPJoomlaMainFrame = new SPJoomlaMainFrame();
 			$token = $SPJoomlaMainFrame->token();

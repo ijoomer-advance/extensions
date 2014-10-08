@@ -29,8 +29,8 @@ class ichatmain
 
     	$this->options = array(
 			'script_url' => '',//$this->get_full_url().'/',
-			'upload_dir' => JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'uploads'.DS,//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-			'upload_url' => 'components'.DS.'com_jbolo'.DS.'uploads'.DS,// $this->get_full_url().'/files/',
+			'upload_dir' => JPATH_SITE . '/components/com_jbolo/uploads'.DS,//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
+			'upload_url' => 'components/com_jbolo/uploads'.DS,// $this->get_full_url().'/files/',
 			'user_dirs' => false,
 			'mkdir_mode' => 0755,
 			'param_name' => 'files',
@@ -115,9 +115,9 @@ class ichatmain
      */
 	function polling()
 	{
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$user=JFactory::getUser($uid);
 		if(!$uid){
@@ -312,9 +312,9 @@ class ichatmain
 	 * 	}
      */
 	function initiateNode(){
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$pid = IJReq::getTaskData('pid',0,'int');
 		if(!$uid){
@@ -422,9 +422,9 @@ class ichatmain
      */
 	function pushChatToNode()
 	{
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid',0,'int');
 		$msg = IJReq::getTaskData('message','');
@@ -594,9 +594,9 @@ class ichatmain
 	 * 	}
      */
 	function chatHistory(){
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid        = $this->IJUserID;
 		$nid        = IJReq::getTaskData('nid',0,'int');
 		$pageNO     = IJReq::getTaskData('pageNO');
@@ -1570,7 +1570,7 @@ return 1;
 	function processSmilies($text){
 		$params=JComponentHelper::getParams('com_jbolo');
 		$template=$params->get('template');
-		$smiliesfile=JFile::read(JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'jbolo'.DS.'assets'.DS.'smileys.txt');
+		$smiliesfile=JFile::read(JPATH_SITE . '/components/com_jbolo/jbolo/assets/smileys.txt');
 		$smilies=explode("\n",$smiliesfile);
 		foreach($smilies as $smiley)
 		{
@@ -1597,9 +1597,9 @@ return 1;
 	 * 	}
 	 */
 	function getAutoCompleteUserList(){
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		if(!$uid){
 			IJReq::setResponse( 704 );
@@ -1636,10 +1636,10 @@ return 1;
 	 */
 	function addNodeUser()
 	{
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$uid = $this->IJUserID;
 		if(!$uid){
 			IJReq::setResponse( 704 );
@@ -1936,10 +1936,10 @@ return 1;
 	 * 	}
 	 */
 	function getgroupParticipants(){
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid',0,'int');
 		if(!$uid){
@@ -2009,10 +2009,10 @@ return 1;
 	 * 	}
 	 */
 	function leaveChat(){
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'integrations.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'users.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'nodes.php';
-		require JPATH_SITE.DS.'components'.DS.'com_jbolo'.DS.'helpers'.DS.'chatBroadcast.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
+		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$actorid = $this->IJUserID;
 		if(!$actorid){
 			IJReq::setResponse( 704 );

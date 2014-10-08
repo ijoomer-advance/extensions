@@ -19,22 +19,22 @@ class sobipro
 	public $sessionWhiteList=array(	'isobipro.sectionCategories',
 									'isobipro.getsearchField',
 									'isobipro.addentryField');
-	
-	function init(){		
+
+	function init(){
 		$lang =& JFactory::getLanguage();
 		$lang->load('com_sobipro');
-		$plugin_path = JPATH_COMPONENT_SITE.DS.'extensions';
-		$lang->load('sobipro',$plugin_path.DS.'sobipro', $lang->getTag(), true);
+		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
+		$lang->load('sobipro',$plugin_path . '/sobipro', $lang->getTag(), true);
 	}
-	
+
 	function getconfig(){
 		$jsonarray=array();
 		return $jsonarray;
 	}
-	
+
 	function write_configuration( &$d ) {
 		$db =& JFactory::getDBO();
-		$query="SELECT * 
+		$query="SELECT *
 				From #__ijoomeradv_sobipro_config";
 		$db->setQuery($query);
 		$config_array=$db->loadObjectList();
@@ -43,33 +43,33 @@ class sobipro
 			if(isset($d[$config_name])){
 			$implode = implode(',',$d[$config_name]);
 				$query="UPDATE #__ijoomeradv_sobipro_config";
-				$query.=(is_array($d[$config_name])) ? " SET value='{$implode}'" : " SET value='{$d[$config_name]}'" ; 
+				$query.=(is_array($d[$config_name])) ? " SET value='{$implode}'" : " SET value='{$d[$config_name]}'" ;
 				$query.=" WHERE name='{$config_name}'";
 				$db->setQuery($query);
 				$db->query();
 			}
 		}
-	   return true;	
+	   return true;
    }
-	
+
    function prepareHTML(&$config){
 		$db =& JFactory::getDBO();
 		foreach($config as $key=>$value){
 			$config[$key]->caption=JText::_($value->caption);
 			$config[$key]->description=JText::_($value->description);
-			
+
 			switch($value->type){
 				case 'sobi_field':
-					$query="SELECT so.id,so.name  
-							FROM #__sobipro_object as so 
-							WHERE so.approved='1' 
-							AND so.confirmed 
-							AND so.oType='section' 
-							AND so.parent=0 
+					$query="SELECT so.id,so.name
+							FROM #__sobipro_object as so
+							WHERE so.approved='1'
+							AND so.confirmed
+							AND so.oType='section'
+							AND so.parent=0
 							AND so.state='1'";
 					$db->setQuery($query);
 					$sections = $db->loadObjectList();
-					
+
 					$space="@&nbsp;";
 					$explode=explode(',',$value->value);
 					$a = array();
@@ -77,21 +77,21 @@ class sobipro
 						$explode1=explode(':',$ex);
 						$a[]=$explode1[1];
 					}
-					
+
 					$input='<select class="inputbox" multiple="multiple" name="'.$value->name.'[]" id="'.$value->name.'" style="width: 180px;height:180px">';
 					foreach ($sections as $section){
 						$input.='<optgroup value="'.$section->id.'" label="'.$space."&nbsp;". $section->name.'">\n';
-						$query="SELECT sf.fid,sf.nid  
-								FROM #__sobipro_field as sf 
+						$query="SELECT sf.fid,sf.nid
+								FROM #__sobipro_field as sf
 								WHERE sf.enabled=1
 								AND sf.section={$section->id}";
 						$db->setQuery($query);
 						$fields = $db->loadObjectList();
 						if($fields){
 							foreach($fields as $field){
-								if(in_array($field->fid,$a)){ 
-									$selected = 'selected="selected"'; 
-								}else{ 
+								if(in_array($field->fid,$a)){
+									$selected = 'selected="selected"';
+								}else{
 									$selected = '';
 								}
 								$input.='<option value="'.$section->id.":".$field->fid.'" '.$selected.'>'.$field->nid.'</option>';
@@ -136,7 +136,7 @@ class sobipro_menu {
 								}
 							} );
 						} catch( e ) {}
-	
+
 						function SPValidate()
 						{
 							if( $( "spsection" ).value == 0 || $( "spsection" ).value == "" ) {
@@ -191,20 +191,20 @@ class sobipro_menu {
 						$( "sbox-btn-close" ).fireEvent( "click" );
 						semaphor = 0;
 					}';
-		
+
 				// Add the script to the document head.
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
-				
+
 				$html = '<fieldset class="panelform"><ul class="adminformlist"><li>
 							<label title="" class="" for="jform_request_SOBI_SELECT_SECTION" id="jform_request_SOBI_SELECT_SECTION-lbl" aria-invalid="false">'.JText::_('COM_IJOOMERADV_SELECT_SECTION').'
 								<span class="star">&nbsp;*</span>
 							</label>';
 				$html .= '<div style="margin-top: 2px;"><select id="spsection" class="text_area required" name="spsection" aria-required="true" required="required" aria-invalid="false">';
 				$html .= '<option value="0">Select section</option>';
-				
-				$query = "SELECT so.id,so.name 
-							FROM #__sobipro_object as so 
-							WHERE so.oType='section' AND so.parent=0"; 
+
+				$query = "SELECT so.id,so.name
+							FROM #__sobipro_object as so
+							WHERE so.oType='section' AND so.parent=0";
 				$db->setQuery($query);
 				$sections = $db->loadObjectList();
 				foreach ($sections as $key=>$value){
@@ -247,28 +247,28 @@ class sobipro_menu {
 				$html .= '</fieldset>';
 				return $html;
 				break;
-				
+
 			case 'addentryField':
 				$sid = $menuoptions['remoteUse']['sectionID'];
-				
+
 				$html = '<fieldset class="panelform"><ul class="adminformlist"><li>
 							<label title="" class="" for="jform_request_SOBI_SELECT_SECTION" id="jform_request_SOBI_SELECT_SECTION-lbl" aria-invalid="false">'.JText::_('COM_IJOOMERADV_SELECT_SECTION').'
 								<span class="star">&nbsp;*</span>
 							</label>';
-				
+
 				$html .= '<div style="margin-top: 2px;"><select id="spsection" class="text_area required" name="spsection" aria-required="true" required="required" aria-invalid="false">';
 				$html .= '<option value="0">Select section</option>';
 				$db = JFactory::getDBo();
-				$query="SELECT so.id,so.name 
-						FROM #__sobipro_object as so 
-						WHERE so.oType='section' 
-						AND so.parent=0"; 
+				$query="SELECT so.id,so.name
+						FROM #__sobipro_object as so
+						WHERE so.oType='section'
+						AND so.parent=0";
 				$db->setQuery($query);
 				$sections = $db->loadObjectList();
-				$query="SELECT so.parent 
-						FROM #__sobipro_object as so 
-						WHERE so.id={$sid} 
-						AND so.parent!=0"; 
+				$query="SELECT so.parent
+						FROM #__sobipro_object as so
+						WHERE so.id={$sid}
+						AND so.parent!=0";
 				$db->setQuery($query);
 				$parent = $db->loadResult();
 				foreach ($sections as $key=>$value){
@@ -294,7 +294,7 @@ class sobipro_menu {
 				break;
 		}
 	}
-	
+
 	public function setRequiredInput($extension,$extView,$extTask,$remoteTask,$menuoptions,$data){
 		$db = &JFactory::getDBO();
 		$options = null;
@@ -304,17 +304,17 @@ class sobipro_menu {
 				$featuredFirst = $menuoptions['featuredFirst'];
 				$options = '{"serverUse":{},"remoteUse":{"sectionID":"'.$_POST['spsection'].'","categoryID":"'.$menuoptions['sid'].'","pageLayout":"'.$pagelayout.'","featuredFirst":"'.$featuredFirst.'"}}';
 				break;
-			
+
 			case 'addentryField':
 				$sectionID = $_POST['spsection'];
 				$pagelayout = $menuoptions['pagelayout'];
 				$options = '{"serverUse":{},"remoteUse":{"sectionID":"'.$sectionID.'","pageLayout":"'.$pagelayout.'"}}';
 				break;
 		}
-		
+
 		if($options){
-			$sql = "UPDATE #__ijoomeradv_menu 
-					SET menuoptions = '".$options."' 
+			$sql = "UPDATE #__ijoomeradv_menu
+					SET menuoptions = '".$options."'
 					WHERE views = '".$extension.".".$extView.".".$extTask.".".$remoteTask."'
 					AND id='".$data['id']."'";
 			$db->setQuery($sql);

@@ -12,7 +12,7 @@
 defined('_JEXEC') or die;
 JHTML::_('behavior.tooltip');
 
-require_once JPATH_COMPONENT_SITE.DS.'extensions'.DS.'icms'.DS.'helper.php';
+require_once JPATH_COMPONENT_SITE . '/extensions/icms/helper.php';
 $icms_helper = new icms_helper();
 $categories = $icms_helper->getCategoryList();
 

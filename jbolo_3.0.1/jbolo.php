@@ -20,13 +20,13 @@ class jbolo {
 									'ichatmain.initiateNode',
 									'ichatmain.chathistory',
 									'ichatmain.upload_file');
-	
-	function init(){		
+
+	function init(){
 		$lang =& JFactory::getLanguage();
 		$lang->load('com_jbolo');
-		$lang->load('jbolo',JPATH_COMPONENT_SITE.DS.'extensions'.DS.'jbolo', $lang->getTag(), true);
+		$lang->load('jbolo',JPATH_COMPONENT_SITE . '/extensions/jbolo', $lang->getTag(), true);
 	}
-	
+
 	function getconfig(){
 		$jsonarray=array();
 		$params = JComponentHelper::getParams('com_jbolo');
@@ -35,28 +35,28 @@ class jbolo {
 		$jsonarray['maxChatUsers'] 	= $params->get('maxChatUsers');
 		$jsonarray['sendfile'] 		= $params->get('sendfile');
 		$jsonarray['maxSizeLimit'] 	= $params->get('maxSizeLimit');
-		return $jsonarray; 
+		return $jsonarray;
 	}
-	
+
 	function write_configuration(&$d) {
 		$db =JFactory::getDbo();
-		$query = 'SELECT * 
+		$query = 'SELECT *
 				  FROM #__ijoomeradv_jbolo_config';
 		$db->setQuery($query);
 		$my_config_array = $db->loadObjectList();
 		foreach ($my_config_array as $ke=>$val){
 			if(isset($d[$val->name])){
-				$sql = "UPDATE #__ijoomeradv_jbolo_config 
-						SET value='{$d[$val->name]}' 
+				$sql = "UPDATE #__ijoomeradv_jbolo_config
+						SET value='{$d[$val->name]}'
 						WHERE name='{$val->name}'";
 				$db->setQuery($sql);
 				$db->query();
 			}
 		}
-	}	
-	
+	}
+
 	function prepareHTML(&$config){
-		//jbolo related html tags	
+		//jbolo related html tags
 	}
 }
 
@@ -65,23 +65,23 @@ class jbolo_menu {
 		$menuoptions = json_decode($menuoptions,true);
 		$db = JFactory::getDbo();
 		switch ($extTask){
-			
+
 		}
 	}
-	
+
 	public function setRequiredInput($extension,$extView,$extTask,$remoteTask,$menuoptions,$data){
 		$db = &JFactory::getDBO();
 		$options = null;
 		switch ($extTask){
-				
+
 		}
-		
+
 		if($options){
-			$sql = "UPDATE #__ijoomeradv_menu 
-					SET menuoptions = '".$options."' 
+			$sql = "UPDATE #__ijoomeradv_menu
+					SET menuoptions = '".$options."'
 					WHERE views = '".$extension.".".$extView.".".$extTask.".".$remoteTask."'
 					AND id='".$data['id']."'";
-			
+
 			$db->setQuery($sql);
 			$db->query();
 		}
