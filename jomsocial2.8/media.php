@@ -1288,8 +1288,6 @@ class media {
 		//add user points
 		CFactory::load ( 'libraries', 'userpoints' );
 		CUserPoints::assignPoint ( 'videos.wall.create' );
-		//$response->addScriptCall( 'joms.walls.insert' , $wall->content );
-
 
 		$this->jsonarray ['code'] = 200;
 		return $this->jsonarray;
