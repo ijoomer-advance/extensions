@@ -281,7 +281,6 @@ class media {
 		$album = JTable::getInstance ( 'Album', 'CTable' );
 		$album->load ( $albumID );
 
-		//$postData	= JRequest::get('POST');
 		$postData = array ();
 		$postData ['name'] = ($name) ? $name : $album->name;
 		$postData ['description'] = ($desc) ? $desc : $album->description;
@@ -377,15 +376,12 @@ class media {
 				$photoModel	=& CFactory::getModel( 'photos' );
 				$albums		= $photoModel->getGroupAlbums($group->id);
 
-				//$pushcontentdata['id']	= $group->id;
 				CFactory::load ( 'helpers', 'group' );
 				$allowManagePhotos	= CGroupHelper::allowManagePhoto( $group->id );
 				if( $allowManagePhotos  && $this->config->get('groupphotos') && $this->config->get('enablephotos') ) {
 					$albumdata['uploadPhoto'] = ( $albums ) ? 1 : 0;
-					//$albumdata['createAlbum'] = 1;
 				}else{
 					$albumdata['uploadPhoto'] = 0;
-					//$albumdata['createAlbum'] = 0;
 				}
 
 				foreach ($puserlist as $puser){
@@ -735,7 +731,6 @@ class media {
 		CFactory::load ( 'libraries', 'userpoints' );
 		CUserPoints::assignPoint ( 'photos.wall.create' );
 
-		//$response->addScriptCall( 'joms.walls.insert' , $wall->content );
 		$this->jsonarray ['code'] = 200;
 		return $this->jsonarray;
 	}
@@ -1002,7 +997,6 @@ class media {
 		CFactory::load ( 'libraries', 'userpoints' );
 		CUserPoints::assignPoint ( 'photos.wall.create' );
 
-		//$response->addScriptCall( 'joms.walls.insert' , $wall->content );
 		$this->jsonarray ['code'] = 200;
 		return $this->jsonarray;
 	}
@@ -1271,8 +1265,6 @@ class media {
 		//add user points
 		CFactory::load ( 'libraries', 'userpoints' );
 		CUserPoints::assignPoint ( 'videos.wall.create' );
-		//$response->addScriptCall( 'joms.walls.insert' , $wall->content );
-
 
 		$this->jsonarray ['code'] = 200;
 		return $this->jsonarray;
@@ -1746,11 +1738,6 @@ class media {
 			$photoTable->caption = $caption;
 		}
 
-		// Remove the filename extension from the caption
-		/*if (JString::strlen ( $photoTable->caption ) > 4) {
-			$photoTable->caption = JString::substr ( $photoTable->caption, 0, JString::strlen ( $photoTable->caption ) - 4 );
-		}*/
-
 		// @todo: configurable options?
 		// Permission should follow album permission
 		$photoTable->published = '1';
@@ -1821,7 +1808,7 @@ class media {
 		if($profile){
 			$act->title = $photoTable->caption;
 		}else{
-			$act->title = '';//$this->my->getDisplayName () . " ► " . JText::sprintf ( $handler->getUploadActivityTitle (), '{multiUrl}', $album->name );
+			$act->title = '';
 		}
 		$act->content = ''; // Gegenerated automatically by stream. No need to add anything
 		$act->app = 'photos';
@@ -2026,11 +2013,6 @@ class media {
 			$user = &CFactory::getUser ( $value->userid );
 			$this->jsonarray ['tags'] [$key] ['user_id'] = ($this->IJUserID == $user->id) ? 0 : $user->id;
 			$this->jsonarray ['tags'] [$key] ['user_name'] = $this->jomHelper->getName ( $user );
-			/*if ($user->_thumb) {
-				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . $user->_thumb;
-			} else {
-				$this->jsonarray ['tags'] [$key] ['user_thumb'] = JURI::base () . 'components/com_community/assets/photo_thumb.png';
-			}*/
 
 			$access_limit = $this->jomHelper->getUserAccess ( $this->IJUserID, $user->id );
 			$params = $user->getParams ();
@@ -2690,17 +2672,6 @@ class media {
 				$videodata['shareLink'] = JURI::base () . "index.php?option=com_community&view=videos&task=video&userid={$video->creator}&videoid={$video->id}";
 			}
 
-			/*$photoModel	=& CFactory::getModel( 'photos' );
-			$albums		= $photoModel->getGroupAlbums($group->id);
-
-			$pushcontentdata['id']	= $group->id;
-			$allowManageVideos	= CGroupHelper::allowManageVideo( $group->id );
-			if( $allowManageVideos && $this->config->get('groupvideos') && $this->config->get('enablevideos') ){
-				$pushcontentdata['addVideo'] = 1;
-			}else{
-				$pushcontentdata['addVideo'] = 0;
-			}*/
-
 			$query = "SELECT count(id)
 					FROM #__community_videos_tag
 					WHERE `videoid`={$video->id}";
@@ -2836,7 +2807,6 @@ class media {
 			$filters = array ('limitstart' => ($pageNO == 0 || $pageNO == 1) ? 0 : (PAGE_VIDEO_LIMIT * ($pageNO - 1)), 'status' => 'ready', 'category_id' => IJReq::getTaskData ( 'categoryID', NULL ), 'permissions' => IJReq::getTaskData ( 'privacy', 0, 'int' ), 'sorting' => IJReq::getTaskData ( 'sort', 'latest' ) );
 		}
 
-		//$filters ['or_group_privacy'] = IJReq::getTaskData ( 'groupPrivacy', 0, 'int' );
 		$withlimit = (IJReq::getTaskData ( 'withLimit', 'true', 'bool' )) ? TRUE : FALSE;
 
 		$this->jsonarray = $this->videos ( $filters, PAGE_VIDEO_LIMIT, $withlimit );
@@ -2883,7 +2853,7 @@ class media {
 					WHERE userid=".$filters ['creator'];
 		$this->db->setQuery($query);
 		$params = new CParameter($this->db->loadResult());
-		//echo $access_limit;echo $params->get('privacyFriendsView');exit;
+
 		if($access_limit<$params->get('privacyVideoView')){
 			IJReq::setResponse( 706 );
 			IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
@@ -3307,7 +3277,6 @@ class media {
 
 		// Preset the redirect url according to group type or user type
 		CFactory::load ( 'helpers', 'videos' );
-		//$redirect = CVideosHelper::getVideoReturnUrlFromRequest ();
 		$group = JTable::getInstance ( 'Group', 'CTable' );
 		$group->load ( $groupID );
 
@@ -3511,7 +3480,6 @@ class media {
 		CFactory::load ( 'libraries', 'userpoints' );
 		CUserPoints::assignPoint ( 'video.add', $video->creator );
 		$this->jsonarray ['code'] = 200;
-		//$this->jsonarray['video_id'] = $video->id;
 		return $this->jsonarray;
 	}
 
@@ -3742,8 +3710,6 @@ class media {
 			}
 
 			header ( 'Content-type: ' . $info ['mime'] );
-			//echo JFile::read( $photoPath );
-		//exit;
 		}
 	}
 
@@ -4417,7 +4383,6 @@ class media {
 		$searchModel->setState ( 'limit', PAGE_VIDEO_LIMIT );
 		$searchModel->setState ( 'limitstart', $startFrom );
 		$result = $searchModel->searchVideo ( $qString );
-		//$pagination	 = $searchModel->getPagination();
 		$total = $searchModel->getTotal ();
 		if ($total > 0) {
 			$this->jsonarray ['code'] = 200;

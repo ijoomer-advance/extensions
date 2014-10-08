@@ -68,13 +68,6 @@ class jomHelper{
 
 	function getjomsocialversion(){
 
-		/*$parser		=& JFactory::getXMLParser('Simple');
-		$xml		= JPATH_ROOT . '/administrator/components/com_community/community.xml';
-		$parser->loadFile( $xml );
-		$doc		=& $parser->document;
-		$element	=& $doc->getElementByPath( 'version' );
-		return	$version= $element->data();*/
-
 		$xmlfile		= JPATH_ROOT . '/administrator/components/com_community/community.xml';
 		$xml = JFactory::getXML($xmlfile,1);
 		$version = (string)$xml->version;
@@ -253,8 +246,6 @@ class jomHelper{
 			//print "Failed to connect $err $errstr\n";
 			return;
 		}
-		//
-		//$payload = '{"aps": {"badge": 1, "alert": "Hello from iJoomer!", "sound": "cow","type":"online"}}';//json_encode($body);
 		$payload = json_encode($body);
 
 		$msg = chr(0) . pack("n",32) . pack('H*', str_replace(' ', '', $device_token)) . pack("n",strlen($payload)) . $payload;
@@ -522,7 +513,6 @@ class jomHelper{
 		$notificationModel	= CFactory::getModel( 'notification' );
 		$myParams			=&	$this->my->getParams();
 
-		//$notifications = $notificationModel->getNotificationCount($this->IJUserID,'0',$myParams->get('lastnotificationlist',''));
 		$sinceWhere = '';
 		$type = 0;
 		$since = $myParams->get('lastnotificationlist','');
@@ -1333,24 +1323,17 @@ class jomHelper{
 				$param = $this->db->loadResult();
 
 				$user 	= CFactory::getUser($html_data->actor);
-				//$params = new JRegistry($html_data->params);
-				//$params = new CParameter($html_data->params);
-				/**/
 
 				$params = json_decode($param);
 
 				$type 	= $params->type;
 
-				//$type = "event";
 				$extraMessage = '';
 				if(strtolower($type) !=='profile')
 				{
 					$id = $type.'id';
 					$cTable = JTable::getInstance(ucfirst($type),'CTable');
 					$cTable->load($html_data->$id);
-
-					//$act =& JTable::getInstance('Activity', 'CTable');
-					//$act->load($itemId);
 
 					if($type == 'group')
 					{
@@ -1437,7 +1420,6 @@ class jomHelper{
     			$sec 	= explode('.',$duration[2]);
 
     			$voicefiletext = $randomname.'.'.$fileext;
-    			//$durationtext = $minute.':'.$sec[0];
     			$durationtext = (($minute*60)+$sec[0]);
 
     			$fileinfo['voicetext'] 	=  '{voice}'.$voicefiletext.'&'.$durationtext.'{/voice}';

@@ -75,23 +75,6 @@ class ichatmain
 			// Set to true to rotate images based on EXIF meta data, if available:
 			'orient_image' => false,
 			'image_versions' => array(
-				// Uncomment the following version to restrict the size of
-				// uploaded images:
-				/*
-				'' => array(
-					'max_width' => 1920,
-					'max_height' => 1200,
-					'jpeg_quality' => 95
-				),
-				*/
-				// Uncomment the following to create medium sized images:
-				/*
-				'medium' => array(
-					'max_width' => 800,
-					'max_height' => 600,
-					'jpeg_quality' => 80
-				),
-				*/
 				'thumbnail' => array(
 					'max_width' => 80,
 					'max_height' => 80
@@ -470,7 +453,6 @@ class ichatmain
 		$processedText=$dispatcher->trigger('processUrls',array($msg));
 		$msg=$processedText[0];
 		//process smilies
-		//$processedText=$dispatcher->trigger('processSmilies',array($msg));
 		$processedText=$this->processSmilies(array($msg));
 		$msg=$processedText[0];
 		//process bad words
@@ -747,11 +729,11 @@ class ichatmain
 				$nid = IJReq::getTaskData('nid',0,'int');
 				$msgType='file';
 				//for sender
-				$msg=/*JText::_('COM_JBOLO_YOU_SENT_FILE').' '.JURI::base().'components/com_jbolo/uploads/'.*/$file->name;
+				$msg=$file->name;
 				$this->pushChat($msgType,$nid,$msg,$particularUID,0);
 
 				//for all receivers
-				$msg=/*JText::_('COM_JBOLO_I_SENT_FILE').' '.JURI::base().'components/com_jbolo/uploads/'.*/$file->name;
+				$msg=$file->name;
 				$this->pushChat($msgType,$nid,$msg,0,0);
 			}
 		}
@@ -1134,16 +1116,6 @@ return 1;
 		return ' ('.$index.')'.$ext;
 	}
 
-	/*function get_full_url() {
-		$https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-		return
-			($https ? 'https://' : 'http://').
-			(!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
-			($https && $_SERVER['SERVER_PORT'] === 443 ||
-			$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
-			substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
-	}*/
 	/** @uses to upload file of different extensions which allowed from jbolo config.
      //called by get_download_url,set_file_delete_properties(Function uploadFile)
     */
@@ -1614,7 +1586,6 @@ return 1;
 		}
 		//addslashes, user might enter anything to search
 		$filterText=addslashes($filterText);
-		//$usersHelper=new usersHelper();
 		$data=jbolousersHelper::getAutoCompleteUserList($uid,$filterText);
 		$total = count($data);
 		$this->jsonarray['code'] = ($total>0) ? 200 : 204;
@@ -1637,7 +1608,6 @@ return 1;
 	function addNodeUser()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$uid = $this->IJUserID;
@@ -1937,7 +1907,6 @@ return 1;
 	 */
 	function getgroupParticipants(){
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$uid = $this->IJUserID;
@@ -1953,7 +1922,6 @@ return 1;
 			return false;
 		}
 		$integrationsHelper=new integrationsHelper();
-		//$usersHelper=new usersHelper();
 		$nodesHelper=new nodesHelper();
 		$params=JComponentHelper::getParams('com_jbolo');
 		if($params->get('chatusertitle')){
@@ -2010,7 +1978,6 @@ return 1;
 	 */
 	function leaveChat(){
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$actorid = $this->IJUserID;

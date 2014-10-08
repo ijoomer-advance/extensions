@@ -418,7 +418,6 @@ class message{
 
 				$msgData ['to'] = $actualTo;
 				$msgData ['action'] = 'doSubmit';
-				//$msgData ['submitBtn'] = 'Send message';
 
 				$msgid = $model->send ( $msgData );
 				$data->sent = 1;
@@ -586,13 +585,6 @@ class message{
 			$this->jsonarray['pushNotificationData']['type'] 	= 'message';
 			$this->jsonarray['pushNotificationData']['configtype'] 	= 'pushnotif_inbox_create_message';
 		}
-
-		// onMessageDisplay Event trigger
-		/*$appsLib	=& CAppPlugins::getInstance();
-		$appsLib->loadApplications();
-		$args = array();
-		$args[]	=& $obj;
-		$appsLib->triggerEvent( 'onMessageDisplay' , $args );*/
 
 		$this->jsonarray['code'] = 200;
 		return $this->jsonarray;

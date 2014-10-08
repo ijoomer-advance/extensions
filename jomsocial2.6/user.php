@@ -1113,28 +1113,6 @@ class user{
 		return $this->jsonarray;
 	}
 
-
-	/**
-	 * @uses function to get activities
-	 * @example the json string will be like, :
-	 * 	{
-	 * 		"extName":"jomsocial",
-	 *		"extView":"user",
- 	 *		"extTask":"activities",
-	 * 		"taskData":{
-	 * 			"pageNO":"pageNO"
-	 * 		}
-	 * 	}
-	 *
-	 */
-	/*function activities(){
-
-
-
-		return $this->jsonarray;
-	}*/
-
-
 	/**
 	 * @uses function to get activities
 	 * @example the json string will be like, :

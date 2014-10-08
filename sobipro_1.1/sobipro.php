@@ -291,31 +291,6 @@ class sobipro_menu {
 						  <input id="selectedCat" type="hidden" value="'.$categoryID.'" name="selectedCat">
 						  <input id="selectedCatName" type="hidden" value="" name="selectedCatName">
 						  </div></li>';
-			/*	$html .= '<li><label id="jform_request_cid-lbl" class="" title="" for="jform_request_cid">'.JText::_('COM_IJOOMERADV_SELECT_ENTRY').'
-							<span class="star">&nbsp;*</span>
-							</label>';
-				$html .= '<div class="SobiPro">
-						  <button id="sp_entry" class="btn input-large btn-primary" onclick="checkentryVal(this)" style="margin-top: 5px; width: 300px" name="sp_entry" type="button" aria-invalid="false">'.JText::_('COM_IJOOMERADV_SELECT_ENTRY').'</button>
-							<div id="spEntry" class="modal hide" style="width: 500px; overflow: visible;" aria-hidden="true">
-								<div class="modal-header">
-									<button class="close" onclick="closewindow()" data-dismiss="modal" type="button">×</button>
-									<h3>Select Entry</h3>
-								</div>
-								<div class="modal-body" style="overflow-y: visible;">
-									<label>Entry name</label>
-									<input id="spEntryChooser" onkeyup="saveclick()" class="span6" type="text" placeholder="Type something..." style="width: 95%" autocomplete="off" data-provide="typeahead" aria-invalid="false">
-									<ul class="typeahead dropdown-menu typeahead-width" id="ullist" style="top: 70px; left: 15px; display: none; font-size: 13px;">
-									</ul>
-								</div>
-								<div class="modal-footer">
-									<a class="btn" onclick="closewindow()" data-dismiss="modal" href="#">Close</a>
-									<a id="spEntrySelect" onclick="entryselect()" class="btn btn-primary" data-dismiss="modal" href="#">Save Selection</a>
-								</div>
-							</div>
-							<input id="selectedEntry" type="hidden" value="'.$entryID.'" name="selectedEntry">
-							<input id="selectedEntryName" type="hidden" value="" name="selectedEntryName">
-						</div>
-						</li>';*/
 
 				$html .= '<li>
 						  <label id="jform_request_sid-lbl" class="" for="jform_request_sid">Selected
@@ -407,7 +382,6 @@ class sobipro_menu {
 
 				$sectionId 		= $menuoptions['remoteUse']['sectionID'];
 				$selvalue4  	= $menuoptions['remoteUse']['pageLayout'];
-				//$featuredFirst  = $menuoptions['remoteUse']['featuredFirst'];
 				$script = array();
 				$script[] ='</script><link rel="stylesheet" href="'.JURI::root().'media/sobipro/css/bootstrap/bootstrap.css" type="text/css"  />
 							<script type="text/javascript">function checkVal(changeVal){

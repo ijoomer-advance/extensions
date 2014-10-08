@@ -1256,10 +1256,7 @@ class isobipro extends SPEntryCtrl {
 
 
 			if($value['searchMethod']=='select'){
-				//fetch options
-				/*$this->_cats = SPFactory::cache()
-					->getVar( 'categories_tree', 1 );
-					echo "<pre>";print_r($this->_cats);exit;*/
+
 				$searchArray['search']['fields'][$se]['options'][0]['name']='Select '.$value['sValue'].'...';
 				$searchArray['search']['fields'][$se]['options'][0]['value']='';
 				if($value['fieldType']=='category'){
@@ -1276,8 +1273,6 @@ class isobipro extends SPEntryCtrl {
 								AND enabled=1";
 					$this->db->setQuery($query);
 					$values=$this->db->loadResultArray();
-					//$searchArray['search']['fields'][$se]['options'][0]['name']='Select '.$value['sValue'].'...';
-					//$searchArray['search']['fields'][$se]['options'][0]['value']='';
 
 					if($values[0]){
 						foreach($values as $ke=>$ve){
@@ -2472,7 +2467,7 @@ class isobipro extends SPEntryCtrl {
 	 * 			}
 	 * 	}
 	 */
-	//{     "extTask": "addentryField",     "extView": "isobipro",     "extName": "sobipro",     "taskData": {         "form": "0",         "fields": [             {                 "field_select_category": "35"             },             {                 "field_name": "test entry demo123"             },             {                 "field_email": "gh@ggh.jjj"             },             {                 "field_street": "hhjj"             },             {                 "field_zip": "556"             },             {                 "field_city": "fgghh"             },             {                 "field_country": "united-kingdom"             },             {                 "field_short_description": "SEGYEYHG"             },             {                 "field_phone": "888555"             },             {                 "field_fax": "858585"             },             {                 "field_business_days": "Monday,Tuesday,Wednesday"             },             {                 "pid": "1"             }         ]     } }
+
 	function addentryField($tsid=0,$bypass=false){
     	$sectionID=IJReq::getTaskData('sectionID',$tsid);
     	$form=IJReq::getTaskData('form');
@@ -2522,7 +2517,6 @@ class isobipro extends SPEntryCtrl {
     		if(count($fields)==0){
         		IJReq::setResponseCode(204);
        		}
-       		//echo "<pre>";print_r($fields);exit;
 			$count=0;
 			$ccount=1;
 	    	foreach($fields as $key=>$value){

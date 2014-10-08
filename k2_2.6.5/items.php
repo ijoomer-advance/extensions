@@ -1182,7 +1182,6 @@ class items {
     	if ($rate >= 1 && $rate <= 5)
 		{
 			$db     = JFactory::getDBO();
-			//$userIP = $_SERVER['REMOTE_ADDR'];
 			$query  = "SELECT * FROM #__k2_rating WHERE itemID ={$itemID}";
 			$db->setQuery($query);
 			$rating = $db->loadObject();

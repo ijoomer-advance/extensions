@@ -577,9 +577,7 @@ class wall{
 							$this->jsonarray['update'][$inc]['liked'] 			= ($html->userLiked>=0) ? 0 : 1 ;
 							// event data
 							$this->getEventData($event->id,$this->jsonarray['update'][$inc]['event_data']);
-							//$srch = array("&#9658;","&quot;");
-							//$rplc = array("►","\"");
-							$this->jsonarray['update'][$inc]['titletag'] = $titletag;//$usr->name." ► ".$this->jsonarray['update'][$inc]['event_data']['title']."\n".str_replace($srch,$rplc,strip_tags($titletag));
+							$this->jsonarray['update'][$inc]['titletag'] = $titletag;
 							$this->jsonarray['update'][$inc]['deleteAllowed']=intval($this->my->authorise('community.delete','activities.'.$html->id, $event));
 						}else{
 							$this->jsonarray['update'][$inc]['liked'] 			= ($html->userLiked==1) ? 1 : 0 ;
@@ -1346,7 +1344,6 @@ class wall{
 			$table->store();
 
 			$comment = CWall::formatComment($table);
-			//$objResponse->addScriptCall('joms.miniwall.insert', $actid, $comment);
 
 			//notification for activity comment
 			//case 1: user's activity
