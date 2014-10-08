@@ -75,23 +75,7 @@ class ichatmain
 			// Set to true to rotate images based on EXIF meta data, if available:
 			'orient_image' => false,
 			'image_versions' => array(
-				// Uncomment the following version to restrict the size of
-				// uploaded images:
-				/*
-				'' => array(
-					'max_width' => 1920,
-					'max_height' => 1200,
-					'jpeg_quality' => 95
-				),
-				*/
-				// Uncomment the following to create medium sized images:
-				/*
-				'medium' => array(
-					'max_width' => 800,
-					'max_height' => 600,
-					'jpeg_quality' => 80
-				),
-				*/
+
 				'thumbnail' => array(
 					'max_width' => 80,
 					'max_height' => 80
@@ -1134,16 +1118,6 @@ return 1;
 		return ' ('.$index.')'.$ext;
 	}
 
-	/*function get_full_url() {
-		$https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-		return
-			($https ? 'https://' : 'http://').
-			(!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
-			($https && $_SERVER['SERVER_PORT'] === 443 ||
-			$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
-			substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
-	}*/
 	/** @uses to upload file of different extensions which allowed from jbolo config.
      //called by get_download_url,set_file_delete_properties(Function uploadFile)
     */
