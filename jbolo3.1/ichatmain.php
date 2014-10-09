@@ -102,7 +102,6 @@ class ichatmain
 	function polling()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid  = $this->IJUserID;
 		$user = JFactory::getUser($uid);
@@ -114,7 +113,6 @@ class ichatmain
 			return false;
 		}
 		$this->jsonarray['code'] = 200;
-		//$usersHelper=new usersHelper;
 		$data = jbolousersHelper::getOnlineUsersInfo($uid);
 		foreach ($data as $dataK => $dataV)
 		{
@@ -141,8 +139,6 @@ class ichatmain
 			$this->jsonarray['users'][$ukey]['statusMsg'] = $uval->stsm;
 			$this->jsonarray['users'][$ukey]['avtr']      = $uval->avtr;
 		}
-		//$this->jsonarray['users']=$data;
-		//
 		$nodesHelper = new nodesHelper;
 		$nodes       = $nodesHelper->getActiveChatNodes($uid);
 		$messages    = array(); //to get msg data
@@ -324,7 +320,6 @@ class ichatmain
 	function initiateNode()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$pid = IJReq::getTaskData('pid', 0, 'int');
@@ -441,7 +436,6 @@ class ichatmain
 	function pushChatToNode()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid', 0, 'int');
@@ -545,7 +539,6 @@ class ichatmain
 	 			WHERE chm.msg_id=" . $new_mid;
 		$this->db->setQuery($query);
 		$node_d = $this->db->loadObject();
-		//$usersHelper=new usersHelper;
 		$u_data = jbolousersHelper::getLoggedinUserInfo($uid);
 
 		$this->jsonarray['messages']['msgID']     = $node_d->mid;
@@ -624,7 +617,6 @@ class ichatmain
 	function chatHistory()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid       = $this->IJUserID;
 		$nid       = IJReq::getTaskData('nid', 0, 'int');
@@ -674,7 +666,6 @@ class ichatmain
 		$this->db->setQuery($queryLimit);
 		$total = count($this->db->loadObjectList());
 		$me    = JText::_('me');
-		//$usersHelper = new usersHelper;
 		$data   = jbolousersHelper::getOnlineUsersInfo($uid);
 		$u_data = jbolousersHelper::getLoggedinUserInfo($uid);
 		for ($i = 0; $i < count($chats); $i++)
@@ -951,7 +942,6 @@ class ichatmain
 	function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null, $content_range = null)
 	{
 		$file = new stdClass;
-		//$file->name=$this->get_file_name($name, $type, $index, $content_range);
 		$file->name = $this->get_file_name($name, $type, $index, $content_range, $uploaded_file);//manoj
 		$file->size = $this->fix_integer_overflow(intval($size));
 		$file->type = $type;
@@ -1023,7 +1013,6 @@ class ichatmain
 	function get_file_name($name, $type, $index, $content_range, $uploaded_file)//manoj
 	{
 		return $this->get_unique_filename(
-		//$this->trim_file_name($name, $type, $index, $content_range),
 			$this->trim_file_name($name, $type, $index, $content_range, $uploaded_file),//manoj
 			$type,
 			$index,
@@ -1347,7 +1336,6 @@ class ichatmain
 				}
 			}
 
-			//$this->set_file_delete_properties($file);//commented by manoj
 			return $file;
 		}
 
@@ -1817,7 +1805,6 @@ class ichatmain
 	function getAutoCompleteUserList()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
-		//require JPATH_SITE . '/components/com_jbolo/helpers/users.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		if (!$uid)
