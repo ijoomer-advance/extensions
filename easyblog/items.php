@@ -1,13 +1,11 @@
 <?php
-/*--------------------------------------------------------------------------------
-# Ijoomeradv Extension : EASYBLOG_1.5 (ccompatible with easybBlog 3.8.14427)
-# ------------------------------------------------------------------------
-# author Tailored Solutions - ijoomer.com
-# copyright Copyright (C) 2010 Tailored Solutions. All rights reserved.
-# @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
-# Websites: http://www.ijoomer.com
-# Technical Support: Forum - http://www.ijoomer.com/Forum/
-----------------------------------------------------------------------------------*/
+/**
+ * @package     IJoomer.extensions
+ * @subpackage  easyblog
+ *
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 defined('_JEXEC') or die;
 jimport('joomla.application.component.helper');
