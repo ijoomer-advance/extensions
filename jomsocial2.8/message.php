@@ -411,7 +411,6 @@ class message{
 
 				$msgData ['to'] = $actualTo;
 				$msgData ['action'] = 'doSubmit';
-				//$msgData ['submitBtn'] = 'Send message';
 
 				$msgid = $model->send ( $msgData );
 				$data->sent = 1;

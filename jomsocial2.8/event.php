@@ -960,7 +960,6 @@ class event {
 			$store	= $eventMembers->store();
 
 			// Build the URL.
-			//$url	= CUrl::build( 'groups' , 'viewgroup' , array( 'groupid' => $group->id ) , true );
 			$url 	= CRoute::getExternalURL('index.php?option=com_community&view=events&task=viewevent&eventid='.$event->id, false);
 
 			// Add notification
@@ -1999,7 +1998,6 @@ class event {
 		$inputFilter = CFactory::getInputFilter(true);
 
 		// Despite the bind, we would still need to capture RAW description
-		//$event->description = JRequest::getVar('description', '', 'post', 'string', JREQUEST_ALLOWRAW);
 		$event->description = $inputFilter->clean($event->description);
 
 		// @rule: Test for emptyness
@@ -2059,10 +2057,6 @@ class event {
 		}
 
 		// @rule: Event must not end in the past
-		/*$now = new JDate();
-		$jConfig	= JFactory::getConfig();
-		$now->setOffset( $jConfig->getValue('offset') + (- COMMUNITY_DAY_HOURS ) );*/
-
 		if( CTimeHelper::timeIntervalDifference( $now->toMySQL( true ), $event->enddate) > 0  && !$isToday){
 			IJReq::setResponse(416,JText::_('COM_COMMUNITY_EVENTS_ENDDATE_GREATER_ERROR'));
 			IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
