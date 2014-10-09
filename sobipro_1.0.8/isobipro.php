@@ -761,7 +761,7 @@ class isobipro extends SPEntryCtrl
 		$cfginstanse->addIniFile('etc.config', true);
 		$cfginstanse->addTable('spdb_config', $sectionID);
 		/* initialise interface config setting */
-		$apmainframe = &SPFactory::mainframe();
+		$apmainframe = SPFactory::mainframe();
 		$apmainframe->getBasicCfg();
 		$cOrder = $this->parseOrdering('categories', 'corder', $this->tKey('view', 'categories_ordering', Sobi::Cfg('list.categories_ordering', 'name.asc')));
 		$cLim   = $this->tKey('view', 'categories_limit', -1);
@@ -2107,7 +2107,7 @@ class isobipro extends SPEntryCtrl
 		$cfginstanse->addIniFile('etc.config', true);
 		$cfginstanse->addTable('spdb_config', $sectionID);
 		/* initialise interface config setting */
-		$apmainframe = &SPFactory::mainframe();
+		$apmainframe = SPFactory::mainframe();
 		$apmainframe->getBasicCfg();
 		$cOrder = $this->parseOrdering('categories', 'corder', $this->tKey('view', 'categories_ordering', Sobi::Cfg('list.categories_ordering', 'name.asc')));
 		$cLim   = $this->tKey('view', 'categories_limit', -1);

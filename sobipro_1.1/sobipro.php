@@ -23,7 +23,7 @@ class sobipro
 
 	function init()
 	{
-		$lang =& JFactory::getLanguage();
+		$lang =  JFactory::getLanguage();
 		$lang->load('com_sobipro');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('sobipro', $plugin_path . '/sobipro', $lang->getTag(), true);
@@ -38,7 +38,7 @@ class sobipro
 
 	function write_configuration(&$d)
 	{
-		$db    =& JFactory::getDBO();
+		$db    =  JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_sobipro_config";
 		$db->setQuery($query);
@@ -62,7 +62,7 @@ class sobipro
 
 	function prepareHTML(&$config)
 	{
-		$db =& JFactory::getDBO();
+		$db =  JFactory::getDBO();
 		foreach ($config as $key => $value)
 		{
 			$config[$key]->caption     = JText::_($value->caption);
@@ -554,7 +554,7 @@ class sobipro_menu
 
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
-		$db      = &JFactory::getDBO();
+		$db      = JFactory::getDBO();
 		$options = null;
 		switch ($extTask)
 		{

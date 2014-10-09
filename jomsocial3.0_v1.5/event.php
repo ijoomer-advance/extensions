@@ -260,7 +260,7 @@ class event
 			$this->jsonarray["createEvent"] = $this->config->get("createevents");
 		}
 
-		$eventsModel =& CFactory::getModel('events');
+		$eventsModel =  CFactory::getModel('events');
 		$eventsModel = new CommunityModelEvents;
 		$eventsModel->setState('limit', $limit);
 		$eventsModel->setState('limitstart', $startFrom);
@@ -338,7 +338,7 @@ class event
 		require_once JPATH_ROOT . '/components/com_community/helpers/time.php';
 		$halper_time_obj = new CTimeHelper;
 
-		$eventsModel =& CFactory::getModel('events');
+		$eventsModel =  CFactory::getModel('events');
 
 
 		$sql = "SELECT * FROM #__community_events_category";
@@ -415,7 +415,7 @@ class event
 	function detail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', null, 'int');
-		$event    =& JTable::getInstance('Event', 'CTable');
+		$event    =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 		$event->hit();
 		$isCommunityAdmin        = COwnerHelper::isCommunityAdmin($this->my->id);
@@ -430,7 +430,7 @@ class event
 		$this->db->setQuery($query);
 		$userStatus = $this->db->loadResult();
 
-		$category =& JTable::getInstance('EventCategory', 'CTable');
+		$category =  JTable::getInstance('EventCategory', 'CTable');
 		$category->load($event->catid); // load categories from categoryid
 
 		$this->jsonarray['event']['category']         = $category->name;
@@ -460,7 +460,7 @@ class event
 			$invitemessage = $usr->name . " invited you to join this event.";
 
 			// check how many friends are the member of this group
-			$friendsModel =& CFactory::getModel('friends');
+			$friendsModel =  CFactory::getModel('friends');
 			$frids        = $friendsModel->getFriendIds($this->IJUserID);
 
 			$frdcount = 0;
@@ -546,7 +546,7 @@ class event
 		// Attach avatar of the admin
 		for ($i = 0; ($i < count($eventAdmins)); $i++)
 		{
-			$row             =& $eventAdmins[$i];
+			$row             =  $eventAdmins[$i];
 			$eventAdmins[$i] = CFactory::getUser($row->id);
 		}
 
@@ -716,7 +716,7 @@ class event
 			return false;
 		}
 
-		$friendsModel =& CFactory::getModel('friends');
+		$friendsModel =  CFactory::getModel('friends');
 		$frids        = $friendsModel->getFriendIds($this->my->id);
 
 		$cAdmin          = $event->isAdmin($this->IJUserID);
@@ -800,7 +800,7 @@ class event
 		}
 
 		CFactory::load('helpers', 'owner');
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		// Site admin can remove guest
@@ -836,13 +836,13 @@ class event
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
 
 		CFactory::load('helpers', 'owner');
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		// Make sure I am the group admin
 		if ($event->isAdmin($userID) || COwnerHelper::isCommunityAdmin($this->my->id))
 		{
-			$guest =& JTable::getInstance('EventMembers', 'CTable');
+			$guest =  JTable::getInstance('EventMembers', 'CTable');
 			$guest->load($userID, $uniqueID);
 
 			// Set status to "BLOCKED"
@@ -886,7 +886,7 @@ class event
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
 
 		CFactory::load('helpers', 'owner');
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		// Make sure I am the group admin
@@ -902,7 +902,7 @@ class event
 			else
 			{
 				// Make sure the user is not an admin
-				$guest =& JTable::getInstance('EventMembers', 'CTable');
+				$guest =  JTable::getInstance('EventMembers', 'CTable');
 				$guest->load($userID, $uniqueID);
 
 				$guest->status = COMMUNITY_EVENT_STATUS_MAYBE;
@@ -1080,10 +1080,10 @@ class event
 		// Load necessary tables
 		$model = CFactory::getModel('events');
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
-		$eventMembers =& JTable::getInstance('EventMembers', 'CTable');
+		$eventMembers =  JTable::getInstance('EventMembers', 'CTable');
 		$eventMembers->load($this->my->id, $uniqueID);
 		$isMember = $eventMembers->exists();
 
@@ -1103,7 +1103,7 @@ class event
 			CFactory::load('helpers', 'owner');
 
 			//@todo: need to set the privileges
-			$date                     =& JFactory::getDate();
+			$date                     =  JFactory::getDate();
 			$eventMembers->status     = COMMUNITY_EVENT_STATUS_REQUESTINVITE; // for now just set it to approve for the demo purpose
 			$eventMembers->permission = '3'; //always a member
 			$eventMembers->created    = $date->toSql();
@@ -1231,7 +1231,7 @@ class event
 
 		$model = CFactory::getModel('events');
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		CFactory::load('helpers', 'event');
@@ -1247,7 +1247,7 @@ class event
 		else
 		{
 			// Load required tables
-			$member                 =& JTable::getInstance('EventMembers', 'CTable');
+			$member                 =  JTable::getInstance('EventMembers', 'CTable');
 			$memberkeys['eventId']  = $uniqueID;
 			$memberkeys['memberId'] = $memberID;
 			$member->load($memberkeys);
@@ -1441,11 +1441,11 @@ class event
 
 		//trigger goes here.
 		CFactory::load('libraries', 'apps');
-		$appsLib = &CAppPlugins::getInstance();
+		$appsLib = CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$params    = array();
-		$params [] = &$event;
+		$params [] = $event;
 		$params [] = $this->my->id;
 		$params [] = $status;
 
@@ -1498,7 +1498,7 @@ class event
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib     = &CAppPlugins::getInstance();
+		$appsLib     = CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-events-uploadavatar'));
 
 		if (empty ($saveSuccess) || !in_array(false, $saveSuccess))
@@ -1751,10 +1751,10 @@ class event
 			return false;
 		}
 
-		$eventMembers =& JTable::getInstance('EventMembers', 'CTable');
+		$eventMembers =  JTable::getInstance('EventMembers', 'CTable');
 		$eventMembers->load($this->my->id, $uniqueID);
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		if ($eventMembers->id != 0)
@@ -1799,7 +1799,7 @@ class event
 		CFactory::load('helpers', 'owner');
 		CFactory::load('models', 'events');
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 		$membersCount = $event->getMembersCount('accepted');
 		$isMine       = ($this->my->id == $event->creator);
@@ -1959,7 +1959,7 @@ class event
 			return false;
 		}
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		CFactory::load('helpers', 'event');
@@ -1974,7 +1974,7 @@ class event
 		}
 		else
 		{
-			$member =& JTable::getInstance('EventMembers', 'CTable');
+			$member =  JTable::getInstance('EventMembers', 'CTable');
 			$member->load($userID, $event->id);
 			$member->permission = 2;
 			$member->store();
@@ -2012,7 +2012,7 @@ class event
 			return false;
 		}
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		CFactory::load('helpers', 'event');
@@ -2027,7 +2027,7 @@ class event
 		}
 		else
 		{
-			$member =& JTable::getInstance('EventMembers', 'CTable');
+			$member =  JTable::getInstance('EventMembers', 'CTable');
 			$member->load($userID, $event->id);
 			$member->permission = 3;
 			$member->store();
@@ -2444,7 +2444,7 @@ class event
 			$this->_addGroupNotification($event);
 
 			//Send notification
-			$modelGroup   =& CFactory::getModel('groups');
+			$modelGroup   =  CFactory::getModel('groups');
 			$groupMembers = array();
 			$groupMembers = $modelGroup->getMembersId($event->contentid, true);
 
@@ -2810,8 +2810,8 @@ class event
 
 		$userID = explode(',', $userID);
 
-		$model =& $event_controller_obj->getModel('events');
-		$event =& JTable::getInstance('Event', 'CTable');
+		$model =  $event_controller_obj->getModel('events');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		if ($this->my->id == 0)
@@ -2842,8 +2842,8 @@ class event
 			$invited      = array();
 			foreach ($userID as $invitedUserId)
 			{
-				$date                    =& JFactory::getDate();
-				$eventMember             =& JTable::getInstance('EventMembers', 'CTable');
+				$date                    =  JFactory::getDate();
+				$eventMember             =  JTable::getInstance('EventMembers', 'CTable');
 				$eventMember->eventid    = $event->id;
 				$eventMember->memberid   = $invitedUserId;
 				$eventMember->status     = COMMUNITY_EVENT_STATUS_INVITED;
@@ -3018,7 +3018,7 @@ class event
 			    LIMIT {$startFrom},{$limit}";
 		$this->db->setQuery($query);
 		$latestMembers = $this->db->loadObjectList();
-		$friendsModel  =& CFactory::getModel('friends');
+		$friendsModel  =  CFactory::getModel('friends');
 		$frids         = $friendsModel->getFriendIds($this->IJUserID);
 
 		$query = "SELECT a.memberid
@@ -3121,7 +3121,7 @@ class event
 			return false;
 		}
 
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
 		CFactory::load('libraries', 'activities');
@@ -3253,7 +3253,7 @@ class event
 		$filter = JFilterInput::getInstance();
 		$wallid = $filter->clean($wallid, 'int');
 
-		$table =& JTable::getInstance('Wall', 'CTable');
+		$table =  JTable::getInstance('Wall', 'CTable');
 		$table->load($wallid);
 		if ($table->delete())
 		{

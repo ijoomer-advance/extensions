@@ -50,7 +50,7 @@ class group
 	 */
 	function categories()
 	{
-		$groupModel =& CFactory::getModel('groups');
+		$groupModel =  CFactory::getModel('groups');
 		$categories = $groupModel->getCategories(0);
 
 		if (count($categories) > 0)
@@ -98,7 +98,7 @@ class group
 	// called from categories
 	private function subCategories($pid)
 	{
-		$groupModel =& CFactory::getModel('groups');
+		$groupModel =  CFactory::getModel('groups');
 		$categories = $groupModel->getCategories($pid);
 
 		foreach ($categories as $key => $value)
@@ -160,7 +160,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$groupModel =& CFactory::getModel('groups');
+		$groupModel =  CFactory::getModel('groups');
 
 		switch ($type)
 		{
@@ -327,7 +327,7 @@ class group
 
 
 				CFactory::load('libraries', 'apps');
-				$appsLib     =& CAppPlugins::getInstance();
+				$appsLib     =  CAppPlugins::getInstance();
 				$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-groups-forms'));
 
 				if (empty($saveSuccess) || !in_array(false, $saveSuccess))
@@ -336,7 +336,7 @@ class group
 
 					if ($gid !== false)
 					{
-						$group =& JTable::getInstance('Group', 'CTable');
+						$group =  JTable::getInstance('Group', 'CTable');
 						$group->load($gid);
 
 						//trigger for onGroupCreate
@@ -363,7 +363,7 @@ class group
 		else
 		{
 			// edit group
-			$group =& JTable::getInstance('Group', 'CTable');
+			$group =  JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 			CFactory::load('helpers', 'owner');
 
@@ -398,7 +398,7 @@ class group
 		$validated = true;
 		$message   = '';
 
-		$group      =& JTable::getInstance('Group', 'CTable');
+		$group      =  JTable::getInstance('Group', 'CTable');
 		$groupModel = CFactory::getModel('Groups');
 
 		$name        = $data['name'] = IJReq::getTaskData('name', '');
@@ -557,7 +557,7 @@ class group
 
 			// Since this is storing groups, we also need to store the creator / admin
 			// into the groups members table
-			$member           =& JTable::getInstance('GroupMembers', 'CTable');
+			$member           =  JTable::getInstance('GroupMembers', 'CTable');
 			$member->groupid  = $group->id;
 			$member->memberid = $group->ownerid;
 
@@ -758,14 +758,14 @@ class group
 		                  "wallnotification"             => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_WALL_NOTIFICATION'))
 		);
 
-		$groupModel =& CFactory::getModel('groups');
+		$groupModel =  CFactory::getModel('groups');
 		$categories = $groupModel->getAllCategories();
 		$categories = $this->getFieldCategories($categories, 0);
 
 		$group = false;
 		if ($uniqueID != '' || $uniqueID != 0)
 		{
-			$group =& JTable::getInstance('Group', 'CTable');
+			$group =  JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 			$params = $group->getParams();
 		}
@@ -896,7 +896,7 @@ class group
 	function detail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', null, 'int');
-		$group    =& JTable::getInstance('Group', 'CTable');
+		$group    =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 		$params = $group->getParams();
 		if (!$group->id)
@@ -910,7 +910,7 @@ class group
 		CFactory::load('helpers', 'group');
 
 		// get admin of group
-		$groupModel =& CFactory::getModel('groups');
+		$groupModel =  CFactory::getModel('groups');
 		$groupModel->setState('limit', 9999);
 		$groupModel->setState('limitstart', 0);
 		$admins = $groupModel->getAdmins($uniqueID, null);
@@ -1004,7 +1004,7 @@ class group
 			$invitor = CFactory::getUser($invitor);
 
 			//check how many friends are the member of this group
-			$friendsModel =& CFactory::getModel('friends');
+			$friendsModel =  CFactory::getModel('friends');
 			$frids        = $friendsModel->getFriendIds($this->IJUserID);
 			$frdcount     = 0;
 			foreach ($members as $member)
@@ -1024,7 +1024,7 @@ class group
 			$this->jsonarray['group']['invitationicon']    = JURI::root() . 'components/com_community/templates/default/images/action/icon-invite-32.png';
 		}
 
-		$photoModel =& CFactory::getModel('photos');
+		$photoModel =  CFactory::getModel('photos');
 		$albums     = $photoModel->getGroupAlbums($uniqueID);
 		$totalAlbum = $photoModel->_pagination->total;
 
@@ -1348,8 +1348,8 @@ class group
 		else
 		{
 			// Load required tables
-			$member =& JTable::getInstance('GroupMembers', 'CTable');
-			$group  =& JTable::getInstance('Group', 'CTable');
+			$member =  JTable::getInstance('GroupMembers', 'CTable');
+			$group  =  JTable::getInstance('Group', 'CTable');
 
 			// Load the group and the members table
 			$group->load($uniqueID);
@@ -1453,7 +1453,7 @@ class group
 			return false;
 		}
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$data           = new stdClass;
@@ -1588,7 +1588,7 @@ class group
 		CFactory::load('helpers', 'owner');
 		CFactory::load('models', 'groups');
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$groupModel   = CFactory::getModel('groups');
@@ -1658,7 +1658,7 @@ class group
 			}
 
 			// Delete group
-			$group =& JTable::getInstance('Group', 'CTable');
+			$group =  JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 			$groupData = $group;
 
@@ -1735,7 +1735,7 @@ class group
 		else
 		{
 			CFactory::load('models', 'groups');
-			$group =& JTable::getInstance('Group', 'CTable');
+			$group =  JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 
 			if ($group->id == 0)
@@ -1799,7 +1799,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$bulletinModel =& CFactory::getModel('bulletins');
+		$bulletinModel =  CFactory::getModel('bulletins');
 		$bulletinModel->setState('limit', $limit);
 		$bulletinModel->setState('limitstart', $startFrom);
 
@@ -1889,7 +1889,7 @@ class group
 		// Load necessary models
 		$groupsModel = CFactory::getModel('groups');
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		// Ensure user has really the privilege to view this page.
@@ -1902,7 +1902,7 @@ class group
 		}
 
 		// Get variables from query
-		$bulletin =& JTable::getInstance('Bulletin', 'CTable');
+		$bulletin =  JTable::getInstance('Bulletin', 'CTable');
 		if ($announcementID)
 		{ // edit announcement
 			$bulletin->load($announcementID);
@@ -2090,12 +2090,12 @@ class group
 		CFactory::load('models', 'bulletins');
 
 		$groupsModel = CFactory::getModel('groups');
-		$group       =& JTable::getInstance('Group', 'CTable');
+		$group       =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		if ($groupsModel->isAdmin($this->IJUserID, $group->id) || COwnerHelper::isCommunityAdmin($this->IJUserID))
 		{
-			$bulletin =& JTable::getInstance('Bulletin', 'CTable');
+			$bulletin =  JTable::getInstance('Bulletin', 'CTable');
 			$bulletin->load($announcementID);
 			if ($bulletin->delete())
 			{
@@ -2157,7 +2157,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		CFactory::load('helpers', 'owner');
 
 		switch ($type)
@@ -2186,7 +2186,7 @@ class group
 				break;
 
 			case 'delete':
-				$file =& JTable::getInstance('File', 'CTable');
+				$file =  JTable::getInstance('File', 'CTable');
 				$file->load($uniqueID);
 
 				if ($file->discussionid)
@@ -2321,7 +2321,7 @@ class group
 		$parentTable = JTable::getInstance(ucfirst($type), 'CTable');
 		$parentTable->load($uniqueID);
 
-		$table =& JTable::getInstance('File', 'CTable');
+		$table =  JTable::getInstance('File', 'CTable');
 
 		CFactory::load('libraries', 'files');
 		$fileLib = new CFilesLibrary;
@@ -2395,7 +2395,7 @@ class group
 				case 'discussion':
 					// Get repliers for this discussion and notify the discussion creator too
 					$discussionModel = CFactory::getModel('Discussions');
-					$discussion      =& JTable::getInstance('Discussion', 'CTable');
+					$discussion      =  JTable::getInstance('Discussion', 'CTable');
 					$discussion->load($parentTable->id);
 					$users   = $discussionModel->getRepliers($discussion->id, $discussion->groupid);
 					$users[] = $discussion->creator;
@@ -2422,7 +2422,7 @@ class group
 					$this->db->setQuery($query);
 					$puserlist = $this->db->loadObjectList();
 
-					$group =& JTable::getInstance('Group', 'CTable');
+					$group =  JTable::getInstance('Group', 'CTable');
 					$group->load($discussion->groupid);
 					$groupdata['id'] = $group->id;
 					$groupModel      = CFactory::getModel('groups');
@@ -2439,7 +2439,7 @@ class group
 					$format                            = "%A, %d %B %Y";
 					$discussionsdata['date']           = CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 					$discussionsdata['isLocked']       = intval($discussion->lock);
-					$wallModel                         =& CFactory::getModel('wall');
+					$wallModel                         =  CFactory::getModel('wall');
 					$wallContents                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 					$discussionsdata['topics']         = count($wallContents);
 					$params                            = new CParameter($discussion->params);
@@ -2547,7 +2547,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$discussModel =& CFactory::getModel('discussions');
+		$discussModel =  CFactory::getModel('discussions');
 		$discussModel->setState('limit', $limit);
 		$discussModel->setState('limitstart', $startFrom);
 		$discussions = $discussModel->getDiscussionTopics($uniqueID);
@@ -2581,7 +2581,7 @@ class group
 			$format                                                 = "%A, %d %B %Y";
 			$this->jsonarray['discussions'][$key]['date']           = CTimeHelper::getFormattedTime($value->lastreplied, $format);
 			$this->jsonarray['discussions'][$key]['isLocked']       = $value->lock;
-			$wallModel                                              =& CFactory::getModel('wall');
+			$wallModel                                              =  CFactory::getModel('wall');
 			$wallContents                                           = $wallModel->getPost('discussions', $value->id, 9999999, 0);
 			$this->jsonarray['discussions'][$key]['topics']         = count($wallContents);
 			$params                                                 = new CParameter($value->params);
@@ -2644,8 +2644,8 @@ class group
 		$this->db->setQuery($query);
 		$groupID = $this->db->loadResult();
 
-		$wallModel    =& CFactory::getModel('wall');
-		$groupModel   =& CFactory::getModel('groups');
+		$wallModel    =  CFactory::getModel('wall');
+		$groupModel   =  CFactory::getModel('groups');
 		$wallContents = $wallModel->getPost('discussions', $uniqueID, $limit, $startFrom);
 		$total        = count($wallModel->getPost('discussions', $uniqueID, 999999, 0));
 		if (count($wallContents) > 0)
@@ -2731,7 +2731,7 @@ class group
 			return false;
 		}
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		// Check if the user is banned
@@ -2746,7 +2746,7 @@ class group
 			return false;
 		}
 
-		$discussion =& JTable::getInstance('Discussion', 'CTable');
+		$discussion =  JTable::getInstance('Discussion', 'CTable');
 		if ($discussionID)
 		{
 			$discussion->load($discussionID);
@@ -2785,9 +2785,9 @@ class group
 		$data['groupid']               = $uniqueID;
 
 		$inputFilter = CFactory::getInputFilter(true);
-		$groupModel  =& CFactory::getModel('groups');
+		$groupModel  =  CFactory::getModel('groups');
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$discussion->bind($data);
@@ -2818,7 +2818,7 @@ class group
 		$discussion->title = strip_tags($discussion->title);
 
 		CFactory::load('libraries', 'apps');
-		$appsLib     =& CAppPlugins::getInstance();
+		$appsLib     =  CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-groups-discussionform'));
 		$validated   = true;
 
@@ -2873,7 +2873,7 @@ class group
 
 			if ($isNew)
 			{
-				$group =& JTable::getInstance('Group', 'CTable');
+				$group =  JTable::getInstance('Group', 'CTable');
 				$group->load($uniqueID);
 
 				// Add logging.
@@ -2971,7 +2971,7 @@ class group
 				$format                            = "%A, %d %B %Y";
 				$discussionsdata['date']           = CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 				$discussionsdata['isLocked']       = intval($discussion->lock);
-				$wallModel                         =& CFactory::getModel('wall');
+				$wallModel                         =  CFactory::getModel('wall');
 				$wallContents                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 				$discussionsdata['topics']         = count($wallContents);
 				$params                            = new CParameter($discussion->params);
@@ -3080,10 +3080,10 @@ class group
 		CFactory::load('libraries', 'activities');
 		CFactory::load('libraries', 'wall');
 
-		$discussion =& JTable::getInstance('Discussion', 'CTable');
+		$discussion =  JTable::getInstance('Discussion', 'CTable');
 		$discussion->load($uniqueID);
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($discussion->groupid);
 
 		$discussionModel = CFactory::getModel('Discussions');
@@ -3122,7 +3122,7 @@ class group
 		$wall = CWallLibrary::saveWall($uniqueID, $message, 'discussions', $this->my, ($this->my->id == $discussion->creator), 'groups,discussion', 'wall.content', $wallID);
 		if (!$wallID)
 		{
-			$date                    =& JFactory::getDate();
+			$date                    =  JFactory::getDate();
 			$discussion->lastreplied = $date->toSql();
 			$discussion->store();
 
@@ -3201,7 +3201,7 @@ class group
 			$format                            = "%A, %d %B %Y";
 			$discussionsdata['date']           = CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 			$discussionsdata['isLocked']       = intval($discussion->lock);
-			$wallModel                         =& CFactory::getModel('wall');
+			$wallModel                         =  CFactory::getModel('wall');
 			$wallContents                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 			$discussionsdata['topics']         = count($wallContents);
 			$params                            = new CParameter($discussion->params);
@@ -3311,7 +3311,7 @@ class group
 		}
 
 		$groupsModel = CFactory::getModel('groups');
-		$group       =& JTable::getInstance('Group', 'CTable');
+		$group       =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 		$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $group->id);
 
@@ -3341,7 +3341,7 @@ class group
 				$wallModel     = CFactory::getModel('wall');
 				$activityModel = CFactory::getModel('activities');
 				$fileModel     = CFactory::getModel('files');
-				$discussion    =& JTable::getInstance('Discussion', 'CTable');
+				$discussion    =  JTable::getInstance('Discussion', 'CTable');
 				$discussion->load($discussionID);
 
 				if ($this->my->id == $discussion->creator || $isGroupAdmin || COwnerHelper::isCommunityAdmin())
@@ -3372,7 +3372,7 @@ class group
 				$filter = JFilterInput::getInstance();
 				$wallid = $filter->clean($wallID, 'int');
 
-				$table =& JTable::getInstance('Wall', 'CTable');
+				$table =  JTable::getInstance('Wall', 'CTable');
 				$table->load($wallID);
 
 				$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $group->id);
@@ -3447,10 +3447,10 @@ class group
 
 		$groupsModel = CFactory::getModel('groups');
 		$wallModel   = CFactory::getModel('wall');
-		$discussion  =& JTable::getInstance('Discussion', 'CTable');
+		$discussion  =  JTable::getInstance('Discussion', 'CTable');
 		$discussion->load($discussionID);
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 		$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $group->id);
 
@@ -3513,8 +3513,8 @@ class group
 		$data     = new stdClass;
 		$data->id = $groupid;
 
-		$groupsModel =& CFactory::getModel('groups');
-		$group       =& JTable::getInstance('Group', 'CTable');
+		$groupsModel =  CFactory::getModel('groups');
+		$group       =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -3540,7 +3540,7 @@ class group
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib     =& CAppPlugins::getInstance();
+		$appsLib     =  CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-groups-uploadavatar'));
 
 		if (empty($saveSuccess) || !in_array(false, $saveSuccess))
@@ -3786,7 +3786,7 @@ class group
 		$message  = IJReq::getTaskData('message', null);
 		$title    = IJReq::getTaskData('title', null);
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -3924,7 +3924,7 @@ class group
 
 		$groupModel = CFactory::getModel('groups');
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$query = "SELECT a.memberid AS id, a.approved , b.name as name, a.permissions
@@ -4048,7 +4048,7 @@ class group
 		$memberID = IJReq::getTaskData('memberID', 0, 'int');
 		$admin    = IJReq::getTaskData('admin', 0, 'bool');
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -4061,7 +4061,7 @@ class group
 		}
 		else
 		{
-			$member =& JTable::getInstance('GroupMembers', 'CTable');
+			$member =  JTable::getInstance('GroupMembers', 'CTable');
 
 			$member->load($memberID, $group->id);
 			$member->permissions = $admin;
@@ -4093,7 +4093,7 @@ class group
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type', 0, 'bool');
 
-		$table                =& JTable::getInstance('GroupInvite', 'CTable');
+		$table                =  JTable::getInstance('GroupInvite', 'CTable');
 		$groupkeys['userid']  = $this->my->id;
 		$groupkeys['groupid'] = $uniqueID;
 		$table->load($groupkeys);
@@ -4124,11 +4124,11 @@ class group
 	// called from join
 	private function _saveMember($groupID)
 	{
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($groupID);
 		$params = $group->getParams();
 
-		$member =& JTable::getInstance('GroupMembers', 'CTable');
+		$member =  JTable::getInstance('GroupMembers', 'CTable');
 		// Set the properties for the members table
 		$member->groupid  = $group->id;
 		$member->memberid = $this->my->id;
@@ -4179,7 +4179,7 @@ class group
 			$group->store();
 
 			//remove from invite table for remove pending list
-			$memberinvite          =& JTable::getInstance('GroupInvite', 'CTable');
+			$memberinvite          =  JTable::getInstance('GroupInvite', 'CTable');
 			$inviteKeys['userid']  = $this->my->id;
 			$inviteKeys['groupid'] = $groupID;
 			$memberinvite->load($inviteKeys);
@@ -4295,7 +4295,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$groupsModel = &CFactory::getModel('groups');
+		$groupsModel = CFactory::getModel('groups');
 		$members     = $groupsModel->getInviteListByName('', $this->IJUserID, $uniqueID, $startFrom, $limit);
 		if (count($members) > 0)
 		{
@@ -4363,7 +4363,7 @@ class group
 			return false;
 		}
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		// Check if the user is banned
@@ -4379,7 +4379,7 @@ class group
 
 		foreach ($friends as $friend)
 		{
-			$groupInvite          =& JTable::getInstance('GroupInvite', 'CTable');
+			$groupInvite          =  JTable::getInstance('GroupInvite', 'CTable');
 			$groupInvite->groupid = $group->id;
 			$groupInvite->userid  = $friend;
 			$groupInvite->creator = $this->my->id;
@@ -4578,7 +4578,7 @@ class group
 
 		CFactory::load('helpers', 'owner');
 
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		if ($group->ownerid != $this->my->id && !COwnerHelper::isCommunityAdmin($this->IJUserID))
@@ -4590,7 +4590,7 @@ class group
 		}
 		else
 		{
-			$member =& JTable::getInstance('GroupMembers', 'CTable');
+			$member =  JTable::getInstance('GroupMembers', 'CTable');
 			$member->load($memberID, $group->id);
 
 			if ($ban)
@@ -4640,8 +4640,8 @@ class group
 			return false;
 		}
 
-		$groupsModel =& CFactory::getModel('groups');
-		$group       =& JTable::getInstance('Group', 'CTable');
+		$groupsModel =  CFactory::getModel('groups');
+		$group       =  JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -4663,7 +4663,7 @@ class group
 		}
 		else
 		{
-			$groupMember =& JTable::getInstance('GroupMembers', 'CTable');
+			$groupMember =  JTable::getInstance('GroupMembers', 'CTable');
 			$groupMember->load($memberID, $uniqueID);
 
 			$data = new stdClass;
@@ -4742,7 +4742,7 @@ class group
 			$this->db->setQuery($query);
 			$data = $this->db->loadObject();
 
-			$table =& JTable::getInstance('Wall', 'CTable');
+			$table =  JTable::getInstance('Wall', 'CTable');
 
 			$table->contentid = $data->comment_id;
 			$table->type      = $data->comment_type;
@@ -4758,7 +4758,7 @@ class group
 		else
 		{
 			$groupModel = CFactory::getModel('groups');
-			$group      =& JTable::getInstance('Group', 'CTable');
+			$group      =  JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 
 			if (!$this->my->authorise('community.save', 'groups.wall.' . $uniqueID, $group))

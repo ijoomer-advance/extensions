@@ -107,7 +107,7 @@ class user
 			}
 		}
 
-		$friendModel =& CFactory::getModel('friends');
+		$friendModel =  CFactory::getModel('friends');
 		$pendingFren = $friendModel->getPending($this->IJUserID);
 		foreach ($pendingFren as $pfriend)
 		{
@@ -278,7 +278,7 @@ class user
 				$profileType   = $this->my->getProfileType();
 				$fileName      = JApplication::getHash($file['tmp_name'] . time()); // Get a hash for the file name.
 				$hashFileName  = JString::substr($fileName, 0, 24);
-				$multiprofile  =& JTable::getInstance('MultiProfile', 'CTable');
+				$multiprofile  =  JTable::getInstance('MultiProfile', 'CTable');
 				$multiprofile->load($profileType);
 
 				$useWatermark = $profileType != COMMUNITY_DEFAULT_PROFILE && $this->config->get('profile_multiprofile') && !empty($multiprofile->watermark) ? true : false;
@@ -427,7 +427,7 @@ class user
 
 			jimport('joomla.utilities.date');
 			//set user status for current session.
-			$today =& JFactory::getDate();
+			$today =  JFactory::getDate();
 
 			$this->my->set('_status', $message);
 			$this->my->set('_posted_on', $today->toSql());
@@ -490,7 +490,7 @@ class user
 
 		require_once COMMUNITY_COM_PATH . '/libraries/apps.php';
 
-		$appsLib =& CAppPlugins::getInstance();
+		$appsLib =  CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$args   = array();
@@ -499,7 +499,7 @@ class user
 		$args[] = $status;            // new status
 		$appsLib->triggerEvent('onProfileStatusUpdate', $args);
 
-		$today           =& JFactory::getDate();
+		$today           =  JFactory::getDate();
 		$data            = new stdClass;
 		$data->userid    = $id;
 		$data->status    = $status;
@@ -921,7 +921,7 @@ class user
 
 		//getting pending event request
 		$pendingEvent = $eventModel->getPending($this->IJUserID);
-		$event        =& JTable::getInstance('Event', 'CTable');
+		$event        =  JTable::getInstance('Event', 'CTable');
 		if (is_array($pendingEvent))
 		{
 			foreach ($pendingEvent as $value)
@@ -960,7 +960,7 @@ class user
 
 		//getting pending group request
 		$pendingGroup = $groupModel->getGroupInvites($this->IJUserID);
-		$group        =& JTable::getInstance('Group', 'CTable');
+		$group        =  JTable::getInstance('Group', 'CTable');
 		if (is_array($pendingGroup))
 		{
 			foreach ($pendingGroup as $value)
@@ -1011,11 +1011,11 @@ class user
 		CFactory::load('helpers', 'content');
 		$notifCount        = 50;
 		$notificationModel = CFactory::getModel('notification');
-		$myParams          =& $this->my->getParams();
+		$myParams          =  $this->my->getParams();
 		$notifications     = $notificationModel->getNotification($this->IJUserID, '0', $notifCount, $myParams->get('lastnotificationlist', ''));
-		$photos            =& JTable::getInstance('Photo', 'CTable');
-		$videos            =& JTable::getInstance('Video', 'CTable');
-		$message           =& JTable::getInstance('Message', 'CTable');
+		$photos            =  JTable::getInstance('Photo', 'CTable');
+		$videos            =  JTable::getInstance('Video', 'CTable');
+		$message           =  JTable::getInstance('Message', 'CTable');
 
 		foreach ($notifications as $key => $value)
 		{
@@ -1171,7 +1171,7 @@ class user
 		}
 
 		//update the last notification viewing to user params
-		$date =& JFactory::getDate();
+		$date =  JFactory::getDate();
 		$myParams->set('lastnotificationlist', $date->toSql());
 		$this->my->save('params');
 
@@ -1212,7 +1212,7 @@ class user
 	private function getPreferences()
 	{
 		CFactory::setActiveProfile();
-		$params =& $this->my->getParams();
+		$params =  $this->my->getParams();
 
 		$query = "SELECT `jomsocial_params`
 				FROM #__ijoomeradv_users
@@ -1556,7 +1556,7 @@ class user
 	private function setPreferences()
 	{
 		$formData = IJReq::getTaskData('formData');
-		$params   =& $this->my->getParams();
+		$params   =  $this->my->getParams();
 
 		foreach ($formData as $key => $value)
 		{
