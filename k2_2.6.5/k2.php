@@ -33,7 +33,7 @@ class k2
 
 	function init()
 	{
-		$lang =& JFactory::getLanguage();
+		$lang =  JFactory::getLanguage();
 		$lang->load('com_k2');
 		$lang->load('k2', JPATH_COMPONENT_SITE . '/extensions/k2', $lang->getTag(), true);
 	}
@@ -41,7 +41,7 @@ class k2
 	function getconfig()
 	{
 		$jsonarray = array();
-		$db        =& JFactory::getDBO();
+		$db        =  JFactory::getDBO();
 		$query     = "SELECT value
 				From #__ijoomeradv_k2_config
 				WHERE name='COMMENT_SETTINGS'";
@@ -559,7 +559,7 @@ class k2_menu
 				{
 					foreach ($menuoptions['remoteUse']['userIDs'] as $kk => $vv)
 					{
-						$db  = &JFactory::getDBO();
+						$db  = JFactory::getDBO();
 						$sql = "SELECT u.name
 		    						FROM #__users as u
 		    						WHERE u.id=" . $vv;
@@ -587,7 +587,7 @@ class k2_menu
 				{
 					foreach ($menuoptions['remoteUse']['catId'] as $ke => $ve)
 					{
-						$db  = &JFactory::getDBO();
+						$db  = JFactory::getDBO();
 						$sql = "SELECT c.name
 	    						FROM #__k2_categories as c
 	    						WHERE c.id=" . $ve;
@@ -621,7 +621,7 @@ class k2_menu
 
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
-		$db      = &JFactory::getDBO();
+		$db      = JFactory::getDBO();
 		$options = null;
 		switch ($extTask)
 		{

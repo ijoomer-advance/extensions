@@ -82,7 +82,7 @@ class wall
 		{
 			case 'activity';
 				$actconfig    = $this->config->get('frontpageactivitydefault');
-				$friendsModel = &CFactory::getModel('friends');
+				$friendsModel = CFactory::getModel('friends');
 				$frids        = $friendsModel->getFriendIds($this->IJUserID);
 
 				if ($actconfig == 'all')
@@ -278,7 +278,7 @@ class wall
 							$this->jsonarray['update'][$inc]['type'] = 'videos';
 
 							$content_id = $this->getActivityContentID($html->id);
-							$video      =& JTable::getInstance('Video', 'CTable');
+							$video      =  JTable::getInstance('Video', 'CTable');
 							$video->load($content_id);
 							$videos   = array();
 							$videos[] = $video;
@@ -605,7 +605,7 @@ class wall
 						$this->jsonarray['update'][$inc]['type'] = 'announcement';
 						$content_id                              = $this->getActivityContentID($html->id);
 
-						$bulletin =& JTable::getInstance('Bulletin', 'CTable');
+						$bulletin =  JTable::getInstance('Bulletin', 'CTable');
 						$bulletin->load($content_id);
 						if ($bulletin->id)
 						{
@@ -654,7 +654,7 @@ class wall
 					case 'groups.discussion':
 						$content_id = $this->getActivityContentID($html->id);
 
-						$discussion =& JTable::getInstance('Discussion', 'CTable');
+						$discussion =  JTable::getInstance('Discussion', 'CTable');
 						$discussion->load($content_id);
 
 						if ($discussion->id)
@@ -678,7 +678,7 @@ class wall
 								$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
 
-							$wallModel                                                         =& CFactory::getModel('wall');
+							$wallModel                                                         =  CFactory::getModel('wall');
 							$wallContents                                                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 							$this->jsonarray['update'][$inc]['content_data']['topics']         = count($wallContents);
 							$params                                                            = new CParameter($discussion->params);
@@ -727,7 +727,7 @@ class wall
 						{
 							$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
-						$group =& JTable::getInstance('Group', 'CTable');
+						$group =  JTable::getInstance('Group', 'CTable');
 						$group->load($html->groupid);
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $group->isAdmin($this->IJUserID));
 						$this->jsonarray['update'][$inc]['liketype']      = 'groups.wall';
@@ -781,7 +781,7 @@ class wall
 						{
 							$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
-						$event =& JTable::getInstance('Event', 'CTable');
+						$event =  JTable::getInstance('Event', 'CTable');
 						$event->load($html->eventid);
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $event->isAdmin($this->IJUserID));
 						$this->jsonarray['update'][$inc]['liketype']      = 'events.wall';
@@ -927,7 +927,7 @@ class wall
 	private function getGroupData($id, &$result)
 	{
 		CFactory::load('helpers', 'owner');
-		$group =& JTable::getInstance('Group', 'CTable');
+		$group =  JTable::getInstance('Group', 'CTable');
 		$group->load($id);
 
 		$result['id']          = $group->id;
@@ -958,7 +958,7 @@ class wall
 	// get event data
 	private function getEventData($id, &$result)
 	{
-		$event =& JTable::getInstance('Event', 'CTable');
+		$event =  JTable::getInstance('Event', 'CTable');
 		$event->load($id);
 
 		$format = ($this->config->get('eventshowampm')) ? JText::_('COM_COMMUNITY_DATE_FORMAT_LC2_12H') : JText::_('COM_COMMUNITY_DATE_FORMAT_LC2_24H');
@@ -979,8 +979,8 @@ class wall
 
 	private function _getData($options)
 	{
-		$dispatcher =& CDispatcher::getInstanceStatic();
-		$observers  =& $dispatcher->getObservers();
+		$dispatcher =  CDispatcher::getInstanceStatic();
+		$observers  =  $dispatcher->getObservers();
 		$plgObj     = false;
 		for ($i = 0; $i < count($observers); $i++)
 		{
@@ -1054,7 +1054,7 @@ class wall
 
 		for ($i = 0; $i < count($rows); $i++)
 		{
-			$row =& $rows[$i];
+			$row =  $rows[$i];
 
 
 			// A 'used' activities = activities that has been aggregated
@@ -1081,14 +1081,14 @@ class wall
 		for ($i = 0; $i < count($rows) && (count($htmlData) <= $maxList); $i++)
 		{
 			$row  = $rows[$i];
-			$oRow =& $rows[$i];    // The original object
+			$oRow =  $rows[$i];    // The original object
 
 			// store aggregated activities
 			$oRow->activities = array();
 
 			if (!$row->used && count($htmlData) <= $maxList)
 			{
-				$oRow =& $rows[$i];
+				$oRow =  $rows[$i];
 
 				if (!isset($row->used))
 				{
@@ -1436,7 +1436,7 @@ class wall
 
 		if (empty($instances[$id]))
 		{
-			$my       =& JFactory::getUser($this->IJUserID);
+			$my       =  JFactory::getUser($this->IJUserID);
 			$linkName = ($id == 0) ? false : true;
 			$user     = CFactory::getUser($id);
 			$name     = $user->getDisplayName();
@@ -1458,7 +1458,7 @@ class wall
 
 		if (empty($instances[$id]))
 		{
-			$my       =& JFactory::getUser($this->IJUserID);
+			$my       =  JFactory::getUser($this->IJUserID);
 			$format   = JRequest::getVar('format', 'html', 'REQUEST');
 			$linkName = ($id == 0) ? false : true;
 			$user     = CFactory::getUser($id);
@@ -1603,7 +1603,7 @@ class wall
 				$status->update($this->IJUserID, $rawMessage, $privacy);
 
 				//set user status for current session.
-				$today    =& JFactory::getDate();
+				$today    =  JFactory::getDate();
 				$message2 = (empty($message)) ? ' ' : $message;
 				$this->my->set('_status', $rawMessage);
 				$this->my->set('_posted_on', $today->toSQL());
@@ -1711,7 +1711,7 @@ class wall
 
 		// Pull the activity record and find out the actor
 		// only allow comment if the actor is a friend of current user
-		$act =& JTable::getInstance('Activity', 'CTable');
+		$act =  JTable::getInstance('Activity', 'CTable');
 		$act->load($actid);
 
 		//who can add comment
@@ -1719,19 +1719,19 @@ class wall
 
 		if ($act->groupid > 0)
 		{
-			$obj =& JTable::getInstance('Group', 'CTable');
+			$obj =  JTable::getInstance('Group', 'CTable');
 			$obj->load($act->groupid);
 		}
 		else if ($act->eventid > 0)
 		{
-			$obj =& JTable::getInstance('Event', 'CTable');
+			$obj =  JTable::getInstance('Event', 'CTable');
 			$obj->load($act->eventid);
 		}
 
 		if ($this->my->authorise('community.add', 'activities.comment.' . $act->actor, $obj))
 		{
 
-			$table            =& JTable::getInstance('Wall', 'CTable');
+			$table            =  JTable::getInstance('Wall', 'CTable');
 			$table->type      = $act->comment_type;
 			$table->contentid = $act->comment_id;
 			$table->post_by   = $this->my->id;
@@ -1849,7 +1849,7 @@ class wall
 						$pushcontentdata['type'] = 'videos';
 
 						$content_id = $this->getActivityContentID($html->id);
-						$video      =& JTable::getInstance('Video', 'CTable');
+						$video      =  JTable::getInstance('Video', 'CTable');
 						$video->load($content_id);
 						if ($video->id)
 						{
@@ -1948,7 +1948,7 @@ class wall
 					case 'photos':
 						$pushcontentdata['type'] = 'photos';
 						$content_id              = $this->getActivityContentID($html->id);
-						$album                   =& JTable::getInstance('Album', 'CTable');
+						$album                   =  JTable::getInstance('Album', 'CTable');
 						$album->load($content_id);
 						if ($album->id)
 						{
@@ -2084,7 +2084,7 @@ class wall
 						$pushcontentdata['type'] = 'announcement';
 						$content_id              = $this->getActivityContentID($html->id);
 
-						$bulletin =& JTable::getInstance('Bulletin', 'CTable');
+						$bulletin =  JTable::getInstance('Bulletin', 'CTable');
 						$bulletin->load($content_id);
 						if ($bulletin->id)
 						{
@@ -2133,7 +2133,7 @@ class wall
 					case 'groups.discussion':
 						$content_id = $this->getActivityContentID($html->id);
 
-						$discussion =& JTable::getInstance('Discussion', 'CTable');
+						$discussion =  JTable::getInstance('Discussion', 'CTable');
 						$discussion->load($content_id);
 
 						if ($discussion->id)
@@ -2157,7 +2157,7 @@ class wall
 								$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
 
-							$wallModel                                         =& CFactory::getModel('wall');
+							$wallModel                                         =  CFactory::getModel('wall');
 							$wallContents                                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 							$pushcontentdata['content_data']['topics']         = count($wallContents);
 							$params                                            = new CParameter($discussion->params);
@@ -2206,7 +2206,7 @@ class wall
 						{
 							$pushcontentdata['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
-						$group =& JTable::getInstance('Group', 'CTable');
+						$group =  JTable::getInstance('Group', 'CTable');
 						$group->load($html->groupid);
 						$pushcontentdata['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $group->isAdmin($this->IJUserID));
 						$pushcontentdata['liketype']      = 'groups.wall';
@@ -2250,7 +2250,7 @@ class wall
 						{
 							$pushcontentdata['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
-						$event =& JTable::getInstance('Event', 'CTable');
+						$event =  JTable::getInstance('Event', 'CTable');
 						$event->load($html->eventid);
 						$pushcontentdata['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $event->isAdmin($this->IJUserID));
 						$pushcontentdata['liketype']      = 'events.wall';
@@ -2377,7 +2377,7 @@ class wall
 		// to do user premission checking
 		$user = CFactory::getUser($this->IJUserID);
 
-		$activity =& JTable::getInstance('Activity', 'CTable');
+		$activity =  JTable::getInstance('Activity', 'CTable');
 		$activity->load($uniqueID);
 		if ($activity->allowDelete())
 		{
@@ -2395,7 +2395,7 @@ class wall
 		$filter = JFilterInput::getInstance();
 		$wallid = $filter->clean($wallid, 'int');
 
-		$table =& JTable::getInstance('Wall', 'CTable');
+		$table =  JTable::getInstance('Wall', 'CTable');
 		$table->load($wallid);
 		if ($table->delete())
 		{
