@@ -31,7 +31,7 @@ class jomsocial
 		require_once JPATH_ROOT . '/components/com_community/views/views.php';
 		require_once JPATH_ROOT . '/components/com_community/views//inbox/view.html.php';
 
-		$lang =& JFactory::getLanguage();
+		$lang  = JFactory::getLanguage();
 		$lang->load('com_community');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('jomsocial', $plugin_path . '/jomsocial', $lang->getTag(), true);
@@ -65,7 +65,7 @@ class jomsocial
 		$jsonarray['termsObject']     = '{"extName":"jomsocial","extView":"user","extTask":"getTermsNCondition"}';
 
 		//List ijoomeradv jomsocial config in applicationConfig
-		$db    =& JFactory::getDBO();
+		$db     = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_jomsocial_config
 				WHERE name='ENABLE_VOICE'";
@@ -78,7 +78,7 @@ class jomsocial
 
 	function write_configuration(&$d)
 	{
-		$db    =& JFactory::getDBO();
+		$db     = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_jomsocial_config";
 		$db->setQuery($query);
@@ -108,7 +108,7 @@ class jomsocial
 	 */
 	function prepareHTML(&$config)
 	{
-		$db =& JFactory::getDBO();
+		$db  = JFactory::getDBO();
 		foreach ($config as $key => $value)
 		{
 			$config[$key]->caption     = JText::_($value->caption);

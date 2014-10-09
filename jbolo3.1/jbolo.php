@@ -25,7 +25,7 @@ class jbolo
 
 	function init()
 	{
-		$lang =& JFactory::getLanguage();
+		$lang  = JFactory::getLanguage();
 		$lang->load('com_jbolo');
 		$lang->load('jbolo', JPATH_COMPONENT_SITE . '/extensions/jbolo', $lang->getTag(), true);
 	}
@@ -83,7 +83,7 @@ class jbolo_menu
 
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
-		$db      = &JFactory::getDBO();
+		$db      = JFactory::getDBO();
 		$options = null;
 		switch ($extTask)
 		{

@@ -22,7 +22,7 @@ class icms
 		include_once JPATH_SITE . '/components/com_content/models/archive.php';
 		include_once JPATH_SITE . '/components/com_content/helpers/query.php';
 
-		$lang =& JFactory::getLanguage();
+		$lang  = JFactory::getLanguage();
 		$lang->load('com_content');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('icms', $plugin_path . '/icms', $lang->getTag(), true);
@@ -136,7 +136,7 @@ class icms_menu
 
 			case 'singleArticle':
 				$selvalue = $menuoptions['remoteUse']['id'];
-				$db       = &JFactory::getDBO();
+				$db       = JFactory::getDBO();
 				$sql      = 'SELECT title FROM #__content
 						WHERE id=' . $selvalue;
 				$db->setQuery($sql);
@@ -180,7 +180,7 @@ class icms_menu
 
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
-		$db      = &JFactory::getDBO();
+		$db      = JFactory::getDBO();
 		$options = null;
 		switch ($extTask)
 		{

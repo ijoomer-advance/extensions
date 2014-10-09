@@ -21,7 +21,7 @@ class easyblog
 		include_once JPATH_SITE . '/components/com_easyblog/models/blog.php';
 		include_once JPATH_SITE . '/components/com_easyblog/models/blogs.php';
 
-		$lang =& JFactory::getLanguage();
+		$lang = JFactory::getLanguage();
 		$lang->load('com_easyblog');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('easyblog', $plugin_path . '/easyblog', $lang->getTag(), true);
