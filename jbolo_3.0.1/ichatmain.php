@@ -1,9 +1,9 @@
 <?php
 /**
- * @package     IJoomer.extensions
+ * @package     IJoomer.Extensions
  * @subpackage  jbolo_3.0.1
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2010 - 2014 Tailored Solutions PVT. Ltd. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
