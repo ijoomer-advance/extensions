@@ -1,13 +1,11 @@
 <?php
-/*--------------------------------------------------------------------------------
-# Ijoomeradv Extension : Jomsocial_1.5 (compatible with jomsocial 2.6)
-# ------------------------------------------------------------------------
-# author Tailored Solutions - ijoomer.com
-# copyright Copyright (C) 2010 Tailored Solutions. All rights reserved.
-# @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
-# Websites: http://www.ijoomer.com
-# Technical Support: Forum - http://www.ijoomer.com/Forum/
-----------------------------------------------------------------------------------*/
+/**
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ *
+ * @copyright   Copyright (C) 2010 - 2014 Tailored Solutions PVT. Ltd. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 defined('_JEXEC') or die;
 jimport('joomla.application.component.model');

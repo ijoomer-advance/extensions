@@ -1,13 +1,12 @@
 <?php
-/*--------------------------------------------------------------------------------
-# Ijoomeradv Extension : JBOLO_1.4 (compatible with joomla 2.5)
-# ------------------------------------------------------------------------
-# author Tailored Solutions - ijoomer.com
-# copyright Copyright (C) 2010 Tailored Solutions. All rights reserved.
-# @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
-# Websites: http://www.ijoomer.com
-# Technical Support: Forum - http://www.ijoomer.com/Forum/
-----------------------------------------------------------------------------------*/
+/**
+ * @package     IJoomer.Extensions
+ * @subpackage  jbolo3.1
+ *
+ * @copyright   Copyright (C) 2010 - 2014 Tailored Solutions PVT. Ltd. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 defined('_JEXEC') or die ('Restricted access');
 jimport('joomla.application.component.helper');
 jimport('joomla.filesystem.folder');
