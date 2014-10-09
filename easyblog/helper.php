@@ -36,7 +36,7 @@ class easyblog_helper
 	function getAllBlogCategory()
 	{
 		require_once JPATH_ADMINISTRATOR . '/components/com_easyblog/models/categories.php';
-		$class = new EasyBlogModelCategories
+		$class = new EasyBlogModelCategories;
 		$query = $class->_buildQuery();
 
 		$this->db_helper->setQuery($query);
