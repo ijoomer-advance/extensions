@@ -211,7 +211,7 @@ class sobipro_menu
 								var searchReq = window.XMLHttpRequest ? new XMLHttpRequest(): new ActiveXObject("Microsoft.XMLHTTP");
 								var sid=document.getElementById("sid").value;
 								document.getElementById("selectedCat").value = sid;
-								var oMyForm = new FormData();
+								var oMyForm = new FormData;
 								oMyForm.append("task", "entry.search");
 								oMyForm.append("sid", sid);
 								oMyForm.append("format", "raw");

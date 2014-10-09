@@ -320,7 +320,7 @@ class jomHelper
 			if (!empty($content))
 			{
 				require_once JPATH_SITE . '/plugins/system/azrul.system/pc_includes/JSON.php';
-				$json = new Services_JSON();
+				$json = new Services_JSON;
 				$data = $json->decode($content);
 
 				if ($data->status == 'OK')
@@ -347,7 +347,7 @@ class jomHelper
 			if (!empty($content))
 			{
 				require_once JPATH_SITE . '/plugins/system/azrul.system/pc_includes/JSON.php';
-				$json = new Services_JSON();
+				$json = new Services_JSON;
 				$data = $json->decode($content);
 				if ($data->status == 'OK')
 				{
@@ -397,7 +397,7 @@ class jomHelper
 	{
 		jimport('joomla.utilities.date');
 		require_once JPATH_ROOT . '/components/com_community/helpers/string.php';
-		$now      = new JDate();
+		$now      = new JDate;
 		$dateDiff = CTimeHelper::timeDifference($date->toUnix(), $now->toUnix());
 
 		if ($dateDiff['days'] > 0)
@@ -660,7 +660,7 @@ class jomHelper
 
 		// Load libraries
 		CFactory::load('libraries', 'like');
-		$like = new CLike();
+		$like = new CLike;
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album' || $element == 'albums' || $element == 'photos.wall.create')
 		{
@@ -957,7 +957,7 @@ class jomHelper
 
 		// Load libraries
 		CFactory::load('libraries', 'like');
-		$dislike = new CLike();
+		$dislike = new CLike;
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album')
 		{
@@ -1007,7 +1007,7 @@ class jomHelper
 
 		// Load libraries
 		CFactory::load('libraries', 'like');
-		$unlike = new CLike();
+		$unlike = new CLike;
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album' || $element == 'albums' || $element == 'photos.wall.create')
 		{
@@ -1046,7 +1046,7 @@ class jomHelper
 		$like =& JTable::getInstance('Like', 'CTable');
 		$like->loadInfo($element, $itemId);
 		CFactory::load('libraries', 'like');
-		$likes                   = new CLike();
+		$likes                   = new CLike;
 		$result->userLiked       = $likes->userLiked($element, $itemId, $userId);
 		$result->likesInArray    = array();
 		$result->dislikesInArray = array();
@@ -1188,7 +1188,7 @@ class jomHelper
 			$this->updateLatLong($userID, $latitude, $longitude);
 		}
 
-		$user            = new stdClass();
+		$user            = new stdClass;
 		$user->id        = ($this->IJUserID == $userObj->id) ? 0 : intval($userObj->id);
 		$user->name      = $this->getName($userObj);
 		$user->status    = $userObj->_status;
@@ -1374,7 +1374,7 @@ class jomHelper
 				{
 					case 'registered_users':
 						$usersModel = CFactory::getModel('user');
-						$now        = new JDate();
+						$now        = new JDate;
 						$date       = CTimeHelper::getDate();
 
 						$users           = $usersModel->getUserRegisteredByMonth($now->format('Y-m'));
