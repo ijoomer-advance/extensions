@@ -1,10 +1,10 @@
 <?php
 /**
- * @package     IJoomer.extensions
- * @subpackage  sobipro
+ * @package     IJoomer.Extensions
+ * @subpackage  sobipro_1.0.8
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @copyright   Copyright (C) 2010 - 2014 Tailored Solutions PVT. Ltd. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
 defined('_JEXEC') or die ('Restricted access');

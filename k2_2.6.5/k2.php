@@ -1,10 +1,10 @@
 <?php
 /**
- * @package     IJoomer.extensions
- * @subpackage  k2
+ * @package     IJoomer.Extensions
+ * @subpackage  k2_2.6.5
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @copyright   Copyright (C) 2010 - 2014 Tailored Solutions PVT. Ltd. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
 class k2
