@@ -370,7 +370,6 @@ class user{
 			//trim it here so that it wun go into activities stream.
 			$message = JString::trim($message);
 			CFactory::load( 'models' , 'status' );
-			//$status	=CFactory::getModel('status');
 
 			// @rule: Spam checks
 			if( $this->config->get( 'antispam_akismet_status') ){
@@ -712,17 +711,10 @@ class user{
 			$isNew=($this->db->loadResult() <= 0) ? true : false;
 
 			if(!$isNew){
-				/*$query="UPDATE #__community_fields_values
-						SET `value`='{$fvalue[0]}',
-						`access`={$fvalue[1]}
-						WHERE `user_id` ={$this->IJUserID}
-						AND `field_id`={$fid}";	*/
 				$query = " UPDATE #__community_fields_values
 						SET `value`='$fvalue[0]', `access`=$fvalue[1]
 						WHERE `user_id`=$this->IJUserID AND `field_id`=$fid";
 			}else{
-				/*$query="INSERT INTO #__community_fields_values'
-            			SET `user_id`={$this->IJUserID}, `field_id`={$fid}, `value`='{$fvalue[0]}', `access`='{$fvalue[1]}'";*/
             	$query="INSERT INTO #__community_fields_values (user_id,field_id,value,access)
             			VALUES ({$this->IJUserID}, {$fid}, '{$fvalue[0]}', '{$fvalue[1]}')";
 			}
@@ -1118,27 +1110,6 @@ class user{
 		//update notification counter
 		return $this->jsonarray;
 	}
-
-
-	/**
-	 * @uses function to get activities
-	 * @example the json string will be like, :
-	 * 	{
-	 * 		"extName":"jomsocial",
-	 *		"extView":"user",
- 	 *		"extTask":"activities",
-	 * 		"taskData":{
-	 * 			"pageNO":"pageNO"
-	 * 		}
-	 * 	}
-	 *
-	 */
-	/*function activities(){
-
-
-
-		return $this->jsonarray;
-	}*/
 
 
 	/**

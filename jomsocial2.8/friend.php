@@ -59,7 +59,6 @@ class friend{
 		$searchModel->setState('limit',PAGE_MEMBER_LIMIT);
  	 	$searchModel->setState('limitstart',$startFrom);
 
-		//$results = $searchModel->getPeople($sorted='latest',$filter='all');
 		$results = $searchModel->getPeople($sorted='alphabetical',$filter='all');
 		if(count($results)<=0){
 			IJReq::setResponse(204);
@@ -143,7 +142,6 @@ class friend{
 		$friendsModel->setState('limit', PAGE_MEMBER_LIMIT);
         $friendsModel->setState('limitstart', $startFrom);
 
-		//$results = $friendsModel->getFriends($userID,'',true,$keyword);
 		$results = $friendsModel->getFriends($userID,'name',true,$keyword);
 		if(count($results)<=0){
 			IJReq::setResponse(204);
@@ -366,7 +364,7 @@ class friend{
 				$act->cmd 		= 'friends.request.approve';
 				$act->actor   	= $connected[0];
 				$act->target  	= $connected[1];
-				$act->title	  	= '';//JText::_('COM_COMMUNITY_ACTIVITY_FRIENDS_NOW');
+				$act->title	  	= '';
 				$act->content	= '';
 				$act->app		= 'friends.connect';
 				$act->cid		= 0;

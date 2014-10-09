@@ -228,8 +228,6 @@ class jomHelper{
 			//print "Failed to connect $err $errstr\n";
 			return;
 		}
-		//
-		//$payload = '{"aps": {"badge": 1, "alert": "Hello from iJoomer!", "sound": "cow","type":"online"}}';//json_encode($body);
 		$payload = json_encode($body);
 
 		$msg = chr(0) . pack("n",32) . pack('H*', str_replace(' ', '', $device_token)) . pack("n",strlen($payload)) . $payload;
@@ -718,7 +716,6 @@ class jomHelper{
 						$replace = array($usr->name,JText::_('COM_COMMUNITY_SINGULAR_STREAM'));
 						$message = str_replace($search,$replace,JText::_('COM_COMMUNITY_PROFILE_STREAM_LIKE_EMAIL_SUBJECT'));
 
-					//$pushcontentdata['id'] = $this->IJUserID;
 						CFactory::load( 'libraries' , 'activities' );
 						$actModel = CFactory::getModel( 'Activities' );
 						$html = $actModel->getActivities('', '', null, 1 , true , null , false,$itemId);
@@ -1691,7 +1688,6 @@ class jomHelper{
     			$sec 	= explode('.',$duration[2]);
 
     			$voicefiletext = $randomname.'.mp3';
-    			//$durationtext = $minute.':'.$sec[0];
     			$durationtext = (($minute*60)+$sec[0]);
 
     			$fileinfo['voicetext'] 	=  '{voice}'.$voicefiletext.'&'.$durationtext.'{/voice}';

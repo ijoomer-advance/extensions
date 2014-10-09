@@ -315,8 +315,6 @@ class group{
 						$this->jsonarray['code']=200;
 						return $this->jsonarray;
 					}else{
-						//IJReq::setResponse(500);
-						//IJException::setErrorInfo(__FILE__,__LINE__,__CLASS__,__METHOD__,__FUNCTION__);
 						return false;
 					}
 				}
@@ -901,7 +899,7 @@ class group{
 		// options starts from here
 		$this->jsonarray['group']['menu']['shareGroup']		= 0;
 		$this->jsonarray['group']['menu']['reportGroup']	= 0;
-		if( ($isMember /*&& !$isBanned*/) || ((!$isMember /*&& !$isBanned*/) && !$waitingApproval) || $isMine || $isAdmin || $isSuperAdmin ) {
+		if( ($isMember /*&& !$isBanned*/) || ((!$isMember) && !$waitingApproval) || $isMine || $isAdmin || $isSuperAdmin ) {
 			$this->jsonarray['group']['menu']['shareGroup'] = 1;
 			$this->jsonarray['group']['menu']['reportGroup'] = 1;
 
@@ -3101,7 +3099,6 @@ class group{
 						$act->app		= 'groups';
 						$act->cid		= $group->id;
 
-						//$params = new JParameter('');
 						$params = new CParameter('');
 						$params->set( 'group_url' , 'index.php?option=com_community&view=groups&task=viewgroup&groupid=' . $group->id );
 
@@ -3522,8 +3519,6 @@ class group{
 		}else{
 			$table->delete();
 		}
-		//$group	=& JTable::getInstance( 'Group' , 'CTable' );
-		//$group->load( $table->groupid );
 
 		$this->jsonarray['code']=200;
 		return $this->jsonarray;
@@ -4075,7 +4070,6 @@ class group{
 			$this->db->setQuery($query);
 			$data = $this->db->loadObject();
 
-			//JTable::addIncludePath(JPATH_ROOT . '/components/com_community/tables');
 	       	$table 	=& JTable::getInstance('Wall','CTable');
 
 			$table->contentid = $data->comment_id;
@@ -4140,7 +4134,6 @@ class group{
 				// Allow Like
 				$act->like_type = 'groups.wall';
 				$act->like_id = CActivities::COMMENT_SELF;
-				//CActivityStream::add( $act, $params->toString() );
 				CActivityStream::add($act);
 			//}
 
