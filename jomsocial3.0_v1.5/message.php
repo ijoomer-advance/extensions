@@ -26,7 +26,7 @@ class message
 
 	function __construct()
 	{
-		$this->jomHelper = new jomHelper();
+		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
 		$this->db        = JFactory::getDBO(); // set database object
@@ -281,7 +281,7 @@ class message
 			$filter ['msgId'] = $parentId;
 			$filter ['to']    = $this->IJUserID;
 
-			$data           = new stdClass();
+			$data           = new stdClass;
 			$data->messages = $inboxModel->getMessages($filter, true);
 
 			$childCount = count($data->messages);
@@ -417,7 +417,7 @@ class message
 				// Block users
 				CFactory::load('helpers', 'owner');
 				CFactory::load('libraries', 'block');
-				$getBlockStatus = new blockUser();
+				$getBlockStatus = new blockUser;
 
 				// Enable multiple recipients
 				// @since 2.4
@@ -503,7 +503,7 @@ class message
 				$pushOptions['detail']['content_data'] = $pushcontentdata;
 				$pushOptions                           = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
@@ -551,7 +551,7 @@ class message
 		// Block users
 		CFactory::load('helpers', 'owner');
 		CFactory::load('libraries', 'block');
-		$getBlockStatus = new blockUser();
+		$getBlockStatus = new blockUser;
 
 		if ($getBlockStatus->isUserBlocked($messageRecepient[0], 'inbox') && !COwnerHelper::isCommunityAdmin())
 		{
@@ -646,7 +646,7 @@ class message
 		$replace = array(JText::_('COM_COMMUNITY_PRIVATE_MESSAGE'), $usr->name);
 		$message = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_SENT_YOU_MESSAGE'));
 
-		$obj          = new stdClass();
+		$obj          = new stdClass;
 		$obj->id      = null;
 		$obj->detail  = $pushOptions;
 		$obj->tocount = count($messageRecepient);
@@ -699,7 +699,7 @@ class message
 		$date    = JFactory::getDate(); //get the time without any offset!
 		$cDate   = $date->toSql();
 
-		$obj            = new stdClass();
+		$obj            = new stdClass;
 		$obj->id        = null;
 		$obj->from      = $this->IJUserID;
 		$obj->posted_on = $date->toSql();
@@ -741,7 +741,7 @@ class message
 	private function addReceipient($msgObj, $recepientId)
 	{
 
-		$recepient             = new stdClass();
+		$recepient             = new stdClass;
 		$recepient->msg_id     = $msgObj->id;
 		$recepient->msg_parent = $msgObj->parent;
 		$recepient->msg_from   = $msgObj->from;

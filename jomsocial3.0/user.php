@@ -24,7 +24,7 @@ class user
 
 	function __construct()
 	{
-		$this->jomHelper = new jomHelper();
+		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
 		$this->db        = JFactory::getDBO(); // set database object
@@ -84,7 +84,7 @@ class user
 		// add count to visited user profile.
 		$this->profileViewCount($userID);
 
-		$this->jomHelper         = new jomHelper();
+		$this->jomHelper         = new jomHelper;
 		$this->jsonarray['code'] = 200;
 
 		$usr                              = $this->jomHelper->getUserDetail($userID);
@@ -356,7 +356,7 @@ class user
 
 				$msg = JText::_('COM_COMMUNITY_ACTIVITIES_NEW_AVATAR');
 
-				$act               = new stdClass();
+				$act               = new stdClass;
 				$act->cmd          = 'profile.avatar.upload';
 				$act->actor        = $this->my->id;
 				$act->target       = 0;
@@ -436,7 +436,7 @@ class user
 
 			if (!empty($message))
 			{
-				$act         = new stdClass();
+				$act         = new stdClass;
 				$act->cmd    = 'profile.status.update';
 				$act->actor  = $this->my->id;
 				$act->target = $this->my->id;
@@ -499,7 +499,7 @@ class user
 		$appsLib->triggerEvent('onProfileStatusUpdate', $args);
 
 		$today           =& JFactory::getDate();
-		$data            = new stdClass();
+		$data            = new stdClass;
 		$data->userid    = $id;
 		$data->status    = $status;
 		$data->posted_on = $today->toSql();
@@ -1694,7 +1694,7 @@ class user
 	private function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
-		$now      = new JDate();
+		$now      = new JDate;
 		$dateDiff = CTimeHelper::timeDifference($date->toUnix(), $now->toUnix());
 
 		if ($dateDiff['days'] > 0)
@@ -1981,14 +1981,14 @@ class user
 
 			$count = count($result);
 
-			$obj                               = new stdClass();
+			$obj                               = new stdClass;
 			$obj->id                           = 93;
 			$obj->type                         = 'group';
 			$obj->name                         = 'Name';
 			$this->jsonarray['fields'][$count] = $obj;
 			$count++;
 
-			$obj                               = new stdClass();
+			$obj                               = new stdClass;
 			$obj->id                           = 94;
 			$obj->type                         = 'text';
 			$obj->name                         = 'Name';
@@ -2018,7 +2018,7 @@ class user
 			$this->jsonarray['fields'][$count] = $obj;
 			$count++;
 
-			$obj                         = new stdClass();
+			$obj                         = new stdClass;
 			$obj->id                     = 95;
 			$obj->type                   = 'text';
 			$obj->name                   = 'E-mail';

@@ -748,7 +748,7 @@ class isobipro extends SPEntryCtrl
 
 		if (file_exists(JPATH_SITE . '/components/com_sobipro/lib/models/review.php'))
 		{
-			$tmpreviewobject = new tmprating();
+			$tmpreviewobject = new tmprating;
 		}
 		$sortBy     = IJReq::getTaskData('sortBy');
 		$sortOrder  = IJReq::getTaskData('sortOrder');
@@ -770,7 +770,7 @@ class isobipro extends SPEntryCtrl
 		$itemLimit = ($entryLimit) ? $entryLimit : $eLimit;
 		$eLimStart = ($pageNO <= 1) ? 0 : $itemLimit * ($pageNO - 1);
 
-		$SPSectionCtrl = new SPSectionCtrl();
+		$SPSectionCtrl = new SPSectionCtrl;
 		$SPSectionCtrl->setModel('SPCategory');
 
 		$obj = ($sectionID && !($catID)) ? SPFactory::object($sectionID) : SPFactory::object($catID);
@@ -2094,7 +2094,7 @@ class isobipro extends SPEntryCtrl
 
 		if (file_exists(JPATH_SITE . '/components/com_sobipro/lib/models/review.php'))
 		{
-			$tmpreviewobject = new tmprating();
+			$tmpreviewobject = new tmprating;
 		}
 		$sortBy        = IJReq::getTaskData('sortBy');
 		$sortOrder     = IJReq::getTaskData('sortOrder');
@@ -2118,7 +2118,7 @@ class isobipro extends SPEntryCtrl
 		}
 		$eLimStart = ($pageNO <= 1) ? 0 : $itemLimit * ($pageNO - 1);
 
-		$SPSectionCtrl = new SPSectionCtrl();
+		$SPSectionCtrl = new SPSectionCtrl;
 		$SPSectionCtrl->setModel('SPCategory');
 		$obj = SPFactory::object($sectionID);
 		$SPSectionCtrl->extend($obj);
@@ -2813,7 +2813,7 @@ class isobipro extends SPEntryCtrl
 			SPFactory::registry()->set('current_section', json_decode(json_encode($sectionID), false));
 			if (file_exists(JPATH_SITE . '/components/com_sobipro/lib/models/review.php'))
 			{
-				$tmpreviewobject = new tmprating();
+				$tmpreviewobject = new tmprating;
 				$tmpreviewobject->setSid($sid);
 				defined('SOBI_ACL') || define('SOBI_ACL', 'front');
 				$savereview = $tmpreviewobject->saveReview($Array);
@@ -3176,7 +3176,7 @@ class isobipro extends SPEntryCtrl
 			require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/interface.php";
 			require_once JPATH_SITE . "/components/com_sobipro/lib/ctrl/entry.php";
 			defined('SOBI_ACL') || define('SOBI_ACL', 'front');
-			$SPJoomlaMainFrame = new SPJoomlaMainFrame();
+			$SPJoomlaMainFrame = new SPJoomlaMainFrame;
 			$token             = $SPJoomlaMainFrame->token();
 			JRequest::setVar($token, 1);
 			$query = "SELECT sc.sValue
@@ -3383,7 +3383,7 @@ class isobipro extends SPEntryCtrl
 			$ctroller = 'SPEntryCtrl';
 			$fun      = 'setModel';
 			Sobi::Trigger($ctroller, $fun, array(&$model));
-			$SPEntryCtrl = new SPEntryCtrl();
+			$SPEntryCtrl = new SPEntryCtrl;
 			$modelsave   = $this->_model->save($request = 'post');
 			IJReq::setResponse(200, "Thank you for your add entry");
 		}

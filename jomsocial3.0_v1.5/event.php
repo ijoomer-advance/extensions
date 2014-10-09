@@ -25,7 +25,7 @@ class event
 
 	function __construct()
 	{
-		$this->jomHelper = new jomHelper();
+		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
 		$this->db        = JFactory::getDBO(); // set database object
@@ -51,7 +51,7 @@ class event
 	 */
 	function categories()
 	{
-		$now = new JDate();
+		$now = new JDate;
 		//Display Category List
 		$query = "SELECT *
 				FROM #__community_events_category
@@ -107,7 +107,7 @@ class event
 	// called from categories
 	private function subCategories($pid)
 	{
-		$now       = new JDate();
+		$now       = new JDate;
 		$jsonarray = array();
 		$query     = 'SELECT *
 				FROM #__community_events_category
@@ -261,7 +261,7 @@ class event
 		}
 
 		$eventsModel =& CFactory::getModel('events');
-		$eventsModel = new CommunityModelEvents();
+		$eventsModel = new CommunityModelEvents;
 		$eventsModel->setState('limit', $limit);
 		$eventsModel->setState('limitstart', $startFrom);
 
@@ -333,10 +333,10 @@ class event
 	function search_field()
 	{
 		require_once JPATH_ROOT . '/components/com_community/helpers/category.php';
-		$halper_category_obj = new CCategoryHelper();
+		$halper_category_obj = new CCategoryHelper;
 
 		require_once JPATH_ROOT . '/components/com_community/helpers/time.php';
-		$halper_time_obj = new CTimeHelper();
+		$halper_time_obj = new CTimeHelper;
 
 		$eventsModel =& CFactory::getModel('events');
 
@@ -567,7 +567,7 @@ class event
 		$waitingRespond = false;
 
 		// Is this event is a past event?
-		$now = new JDate();
+		$now = new JDate;
 		//if joomla 1.5 enable this
 		$isPastEvent = ($event->getEndDate(false)->toSQL() < $now->toSql(true)) ? true : false;
 
@@ -1033,7 +1033,7 @@ class event
 		$match        = array('{event}', '{title}');
 		$replace      = array($event->title, $title);
 		$message      = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_EVENT_SENDMAIL_SUBJECT'));
-		$obj          = new stdClass();
+		$obj          = new stdClass;
 		$obj->id      = null;
 		$obj->detail  = $pushOptions;
 		$obj->tocount = count($puserlist);
@@ -1174,7 +1174,7 @@ class event
 			$match        = array('{actor}', '{event}');
 			$replace      = array($usr->name, $event->title);
 			$message      = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_EVENT_JOIN_REQUEST_SUBJECT'));
-			$obj          = new stdClass();
+			$obj          = new stdClass;
 			$obj->id      = null;
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
@@ -1309,7 +1309,7 @@ class event
 			$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
 			$message      = str_replace('{event}', $event->title, JText::sprintf('COM_COMMUNITY_EVENTS_EMAIL_SUBJECT'));
-			$obj          = new stdClass();
+			$obj          = new stdClass;
 			$obj->id      = null;
 			$obj->detail  = $pushOptions;
 			$obj->tocount = 1;
@@ -1916,10 +1916,10 @@ class event
 
 		CFactory::load('libraries', 'reporting');
 
-		$report = new CReportingLibrary();
+		$report = new CReportingLibrary;
 		$report->createReport(JText::_('COM_COMMUNITY_EVENTS_BAD'), $link, $message);
 
-		$action                = new stdClass();
+		$action                = new stdClass;
 		$action->label         = 'Unpublish event';
 		$action->method        = 'events,unpublishEvent';
 		$action->parameters    = $uniqueID;
@@ -2127,8 +2127,8 @@ class event
 		CFactory::load('helpers', 'category');
 		CFactory::load('helpers', 'time');
 
-		$halper_category_obj = new CCategoryHelper();
-		$halper_time_obj     = new CTimeHelper();
+		$halper_category_obj = new CCategoryHelper;
+		$halper_time_obj     = new CTimeHelper;
 
 		$fieldList = array('title'       => array('text', 1, JText::_('COM_COMMUNITY_EVENTS_TITLE_LABEL')),
 		                   'summary'     => array('textarea', 0, JText::_('COM_COMMUNITY_EVENTS_SUMMARY')),
@@ -2490,7 +2490,7 @@ class event
 			$search       = array('{event}', '{group}');
 			$replace      = array($event->title, $group->name);
 			$message      = str_replace($search, $replace, JText::sprintf('COM_COMMUNITY_GROUP_NEW_EVENT_NOTIFICATION'));
-			$obj          = new stdClass();
+			$obj          = new stdClass;
 			$obj->id      = null;
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
@@ -2914,7 +2914,7 @@ class event
 			$match        = array('{actor}', '{event}');
 			$replace      = array($usr->name, $event->title);
 			$message      = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_EVENTS_JOIN_INVITE'));
-			$obj          = new stdClass();
+			$obj          = new stdClass;
 			$obj->id      = null;
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
@@ -3174,7 +3174,7 @@ class event
 		{
 			//push to activity stream
 			$privacyParams     = $this->my->getParams();
-			$act               = new stdClass();
+			$act               = new stdClass;
 			$act->cmd          = 'events.wall';
 			$act->actor        = $this->IJUserID;
 			$act->target       = 0;
@@ -3233,7 +3233,7 @@ class event
 		}
 
 		CFactory::load('models', 'activities');
-		$model      = new CommunityModelActivities();
+		$model      = new CommunityModelActivities;
 		$filter     = JFilterInput::getInstance();
 		$app        = $filter->clean($app, 'string');
 		$activityId = $filter->clean($uniqueID, 'int');
