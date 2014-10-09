@@ -18,6 +18,6 @@ class categories
 
 	function __construct()
 	{
-		$this->db =& JFactory::getDBO();
+		$this->db = JFactory::getDBO();
 	}
 }

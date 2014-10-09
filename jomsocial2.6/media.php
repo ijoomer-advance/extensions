@@ -138,7 +138,7 @@ class media
 			}
 			$this->jsonarray ['albums'] [$key] ['date'] = $this->jomHelper->timeLapse($this->jomHelper->getDate($value->lastupdated));
 
-			$user                                               = &CFactory::getUser($value->creator);
+			$user                                                =CFactory::getUser($value->creator);
 			$usr                                                = $this->jomHelper->getUserDetail($value->creator);
 			$this->jsonarray ['albums'] [$key] ['user_id']      = $usr->id;
 			$this->jsonarray ['albums'] [$key] ['user_name']    = $usr->name;
@@ -362,7 +362,7 @@ class media
 		$activityModel->updatePermission($album->permissions, null, $this->my->id, 'photos', $album->id);
 		$activityModel->update(array('cid' => $album->id, 'app' => 'photos', 'actor' => $this->my->id), array('location' => $album->location));
 
-		$appsLib     = &CAppPlugins::getInstance();
+		$appsLib      =CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-photos-newalbum'));
 
 		$album->store();
@@ -380,7 +380,7 @@ class media
 			if ($groupID)
 			{
 				$groupsModel = CFactory::getModel('groups');
-				$group       =& JTable::getInstance('Group', 'CTable');
+				$group        = JTable::getInstance('Group', 'CTable');
 				$group->load($groupID);
 
 				$memberCount  = $groupsModel->getMembersCount($groupID);
@@ -425,7 +425,7 @@ class media
 				$albumdata['commentCount'] = $count;
 				$albumdata['shareLink']    = JURI::base() . "index.php?option=com_community&view=photos&task=album&albumid={$album->id}&userid={$album->creator}";
 
-				$photoModel =& CFactory::getModel('photos');
+				$photoModel  = CFactory::getModel('photos');
 				$albums     = $photoModel->getGroupAlbums($group->id);
 
 				//$pushcontentdata['id']	= $group->id;
@@ -523,7 +523,7 @@ class media
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib = &CAppPlugins::getInstance();
+		$appsLib  =CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$params    = array();
@@ -585,7 +585,7 @@ class media
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$wallModel = &CFactory::getModel('wall');
+		$wallModel  =CFactory::getModel('wall');
 		$comments  = $wallModel->getPost($type, $uniqueID, $limit, $startFrom);
 		$count     = $this->jomHelper->getCommentCount($uniqueID, $type);
 		if (count($comments) > 0)
@@ -1486,7 +1486,7 @@ class media
 			case 'event' :
 			case 'group' :
 				CFactory::load('models', 'group');
-				$group = &JTable::getInstance('Group', 'CTable');
+				$group  =JTable::getInstance('Group', 'CTable');
 				$group->load($album->groupid);
 				$permission = $group->approvals;
 				break;
@@ -1569,7 +1569,7 @@ class media
 			return false;
 		}
 
-		$wallsModel = &CFactory::getModel('wall');
+		$wallsModel  =CFactory::getModel('wall');
 		$wall       = $wallsModel->get($wallId);
 		$album      = JTable::getInstance('Album', 'CTable');
 		$album->load($wall->contentid);
@@ -1617,7 +1617,7 @@ class media
 			return false;
 		}
 
-		$wallsModel = &CFactory::getModel('wall');
+		$wallsModel  =CFactory::getModel('wall');
 		$wall       = $wallsModel->get($wallId);
 		$photo      = JTable::getInstance('Photo', 'CTable');
 		$photo->load($wall->contentid);
@@ -1675,7 +1675,7 @@ class media
 		}
 
 		// Only allow wall removal by admin or owner of the video.
-		$wallsModel = &CFactory::getModel('wall');
+		$wallsModel  =CFactory::getModel('wall');
 		$wall       = $wallsModel->get($wallId);
 		$video      = JTable::getInstance('Video', 'CTable');
 		$video->load($wall->contentid);
@@ -2046,7 +2046,7 @@ class media
 
 		// Trigger for onPhotoCreate
 		CFactory::load('libraries', 'apps');
-		$apps = &CAppPlugins::getInstance();
+		$apps  =CAppPlugins::getInstance();
 		$apps->loadApplications();
 		$params    = array();
 		$params [] = $photoTable;
@@ -2176,7 +2176,7 @@ class media
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib = &CAppPlugins::getInstance();
+		$appsLib  =CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$params    = array();
@@ -2313,7 +2313,7 @@ class media
 			$this->jsonarray ['tags'] [$key] ['id']        = $value->id;
 			$this->jsonarray ['tags'] [$key] ['position']  = $value->position;
 			$this->jsonarray ['tags'] [$key] ['date']      = $this->jomHelper->timeLapse($this->jomHelper->getDate($value->created));
-			$user                                          = &CFactory::getUser($value->userid);
+			$user                                           =CFactory::getUser($value->userid);
 			$this->jsonarray ['tags'] [$key] ['user_id']   = ($this->IJUserID == $user->id) ? 0 : $user->id;
 			$this->jsonarray ['tags'] [$key] ['user_name'] = $this->jomHelper->getName($user);
 			$access_limit                                  = $this->jomHelper->getUserAccess($this->IJUserID, $user->id);
@@ -2455,7 +2455,7 @@ class media
 
 				// for push notification
 				$message = COM_COMMUNITY_EMAIL_PHOTOS_TAGGING_TEXT;
-				$photo   =& JTable::getInstance('Photo', 'CTable');
+				$photo    = JTable::getInstance('Photo', 'CTable');
 				$photo->load($uniqueID);
 				//album detail
 				$album = JTable::getInstance('Album', 'CTable');
@@ -3022,7 +3022,7 @@ class media
 			$group->load($video->groupid);
 
 			CFactory::load('models', 'groups');
-			//$modelGroup			=& $this->getModel( 'groups' );
+			//$modelGroup			 = $this->getModel( 'groups' );
 			$modelGroup   = new CommunityModelGroups ();
 			$groupMembers = array();
 			$groupMembers = $modelGroup->getMembersId($video->groupid, true);
@@ -3882,7 +3882,7 @@ class media
 			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($video->groupid);
 
-			$modelGroup   = &CFactory::getModel('groups');
+			$modelGroup    =CFactory::getModel('groups');
 			$groupMembers = array();
 			$groupMembers = $modelGroup->getMembersId($video->groupid, true);
 
@@ -4052,7 +4052,7 @@ class media
 	{
 		// Trigger for onVideoCreate
 		CFactory::load('libraries', 'apps');
-		$apps = &CAppPlugins::getInstance();
+		$apps  =CAppPlugins::getInstance();
 		$apps->loadApplications();
 		$params    = array();
 		$params [] = $args;
@@ -5041,9 +5041,9 @@ class media
 		}
 
 		CFactory::load('models', 'photos');
-		$photo =& JTable::getInstance('Photo', 'CTable');
+		$photo  = JTable::getInstance('Photo', 'CTable');
 		$photo->load($uniqueID);
-		$album =& JTable::getInstance('Album', 'CTable');
+		$album  = JTable::getInstance('Album', 'CTable');
 		$album->load($photo->albumid);
 
 		$handler = $this->_getHandler($album);

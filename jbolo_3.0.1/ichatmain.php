@@ -466,7 +466,7 @@ class ichatmain
 
 			return false;
 		}
-		$user              =& JFactory::getUser($uid);
+		$user              =JFactory::getUser($uid);
 		$msg               = preg_replace("/%u([0-9a-f]{3,4})/i", "&#x\\1;", urldecode($msg)); //2.9.5
 		$msg               = html_entity_decode($msg, null, 'UTF-8');//2.9.5
 		$msg               = str_replace("\'", "'", $msg);

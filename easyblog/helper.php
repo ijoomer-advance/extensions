@@ -18,7 +18,7 @@ class easyblog_helper
 
 	function __construct()
 	{
-		$this->db_helper =& JFactory::getDBO();
+		$this->db_helper = JFactory::getDBO();
 	}
 
 	function getAllBlogList()
