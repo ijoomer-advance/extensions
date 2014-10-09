@@ -50,12 +50,12 @@ class categories
 
 		if ($id == 0)
 		{
-			$ContentModelCategories = new ContentModelCategories();
+			$ContentModelCategories = new ContentModelCategories;
 			$categories             = $ContentModelCategories->getItems();
 		}
 		else
 		{
-			$ContentModelCategory = new ContentModelCategory();
+			$ContentModelCategory = new ContentModelCategory;
 			$categories           = $ContentModelCategory->getChildren();
 		}
 
@@ -75,7 +75,7 @@ class categories
 		}
 		else
 		{
-			$ContentModelCategory = new ContentModelCategory();
+			$ContentModelCategory = new ContentModelCategory;
 			$articles             = $ContentModelCategory->getItems();
 			$articles             = json_decode(json_encode($articles));
 		}
@@ -111,7 +111,7 @@ class categories
 		else
 		{
 			require_once JPATH_COMPONENT . '/extensions/icms/articles.php';
-			$articlesObj  = new articles();
+			$articlesObj  = new articles;
 			$articleArray = $articlesObj->getArticleList($articles, $totalarticles, true);
 		}
 
@@ -122,7 +122,7 @@ class categories
 		else
 		{
 			require_once JPATH_SITE . '/components/com_content/models/category.php';
-			$categoryObj   = new ContentModelCategory();
+			$categoryObj   = new ContentModelCategory;
 			$inc           = 0;
 			$categoryArray = array();
 			foreach ($categories as $value)

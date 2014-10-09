@@ -459,7 +459,7 @@ class media
 					$pushOptions['detail']['content_data']['type'] = 'album';
 					$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-					$obj          = new stdClass();
+					$obj          = new stdClass;
 					$obj->id      = null;
 					$obj->detail  = $pushOptions;
 					$obj->tocount = 1;
@@ -1021,7 +1021,7 @@ class media
 				$pushOptions['detail']['content_data']['type'] = 'photos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
@@ -1116,7 +1116,7 @@ class media
 				$pushOptions['detail']['content_data']['type'] = 'photos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
@@ -1303,7 +1303,7 @@ class media
 				$pushOptions['detail']['content_data']['type'] = 'videos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
@@ -1413,7 +1413,7 @@ class media
 				$pushOptions['detail']['content_data']['type'] = 'videos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
@@ -2621,7 +2621,7 @@ class media
 		$replace      = array($target->name, $actor->name, '');
 		$typeupper    = strtoupper($type);
 		$message      = str_replace($search, $replace, JText::_("COM_COMMUNITY_EMAIL_{$typeupper}_TAGGING_TEXT"));
-		$obj          = new stdClass();
+		$obj          = new stdClass;
 		$obj->id      = null;
 		$obj->detail  = $pushOptions;
 		$obj->tocount = 1;
@@ -3122,7 +3122,7 @@ class media
 				$pushOptions['detail']['content_data']['type'] = 'videos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
@@ -3983,7 +3983,7 @@ class media
 				$pushOptions['detail']['content_data']['type'] = 'videos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
 
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
