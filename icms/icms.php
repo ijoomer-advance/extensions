@@ -72,7 +72,7 @@ class icms_menu
 				$selvalue = $menuoptions['remoteUse']['id'];
 				require_once JPATH_ADMINISTRATOR . '/components/com_categories/models/categories.php';
 
-				$class = new CategoriesModelCategories();
+				$class = new CategoriesModelCategories;
 				$query = $class->getListQuery();
 
 				$db = JFactory::getDbo();
@@ -105,7 +105,7 @@ class icms_menu
 				$selvalue = $menuoptions['remoteUse']['id'];
 				require_once JPATH_ADMINISTRATOR . '/components/com_categories/models/categories.php';
 
-				$class = new CategoriesModelCategories();
+				$class = new CategoriesModelCategories;
 				$query = $class->getListQuery();
 
 				$db = JFactory::getDbo();

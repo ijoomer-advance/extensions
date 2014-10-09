@@ -24,7 +24,7 @@ class icms_helper
 	function getCategoryList()
 	{
 		require_once JPATH_ADMINISTRATOR . '/components/com_categories/models/categories.php';
-		$class = new CategoriesModelCategories();
+		$class = new CategoriesModelCategories;
 		$query = $class->getListQuery();
 
 		$this->db_helper->setQuery($query);

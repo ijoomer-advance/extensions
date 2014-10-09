@@ -115,7 +115,7 @@ class ichatmain
 			return false;
 		}
 		$this->jsonarray['code'] = 200;
-		$usersHelper             = new usersHelper();
+		$usersHelper             = new usersHelper;
 		$data                    = $usersHelper->getOnlineUsersInfo($uid);
 		foreach ($data as $dataK => $dataV)
 		{
@@ -144,7 +144,7 @@ class ichatmain
 		}
 
 
-		$nodesHelper = new nodesHelper();
+		$nodesHelper = new nodesHelper;
 		$nodes       = $nodesHelper->getActiveChatNodes($uid);
 		$messages    = array(); //to get msg data
 
@@ -343,7 +343,7 @@ class ichatmain
 
 			return false;
 		}
-		$nodesHelper   = new nodesHelper();
+		$nodesHelper   = new nodesHelper;
 		$node_id_found = $nodesHelper->checkNodeExists($uid, $pid);
 		if (!$node_id_found)
 		{
@@ -470,7 +470,7 @@ class ichatmain
 		$msg               = preg_replace("/%u([0-9a-f]{3,4})/i", "&#x\\1;", urldecode($msg)); //2.9.5
 		$msg               = html_entity_decode($msg, null, 'UTF-8');//2.9.5
 		$msg               = str_replace("\'", "'", $msg);
-		$nodesHelper       = new nodesHelper();
+		$nodesHelper       = new nodesHelper;
 		$isNodeParticipant = $nodesHelper->isNodeParticipant($uid, $nid);
 		if ($isNodeParticipant == 2)//error handling for inactive user
 		{
@@ -545,7 +545,7 @@ class ichatmain
 	 			WHERE chm.msg_id=" . $new_mid;
 		$this->db->setQuery($query);
 		$node_d      = $this->db->loadObject();
-		$usersHelper = new usersHelper();
+		$usersHelper = new usersHelper;
 		$u_data      = $usersHelper->getLoggedinUserInfo($uid);
 
 		$this->jsonarray['messages']['msgID']     = $node_d->mid;
@@ -675,7 +675,7 @@ class ichatmain
 		$this->db->setQuery($queryLimit);
 		$total       = count($this->db->loadObjectList());
 		$me          = JText::_('me');
-		$usersHelper = new usersHelper();
+		$usersHelper = new usersHelper;
 		$data        = $usersHelper->getOnlineUsersInfo($uid);
 		$u_data      = $usersHelper->getLoggedinUserInfo($uid);
 		for ($i = 0; $i < count($chats); $i++)
@@ -951,7 +951,7 @@ class ichatmain
 	 */
 	function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null, $content_range = null)
 	{
-		$file = new stdClass();
+		$file = new stdClass;
 
 		$file->name = $this->get_file_name($name, $type, $index, $content_range, $uploaded_file);//manoj
 		$file->size = $this->fix_integer_overflow(intval($size));
@@ -1328,7 +1328,7 @@ class ichatmain
 	{
 		if ($this->is_valid_file_object($file_name))
 		{
-			$file       = new stdClass();
+			$file       = new stdClass;
 			$file->name = $file_name;
 			$file->size = $this->get_file_size(
 				$this->get_upload_path($file_name)
@@ -1837,7 +1837,7 @@ class ichatmain
 		}
 		//addslashes, user might enter anything to search
 		$filterText               = addslashes($filterText);
-		$usersHelper              = new usersHelper();
+		$usersHelper              = new usersHelper;
 		$data                     = $usersHelper->getAutoCompleteUserList($uid, $filterText);
 		$total                    = count($data);
 		$this->jsonarray['code']  = ($total > 0) ? 200 : 204;
@@ -1893,7 +1893,7 @@ class ichatmain
 
 		$params       = JComponentHelper::getParams('com_jbolo');
 		$maxChatUsers = $params->get('maxChatUsers');
-		$nodesHelper  = new nodesHelper();
+		$nodesHelper  = new nodesHelper;
 
 		//validate max allowed users for group chat
 		$activeNodeParticipantsCount = $nodesHelper->getActiveNodeParticipantsCount($nid);
@@ -2012,7 +2012,7 @@ class ichatmain
 				$this->db->execute();
 
 				//use broadcast helper
-				$chatBroadcastHelper = new chatBroadcastHelper();
+				$chatBroadcastHelper = new chatBroadcastHelper;
 
 				//push welcome message only to newly added user
 				$particularUID = $pid;
@@ -2131,7 +2131,7 @@ class ichatmain
 	 */
 	function pushWelcomeMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
 	{
-		$chatBroadcastHelper = new chatBroadcastHelper();
+		$chatBroadcastHelper = new chatBroadcastHelper;
 		$msg                 = JText::_('COM_JBOLO_GC_BC_WELCOME_MSG');
 		$chatBroadcastHelper->pushChat($msgType, $nid, $msg, $particularUID, $sendToActor);
 
@@ -2144,7 +2144,7 @@ class ichatmain
 	 */
 	function pushInvitedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid, $pid)
 	{
-		$chatBroadcastHelper = new chatBroadcastHelper();
+		$chatBroadcastHelper = new chatBroadcastHelper;
 		$params              = JComponentHelper::getParams('com_jbolo');
 		//show username OR name
 		if ($params->get('chatusertitle'))
@@ -2166,10 +2166,10 @@ class ichatmain
 	 */
 	function pushJoinedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
 	{
-		$nodesHelper  = new nodesHelper();
+		$nodesHelper  = new nodesHelper;
 		$participants = $nodesHelper->getActiveNodeParticipants($nid);
 		//use broadcast helper
-		$chatBroadcastHelper = new chatBroadcastHelper();
+		$chatBroadcastHelper = new chatBroadcastHelper;
 		$msg                 = "";
 		foreach ($participants as $p)
 		{
@@ -2215,9 +2215,9 @@ class ichatmain
 
 			return false;
 		}
-		$integrationsHelper = new integrationsHelper();
-		$usersHelper        = new usersHelper();
-		$nodesHelper        = new nodesHelper();
+		$integrationsHelper = new integrationsHelper;
+		$usersHelper        = new usersHelper;
+		$nodesHelper        = new nodesHelper;
 		$params             = JComponentHelper::getParams('com_jbolo');
 		if ($params->get('chatusertitle'))
 		{
@@ -2306,7 +2306,7 @@ class ichatmain
 			return false;
 		}
 		$this->jsonarray = $this->validateNodeParticipant($actorid, $nid);
-		$nodesHelper     = new nodesHelper();
+		$nodesHelper     = new nodesHelper;
 		$nodeType        = $nodesHelper->getNodeType($nid);//important Coz only group chat can be left
 
 		if ($nodeType == 2)//called from group chat
@@ -2333,7 +2333,7 @@ class ichatmain
 			{
 				$broadcast_msg = JFactory::getUser($actorid)->name . ' <i>' . JText::_('COM_JBOLO_GC_LEFT_CHAT_MSG') . '</i>';
 			}
-			$chatBroadcastHelper = new chatBroadcastHelper();
+			$chatBroadcastHelper = new chatBroadcastHelper;
 			//send to one who left chat
 			$chatBroadcastHelper->pushChat('gbc', $nid, $broadcast_msg, $actorid, 0);
 			//send to all
@@ -2353,7 +2353,7 @@ class ichatmain
 	function validateNodeParticipant($uid, $nid)
 	{
 		$this->jsonarray['validate'] = new stdclass;
-		$nodesHelper                 = new nodesHelper();
+		$nodesHelper                 = new nodesHelper;
 		$isNodeParticipant           = $nodesHelper->isNodeParticipant($uid, $nid);
 
 		if ($isNodeParticipant == 1)//active participant

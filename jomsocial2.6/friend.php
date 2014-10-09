@@ -24,7 +24,7 @@ class friend
 
 	function __construct()
 	{
-		$this->jomHelper = new jomHelper();
+		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
 		$this->db        = JFactory::getDBO(); // set database object
@@ -253,7 +253,7 @@ class friend
 		$model->addFriend($memberID, $this->IJUserID, $message); // add friend function call
 
 		//trigger for onFriendRequest
-		$eventObject                 = new stdClass();
+		$eventObject                 = new stdClass;
 		$eventObject->profileOwnerId = $my->id;
 		$eventObject->friendId       = $memberID;
 		$this->triggerFriendEvents('onFriendRequest', $eventObject);
@@ -275,7 +275,7 @@ class friend
 		$pushOptions                                 = gzcompress(json_encode($pushOptions));
 
 		$usr          = $this->jomHelper->getUserDetail($this->IJUserID);
-		$obj          = new stdClass();
+		$obj          = new stdClass;
 		$obj->id      = null;
 		$obj->detail  = $pushOptions;
 		$obj->tocount = 1;
@@ -388,7 +388,7 @@ class friend
 		CUserPoints::assignPoint('friends.remove', $friend->id);
 
 		// Trigger for onFriendRemove
-		$eventObject                 = new stdClass();
+		$eventObject                 = new stdClass;
 		$eventObject->profileOwnerId = $my->id;
 		$eventObject->friendId       = $friend->id;
 		$this->triggerFriendEvents('onFriendRemove', $eventObject);
@@ -420,7 +420,7 @@ class friend
 			$connected = $friendsModel->approveRequest($connectionId);
 			if ($connected)
 			{
-				$act          = new stdClass();
+				$act          = new stdClass;
 				$act->cmd     = 'friends.request.approve';
 				$act->actor   = $connected[0];
 				$act->target  = $connected[1];
@@ -464,7 +464,7 @@ class friend
 				$pushOptions           = gzcompress(json_encode($pushOptions));
 
 				$usr          = $this->jomHelper->getUserDetail($this->IJUserID);
-				$obj          = new stdClass();
+				$obj          = new stdClass;
 				$obj->id      = null;
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
@@ -481,7 +481,7 @@ class friend
 				//trigger for onFriendApprove
 				require_once JPATH_ROOT . '/components/com_community/controllers/controller.php';
 				require_once JPATH_ROOT . '/components/com_community/controllers/friends.php';
-				$eventObject                 = new stdClass();
+				$eventObject                 = new stdClass;
 				$eventObject->profileOwnerId = $this->IJUserID;
 				$eventObject->friendId       = $friendId;
 				CommunityFriendsController::triggerFriendEvents('onFriendApprove', $eventObject);
@@ -519,7 +519,7 @@ class friend
 			{
 				//trigger for onFriendReject
 				require_once JPATH_ROOT . '/components/com_community/controllers/friends.php';
-				$eventObject                 = new stdClass();
+				$eventObject                 = new stdClass;
 				$eventObject->profileOwnerId = $this->IJUserID;
 				$eventObject->friendId       = $pendingInfo->connect_from;
 				CommunityFriendsController::triggerFriendEvents('onFriendReject', $eventObject);
