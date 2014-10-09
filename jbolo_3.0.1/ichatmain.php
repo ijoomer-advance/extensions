@@ -28,9 +28,9 @@ class ichatmain
 		$this->my			=	JFactory::getUser($this->IJUserID);
 
     	$this->options = array(
-			'script_url' => '',//$this->get_full_url().'/',
-			'upload_dir' => JPATH_SITE . '/components/com_jbolo/uploads'.DS,//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-			'upload_url' => 'components/com_jbolo/uploads'.DS,// $this->get_full_url().'/files/',
+			'script_url' => '',
+			'upload_dir' => JPATH_SITE . '/components/com_jbolo/uploads'.DS,
+			'upload_url' => 'components/com_jbolo/uploads'.DS,
 			'user_dirs' => false,
 			'mkdir_mode' => 0755,
 			'param_name' => 'files',
@@ -117,7 +117,7 @@ class ichatmain
 				unset($data[$dataK]);
 			}
 		}
-		//
+
 		$params=JComponentHelper::getParams('com_jbolo');
 		foreach($data as $ukey=>$uval){
 			$this->jsonarray['users'][$ukey]['userId'] 	  = $uval->uid;
@@ -131,13 +131,13 @@ class ichatmain
 			$this->jsonarray['users'][$ukey]['statusMsg'] = $uval->stsm;
 			$this->jsonarray['users'][$ukey]['avtr']      = $uval->avtr;
 		}
-		//$this->jsonarray['users']=$data;
-		//
+
+
 		$nodesHelper=new nodesHelper();
 		$nodes=$nodesHelper->getActiveChatNodes($uid);
 		$messages=array(); //to get msg data
 
-		//for each node get participants and unread messages for this user
+
 		for($nc=0;$nc<count($nodes);$nc++)
 		{
 			$messages=$this->getUnreadMessages($nodes[$nc]->nid,$uid);
@@ -252,7 +252,7 @@ class ichatmain
 						}
 					}
 
-				}//end if
+				}
 				else//if no nodes in session
 				{
 					//if no node is present in session
@@ -347,9 +347,7 @@ class ichatmain
 
 		$this->jsonarray['code'] = 200;
 		$this->jsonarray['nodeinfo']=$node_d;
-		//get chat window title(wt)
 		$this->jsonarray['nodeinfo']->wt=$nodesHelper->getNodeTitle($new_node_id,$uid,$this->jsonarray['nodeinfo']->ctyp);
-		//get chatbox status (node status - ns)
 		$this->jsonarray['nodeinfo']->ns=$nodesHelper->getNodeStatus($new_node_id,$uid,$this->jsonarray['nodeinfo']->ctyp);
 		$participants=$nodesHelper->getNodeParticipants($new_node_id,$uid);
 
@@ -454,7 +452,7 @@ class ichatmain
 		$processedText=$dispatcher->trigger('processUrls',array($msg));
 		$msg=$processedText[0];
 		//process smilies
-		//$processedText=$dispatcher->trigger('processSmilies',array($msg));
+
 		$processedText=$this->processSmilies(array($msg));
 		$msg=$processedText[0];
 		//process bad words
@@ -560,8 +558,8 @@ class ichatmain
 					//if node is not present in session
 					//this situation is not expected ideally
 				}
-			}//end for
-		}//end if
+			}
+		}
 		return $this->jsonarray;
 	}
 	 /**
@@ -731,11 +729,11 @@ class ichatmain
 				$nid = IJReq::getTaskData('nid',0,'int');
 				$msgType='file';
 				//for sender
-				$msg=/*JText::_('COM_JBOLO_YOU_SENT_FILE').' '.JURI::base().'components/com_jbolo/uploads/'.*/$file->name;
+				$msg=$file->name;
 				$this->pushChat($msgType,$nid,$msg,$particularUID,0);
 
 				//for all receivers
-				$msg=/*JText::_('COM_JBOLO_I_SENT_FILE').' '.JURI::base().'components/com_jbolo/uploads/'.*/$file->name;
+				$msg=$file->name;
 				$this->pushChat($msgType,$nid,$msg,0,0);
 			}
 		}
@@ -863,8 +861,8 @@ return 1;
 						//if node is not present in session
 						//this situation is not expected ideally
 					}
-				}//end for
-			}//end if
+				}
+			}
 
 		}
 	}
@@ -874,7 +872,7 @@ return 1;
 	function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index=null, $content_range=null)
 	{
 		$file=new stdClass();
-		//$file->name=$this->get_file_name($name, $type, $index, $content_range);
+
 		$file->name=$this->get_file_name($name, $type, $index, $content_range,$uploaded_file);//manoj
 		$file->size = $this->fix_integer_overflow(intval($size));
 		$file->type = $type;
@@ -937,11 +935,11 @@ return 1;
 	function get_file_name($name, $type, $index, $content_range,$uploaded_file)//manoj
 	{
 		return $this->get_unique_filename(
-			//$this->trim_file_name($name, $type, $index, $content_range),
+
 			$this->trim_file_name($name, $type, $index, $content_range,$uploaded_file),//manoj
 			$type,
 			$index,
-			//$content_range
+
 			$content_range,//manoj
 			$uploaded_file
 		);
@@ -1197,7 +1195,7 @@ return 1;
 					}
 				}
 			}
-			//$this->set_file_delete_properties($file);//commented by manoj
+
 			return $file;
 		}
 		return null;
