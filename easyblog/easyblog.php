@@ -24,7 +24,7 @@ class easyblog
 		$lang =& JFactory::getLanguage();
 		$lang->load('com_easyblog');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
-		$lang->load('easyblog', $plugin_path '/easyblog', $lang->getTag(), true);
+		$lang->load('easyblog', $plugin_path . '/easyblog', $lang->getTag(), true);
 	}
 
 }
