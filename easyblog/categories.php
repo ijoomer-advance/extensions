@@ -9,11 +9,20 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for categories
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  easyblog
+ * @since       1.0
+ */
 class categories
 {
-
 	private $db;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->db = JFactory::getDBO();

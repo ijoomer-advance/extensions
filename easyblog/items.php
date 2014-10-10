@@ -10,11 +10,21 @@
 defined('_JEXEC') or die;
 jimport('joomla.application.component.helper');
 
+/**
+ * class for items
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  easyblog
+ * @since       1.0
+ */
 class items
 {
 
 	private $db;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->db = JFactory::getDBO();
@@ -32,7 +42,9 @@ class items
 	 *        }
 	 *    }
 	 *
+	 * @return  mixed items and total
 	 */
+
 	function archive()
 	{
 		include_once JPATH_SITE . '/components/com_content/models/archive.php';
@@ -62,6 +74,7 @@ class items
 	 *        }
 	 *    }
 	 *
+	 * @return  mixed items and total
 	 */
 	function featured()
 	{
@@ -108,6 +121,7 @@ class items
 	 *        }
 	 *    }
 	 *
+	 * @return  mixed items and total
 	 */
 	public function search()
 	{
@@ -139,6 +153,7 @@ class items
 
 		$items = $model->getItems();
 		$total = count($items);
+
 		if ($total <= 0)
 		{
 			$jsonarray['code'] = 204;
@@ -150,10 +165,13 @@ class items
 	}
 
 	/**
-	 * @uses To provide welformed list of articles
-	 * params : $articles = Object of articles
-	 *            $total      = Total article counts
+	 * this function provide welformed list of articles
 	 *
+	 * @param   object   $articles     Object of articles
+	 * @param   int      $total        Total article counts
+	 * @param   boolean  $applayLimit  applayLimit
+	 *
+	 * @return  array   jsonarray
 	 */
 	public function getArticleList($articles, $total, $applayLimit = true)
 	{
@@ -228,6 +246,7 @@ class items
 	 *        "taskData":""
 	 *    }
 	 *
+	 * @return  integer $id
 	 */
 	public function singleArticle()
 	{
@@ -246,6 +265,7 @@ class items
 	 *        "taskData":""
 	 *    }
 	 *
+	 * @return  integer $id
 	 */
 	public function articleDetail()
 	{
@@ -254,10 +274,12 @@ class items
 		return $this->getarticleDetail($id);
 	}
 
-	/*
-	 * Function for get article detail
-	 * params : article id
+	/**
+	 *  Function for get article detail
 	 *
+	 * @param   integer   $id  article id
+	 *
+	 * @return  array   $jsonarray
 	 */
 	private function getarticleDetail($id)
 	{
@@ -433,6 +455,13 @@ class items
 		return $jsonarray;
 	}
 
+	/**
+	 * [formatImageUri description]
+	 *
+	 * @param   string  $imagepath  path of image
+	 *
+	 * @return  string  $imagepath
+	 */
 	private function formatImageUri($imagepath)
 	{
 		$image_properties = parse_url($imagepath);

@@ -9,11 +9,23 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for icms
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  icms
+ * @since       1.0
+ */
 class icms
 {
 	public $classname = "icms";
 	public $sessionWhiteList = array('articles.archive', 'articles.featured', 'articles.singleArticle', 'articles.articleDetail', 'categories.allCategories', 'categories.singleCategory', 'categories.category', 'categories.categoryBlog');
 
+	/**
+	 * function for initialization
+	 *
+	 * @return  void
+	 */
 	function init()
 	{
 		include_once JPATH_SITE . '/components/com_content/models/category.php';
@@ -26,6 +38,13 @@ class icms
 		$lang->load('icms', $plugin_path . '/icms', $lang->getTag(), true);
 	}
 
+	/**
+	 * function for write configuration
+	 *
+	 * @param   [type]  &$d  d
+	 *
+	 * @return  void
+	 */
 	function write_configuration(&$d)
 	{
 		$db    = JFactory::getDbo();
@@ -46,6 +65,11 @@ class icms
 		}
 	}
 
+	/**
+	 * function for get configuration
+	 *
+	 * @return  array  jsonarray
+	 */
 	function getconfig()
 	{
 		$jsonarray = array();
@@ -53,14 +77,37 @@ class icms
 		return $jsonarray;
 	}
 
+	/**
+	 * function for Prepare custom html for ICMS
+	 *
+	 * @param   array   &$Config  Configuration array
+	 *
+	 * @return  void
+	 */
 	function prepareHTML(&$Config)
 	{
 		//TODO : Prepare custom html for ICMS
 	}
 }
 
+/**
+ * class for icms
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  icms
+ * @since       1.0
+ */
 class icms_menu
 {
+	/**
+	 * function for get Required Input
+	 *
+	 * @param   string  $extension    extension
+	 * @param   string  $extView      extension view
+	 * @param   [type]  $menuoptions  menu options
+	 *
+	 * @return  array
+	 */
 	public function getRequiredInput($extension, $extView, $menuoptions)
 	{
 		$menuoptions = json_decode($menuoptions, true);
@@ -176,6 +223,17 @@ class icms_menu
 		}
 	}
 
+	/**
+	 * function for set Required Input
+	 *
+	 * @param   string  $extension    extension name
+	 * @param   string  $extView      extension view
+	 * @param   string  $extTask      extension task
+	 * @param   [type]  $remoteTask   remote task
+	 * @param   [type]  $menuoptions  menu option
+	 * @param   mixed  $data         mixed data
+	 * @return  void
+	 */
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
 		$db      = JFactory::getDBO();

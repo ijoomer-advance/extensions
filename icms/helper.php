@@ -9,16 +9,30 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for categories
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  icms
+ * @since       1.0
+ */
 class icms_helper
 {
 
 	private $db_helper;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->db_helper  = JFactory::getDBO();
 	}
-
+	/**
+	 * function for get category list
+	 *
+	 * @return  mixed    easyblog_helper data object on success, false on failure.
+	 */
 	function getCategoryList()
 	{
 		require_once JPATH_ADMINISTRATOR . '/components/com_categories/models/categories.php';
@@ -31,6 +45,13 @@ class icms_helper
 		return $result;
 	}
 
+	/**
+	 * function for get parse data
+	 *
+	 * @param   mixed  $results  results
+	 *
+	 * @return  mixed   $resultData
+	 */
 	function getParseData($results)
 	{
 		$safeHtmlFilter = JFilterInput::getInstance(null, null, 1, 1);

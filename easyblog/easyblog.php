@@ -9,11 +9,23 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for easyblog
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  easyblog
+ * @since       1.0
+ */
 class easyblog
 {
 	public $classname = "easyblog";
 	public $sessionWhiteList = array('categories.allCategories', 'categories.singleCategory', 'categories.category', 'categories.categoryBlog');
 
+	/**
+	 * init function
+	 *
+	 * @return  void
+	 */
 	function init()
 	{
 		include_once JPATH_SITE . '/components/com_easyblog/models/blog.php';
@@ -25,18 +37,26 @@ class easyblog
 		$lang->load('easyblog', $plugin_path . '/easyblog', $lang->getTag(), true);
 	}
 
-}
+	/**
+	 * getconfig function
+	 *
+	 * @return  array of json
+	 */
+	function getconfig()
+	{
+		$jsonarray = array();
 
-function getconfig()
-{
-	$jsonarray = array();
+		return $jsonarray;
+	}
 
-	return $jsonarray;
+	/**
+	 * prepareHTML function for Prepare custom html for EASYBLOG
+	 *
+	 * @param   array  &$Config  Configuration array
+	 * @return  void
+	 */
+	function prepareHTML(&$Config)
+	{
+		//TODO : Prepare custom html for EASYBLOG
+	}
 }
-
-function prepareHTML(&$Config)
-{
-	//TODO : Prepare custom html for EASYBLOG
-}
-}
-

@@ -9,16 +9,30 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class easyblog_helper
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  easyblog
+ * @since       1.0
+ */
 class easyblog_helper
 {
-
 	private $db_helper;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->db_helper = JFactory::getDBO();
 	}
 
+	/**
+	 * function for get all blog list
+	 *
+	 * @return  mixed    easyblog_helper data object on success, false on failure.
+	 */
 	function getAllBlogList()
 	{
 		require_once JPATH_ADMINISTRATOR . '/components/com_easyblog/models/blogs.php';
@@ -31,6 +45,11 @@ class easyblog_helper
 		return $result;
 	}
 
+	/**
+	 * function for get all blog category
+	 *
+	 * @return  mixed    easyblog_helper data object on success, false on failure.
+	 */
 	function getAllBlogCategory()
 	{
 		require_once JPATH_ADMINISTRATOR . '/components/com_easyblog/models/categories.php';
