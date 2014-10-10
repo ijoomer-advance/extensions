@@ -11,6 +11,13 @@ defined('_JEXEC') or die ('Restricted access');
 jimport('joomla.application.component.helper');
 jimport('joomla.filesystem.folder');
 
+/**
+ * class for ichatmain
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jbolo_3.0.1
+ * @since       1.0
+ */
 class ichatmain
 {
 	private $IJUserID;
@@ -20,6 +27,11 @@ class ichatmain
 	private $jsonarray = array();
 	protected $options;
 
+	/**
+	 * constructor
+	 *
+	 * @param  array $options An array of JHtml options.
+	 */
 	function __construct($options = null)
 	{
 		$this->mainframe = JFactory::getApplication();
@@ -98,6 +110,7 @@ class ichatmain
 	 *        "taskData":{
 	 *        }
 	 *    }
+	 * @return array jsonarray
 	 */
 	function polling()
 	{
@@ -320,6 +333,7 @@ class ichatmain
 	 *            "pid":"pid"
 	 *        }
 	 *    }
+	 * @return array jsonarray
 	 */
 	function initiateNode()
 	{
@@ -435,6 +449,7 @@ class ichatmain
 	 *            "message":"message"
 	 *        }
 	 *    }
+	 * @return array jsonarray
 	 */
 	function pushChatToNode()
 	{
@@ -620,6 +635,7 @@ class ichatmain
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return  array jsonarray
 	 */
 	function chatHistory()
 	{
@@ -734,6 +750,7 @@ class ichatmain
 	 *            "nid":"nid"
 	 *            }
 	 *    }
+	 * @return array jsonarray
 	 */
 	function uploadFile($print_response = true)
 	{
@@ -785,8 +802,12 @@ class ichatmain
 		return $this->generate_response(array($this->options['param_name'] => $files), false);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by uploadFile
+	/**
+	 * function for prepareChatMsgs
+	 *
+	 * @param   array  $files  files name
+	 *
+	 * @return  boolean true
 	 */
 	function prepareChatMsgs($files)
 	{
@@ -810,8 +831,16 @@ class ichatmain
 		return true;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by prepareChatMsgs(Function uploadFile)
+	/**
+	 * function for pushChat
+	 *
+	 * @param   string   $msgType        type of msg
+	 * @param   integer   $nid            node id
+	 * @param   string   $msg            message
+	 * @param   integer  $particularUID  particularUID
+	 * @param   integer  $sendToActor    sendToActor
+	 *
+	 * @return  void
 	 */
 	function pushChat($msgType, $nid, $msg, $particularUID = 0, $sendToActor = 0)
 	{
@@ -945,8 +974,18 @@ class ichatmain
 		}
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by uploadFile
+	/**
+	 * function for handle file upload
+	 *
+	 * @param   string  $uploaded_file  name of uploaded file
+	 * @param   string  $name           name of file
+	 * @param   byte    $size           size of file
+	 * @param   string  $type           type of file
+	 * @param   string  $error          error
+	 * @param   integer $index          index
+	 * @param   [type]  $content_range  content range
+	 *
+	 * @return  string  $file
 	 */
 	function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null, $content_range = null)
 	{
@@ -1017,8 +1056,16 @@ class ichatmain
 		return $file;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by handle_file_upload(Function uploadFile)
+	/**
+	 * function for get file name
+	 *
+	 * @param   string   $name           name of file
+	 * @param   string   $type           type of file
+	 * @param   integer  $index          index
+	 * @param   [type]   $content_range  content range
+	 * @param   string   $uploaded_file  uploaded file
+	 *
+	 * @return  void
 	 */
 	function get_file_name($name, $type, $index, $content_range, $uploaded_file)//manoj
 	{
@@ -1033,8 +1080,16 @@ class ichatmain
 		);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_file_name(Function uploadFile)
+	/**
+	 * function for trim file name
+	 *
+	 * @param   string   $name           file name
+	 * @param   string   $type           file type
+	 * @param   integer  $index          index
+	 * @param   [type]   $content_range  content range
+	 * @param   string   $uploaded_file  uploaded file
+	 *
+	 * @return  string $filename
 	 */
 	function trim_file_name($name, $type, $index, $content_range, $uploaded_file)
 	{
@@ -1054,8 +1109,16 @@ class ichatmain
 		return $fileName;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_file_name(Function uploadFile)
+	/**
+	 * function for get_unique_filename
+	 *
+	 * @param   string   $name           file name
+	 * @param   string   $type           file type
+	 * @param   integer  $index          index
+	 * @param   [type]   $content_range  content range
+	 * @param   string   $uploaded_file  uploaded file
+	 *
+	 * @return  string  $name
 	 */
 	function get_unique_filename($name, $type, $index, $content_range, $uploaded_file)//manoj
 	{
@@ -1079,8 +1142,13 @@ class ichatmain
 		return $name;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_unique_filename(Function uploadFile)
+	/**
+	 *function for get uploaded file path
+	 *
+	 * @param   string  $file_name  name of file
+	 * @param   float   $version     version
+	 *
+	 * @return   aray   An array of JHtml options
 	 */
 	function get_upload_path($file_name = null, $version = null)
 	{
@@ -1090,9 +1158,12 @@ class ichatmain
 		return $this->options['upload_dir'] . $this->get_user_path() . $version_path . $file_name;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by handle_file_upload,get_unique_filename,validate,
-	 * get_file_size,get_config_bytes,generate_response(Function uploadFile)
+	/**
+	 * function for fix integer overflow
+	 *
+	 * @param   byte  $size  size
+	 *
+	 * @return  byte  $size
 	 */
 	function fix_integer_overflow($size)
 	{
@@ -1104,8 +1175,15 @@ class ichatmain
 		return $size;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by handle_file_upload,head(Function uploadFile)
+	/**
+	 * function for validation of file
+	 *
+	 * @param   string   $uploaded_file  uploaded  file
+	 * @param   string   $file           name of file
+	 * @param   string   $error          error
+	 * @param   integer  $index          index
+	 *
+	 * @return  boolean true
 	 */
 	function validate($uploaded_file, $file, $error, $index)
 	{
@@ -1191,16 +1269,23 @@ class ichatmain
 		return true;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by handle_file_upload(Function uploadFile)
+	/**
+	 * function for handle form data
+	 *
+	 * @param   string   $file   file name
+	 * @param   integer  $index  index
+	 *
+	 * @return  void
 	 */
 	function handle_form_data($file, $index)
 	{
 		// Handle form data, e.g. $_REQUEST['description'][$index]
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_download_url,get_upload_path(Function uploadFile)
+	/**
+	 * function for get user path
+	 *
+	 * @return  null
 	 */
 	function get_user_path()
 	{
@@ -1212,8 +1297,10 @@ class ichatmain
 		return '';
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_user_path,get_upload_path(Function uploadFile)
+	/**
+	 * function for get user id
+	 *
+	 * @return  session_id()
 	 */
 	function get_user_id()
 	{
@@ -1222,8 +1309,12 @@ class ichatmain
 		return session_id();
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_unique_filename(Function uploadFile)
+	/**
+	 * function for upcount name
+	 *
+	 * @param   string  $name  file name
+	 *
+	 * @return  [type]
 	 */
 	function upcount_name($name)
 	{
@@ -1231,8 +1322,12 @@ class ichatmain
 			array($this, 'upcount_name_callback'), $name, 1);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by upcount_name(Function uploadFile)
+	/**
+	 * function for upcount name callback
+	 *
+	 * @param   [type]  $matches  matches
+	 *
+	 * @return  [type]
 	 */
 	function upcount_name_callback($matches)
 	{
@@ -1242,16 +1337,25 @@ class ichatmain
 		return ' (' . $index . ')' . $ext;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_download_url,set_file_delete_properties(Function uploadFile)
+	/**
+	 * function for get query separator
+	 *
+	 * @param   string  $url   url
+	 *
+	 * @return  [type]
 	 */
 	function get_query_separator($url)
 	{
 		return strpos($url, '?') === false ? '?' : '&';
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by fet_file_object,handle_file_upload(Function uploadFile)
+	/**
+	 * function for get download url
+	 *
+	 * @param   string  $file_name  name of file
+	 * @param   float   $version    version
+	 *
+	 * @return  array   An array of JHtml options.
 	 */
 	function get_download_url($file_name, $version = null)
 	{
@@ -1273,8 +1377,12 @@ class ichatmain
 		. $version_path . rawurlencode($file_name);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by (Function uploadFile)
+	/**
+	 * function for set file delete properties
+	 *
+	 * @param  string  $file file name
+	 *
+	 * @return  void
 	 */
 	function set_file_delete_properties($file)
 	{
@@ -1292,9 +1400,13 @@ class ichatmain
 		}
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_file_object,download,handle_file_upload,
-	 * validate,get_unique_filename(Function uploadFile)
+	/**
+	 * function for get file size
+	 *
+	 * @param   string   $file_path         path of file
+	 * @param   boolean  $clear_stat_cache  clear stat cache
+	 *
+	 * @return  [type]
 	 */
 	function get_file_size($file_path, $clear_stat_cache = false)
 	{
@@ -1306,8 +1418,12 @@ class ichatmain
 		return $this->fix_integer_overflow(filesize($file_path));
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get_file_object,download,count_file_objects(Function uploadFile)
+	/**
+	 * function check is_valid_file_object
+	 *
+	 * @param   string   $file_name  name of file
+	 *
+	 * @return  boolean  true on a success and false on a failure
 	 */
 	function is_valid_file_object($file_name)
 	{
@@ -1320,8 +1436,12 @@ class ichatmain
 		return false;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by (Function uploadFile)
+	/**
+	 * function for get the file object
+	 *
+	 * @param   string  $file_name  name of file
+	 *
+	 * @return  null
 	 */
 	function get_file_object($file_name)
 	{
@@ -1353,8 +1473,12 @@ class ichatmain
 		return null;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get,count_file_objects(Function uploadFile)
+	/**
+	 * function for get the file objects
+	 *
+	 * @param   string  $iteration_method  iteration mathod
+	 *
+	 * @return  void
 	 */
 	function get_file_objects($iteration_method = 'get_file_object')
 	{
@@ -1370,16 +1494,24 @@ class ichatmain
 		)));
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by validate(Function uploadFile)
+	/**
+	 * function for count file objects
+	 *
+	 * @return  integer
 	 */
 	function count_file_objects()
 	{
 		return count($this->get_file_objects('is_valid_file_object'));
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by handle_file_upload(Function uploadFile)
+	/**
+	 * function for create scaled image
+	 *
+	 * @param   string  $file_name  name of file
+	 * @param   string  $version    version
+	 * @param   array   $options    An array of JHtml options.
+	 *
+	 * @return  $success
 	 */
 	function create_scaled_image($file_name, $version, $options)
 	{
@@ -1461,8 +1593,12 @@ class ichatmain
 		return $success;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by validate(Function uploadFile)
+	/**
+	 * function for get error message
+	 *
+	 * @param   string  $error  error
+	 *
+	 * @return  [type]
 	 */
 	function get_error_message($error)
 	{
@@ -1470,8 +1606,12 @@ class ichatmain
 			$this->error_messages[$error] : $error;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by validate(Function uploadFile)
+	/**
+	 * function for get configuration bytes
+	 *
+	 * @param   integer  $val  value
+	 *
+	 * @return  integer $val
 	 */
 	function get_config_bytes($val)
 	{
@@ -1490,8 +1630,12 @@ class ichatmain
 		return $this->fix_integer_overflow($val);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by handle_file_upload(Function uploadFile)
+	/**
+	 * function for orient_image
+	 *
+	 * @param   string  $file_path  path of file
+	 *
+	 * @return  $success
 	 */
 	function orient_image($file_path)
 	{
@@ -1531,33 +1675,49 @@ class ichatmain
 		return $success;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by download(Function uploadFile)
+	/**
+	 * function for read a file
+	 *
+	 * @param   string  $file_path  path of file
+	 *
+	 * @return  [type]
 	 */
 	function readfile($file_path)
 	{
 		return readfile($file_path);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by generate_response(Function uploadFile)
+	/**
+	 * body function
+	 *
+	 * @param   string  $str  string
+	 *
+	 * @return  void
 	 */
 	function body($str)
 	{
 		echo $str;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by generate_response,download,send_content_type_header
-	 * send_access_control_headers,head(Function uploadFile)
+	/**
+	 * function for header
+	 *
+	 * @param   string  $str  string
+	 *
+	 * @return  void
 	 */
 	function header($str)
 	{
 		header($str);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get,delete,uploadFile(Function uploadFile)
+	/**
+	 *  function for generate response
+	 *
+	 * @param   [type]   $content         content
+	 * @param   boolean  $print_response  print response
+	 *
+	 * @return  array  jsonarray
 	 */
 	function generate_response($content, $print_response = true)
 	{
@@ -1590,24 +1750,32 @@ class ichatmain
 		return $this->jsonarray;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by download(Function uploadFile)
+	/**
+	 * function for get version parameter
+	 *
+	 * @return  [type]
 	 */
 	function get_version_param()
 	{
 		return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by download(Function uploadFile)
+	/**
+	 * function for get file name parameter
+	 *
+	 * @return  [type]
 	 */
 	function get_file_name_param()
 	{
 		return isset($_GET['file']) ? basename(stripslashes($_GET['file'])) : null;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by download(Function uploadFile)
+	/**
+	 * function for get file type
+	 *
+	 * @param   string  $file_path  path of file
+	 *
+	 * @return  extension
 	 */
 	function get_file_type($file_path)
 	{
@@ -1625,8 +1793,10 @@ class ichatmain
 		}
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by get(Function uploadFile)
+	/**
+	 * download function
+	 *
+	 * @return  void
 	 */
 	function download()
 	{
@@ -1663,8 +1833,10 @@ class ichatmain
 		}
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by head(Function uploadFile)
+	/**
+	 * function for send content type header
+	 *
+	 * @return  void
 	 */
 	function send_content_type_header()
 	{
@@ -1681,8 +1853,10 @@ class ichatmain
 		}
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by head(Function uploadFile)
+	/**
+	 * function for send access control headers
+	 *
+	 * @return  void
 	 */
 	function send_access_control_headers()
 	{
@@ -1695,8 +1869,10 @@ class ichatmain
 			. implode(', ', $this->options['access_control_allow_headers']));
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by (Function uploadFile)
+	/**
+	 * head function
+	 *
+	 * @return  void
 	 */
 	public function head()
 	{
@@ -1712,8 +1888,12 @@ class ichatmain
 		$this->send_content_type_header();
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by (Function uploadFile)
+	/**
+	 * get function
+	 *
+	 * @param   boolean  $print_response  print response
+	 *
+	 * @return  [type]
 	 */
 	public function get($print_response = true)
 	{
@@ -1738,8 +1918,12 @@ class ichatmain
 		return $this->generate_response($response, $print_response);
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by uploadFile(Function uploadFile)
+	/**
+	 * function for a delete a file
+	 *
+	 * @param   boolean  $print_response  print response
+	 *
+	 * @return  [type]
 	 */
 	public function delete($print_response = true)
 	{
@@ -1764,8 +1948,12 @@ class ichatmain
 		return $this->generate_response(array('success' => $success), $print_response);
 	}
 
-	/** @uses to fetch chat history between two users.
-	 * //called by chatHistory
+	/**
+	 * function for add slashes in a text
+	 *
+	 * @param   string  $text  text
+	 *
+	 * @return  string  $text
 	 */
 	function sanitize($text)
 	{
@@ -1777,8 +1965,12 @@ class ichatmain
 		return $text;
 	}
 
-	/** @uses to upload file of different extensions which allowed from jbolo config.
-	 * //called by pushChatToNode,pushChat
+	/**
+	 * function for processSmilies
+	 *
+	 * @param   string  $text  text
+	 *
+	 * @return  string  $text
 	 */
 	function processSmilies($text)
 	{
@@ -1812,6 +2004,7 @@ class ichatmain
 	 *            "filterText":"filterText",
 	 *        }
 	 *    }
+	 * @return array jsonarray
 	 */
 	function getAutoCompleteUserList()
 	{
@@ -1857,6 +2050,7 @@ class ichatmain
 	 *            "pid":"pid
 	 *        }
 	 *    }
+	 * @return array jsonarray
 	 */
 	function addNodeUser()
 	{
@@ -2083,7 +2277,7 @@ class ichatmain
 	 *            "statusMsg":"statusMsg
 	 *        }
 	 *    }
-	 *
+	 * @return array jsonarray
 	 */
 	function changeStatus()
 	{
@@ -2125,8 +2319,15 @@ class ichatmain
 	}
 
 	/**
-	 * @uses to invite users to join group chat
-	 * //called by addNodeUser
+	 * function for pushWelcomeMsgBroadcast
+	 *
+	 * @param   string   $msgType        type of message
+	 * @param   integer  $nid            node id
+	 * @param   integer  $particularUID  particularUID
+	 * @param   integer  $sendToActor    sendToActor
+	 * @param   integer  $uid            uid
+	 *
+	 * @return  boolean  true
 	 */
 	function pushWelcomeMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
 	{
@@ -2138,8 +2339,16 @@ class ichatmain
 	}
 
 	/**
-	 * @uses to invite users to join group chat
-	 * //called by addNodeUser
+	 * function for push Invited Msg Broadcast
+	 *
+	 * @param   string   $msgType        type of message
+	 * @param   integer  $nid            node id
+	 * @param   integer  $particularUID  particularUID
+	 * @param   integer  $sendToActor    sendToActor
+	 * @param   integer  $uid            uid
+	 * @param   integer  $pid            pid
+	 *
+	 * @return  boolean  true
 	 */
 	function pushInvitedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid, $pid)
 	{
@@ -2160,8 +2369,15 @@ class ichatmain
 	}
 
 	/**
-	 * @uses to invite users to join group chat
-	 * //called by addNodeUser
+	 * function for push Joined Msg Broadcast
+	 *
+	 * @param   string   $msgType        type of message
+	 * @param   integer  $nid           node id
+	 * @param   integer  $particularUID  particularUID
+	 * @param   integer  $sendToActor    sendToActor
+	 * @param   integer  $uid            uid
+	 *
+	 * @return  void  true
 	 */
 	function pushJoinedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
 	{
@@ -2191,6 +2407,7 @@ class ichatmain
 	 *            "pageNO":"pageNO
 	 *        }
 	 *    }
+	 *    @return array  jsonarray
 	 */
 	function getgroupParticipants()
 	{
@@ -2281,6 +2498,7 @@ class ichatmain
 	 *            "nid":"nid",
 	 *        }
 	 *    }
+	 * @return array  jsonarray
 	 */
 	function leaveChat()
 	{
@@ -2346,8 +2564,12 @@ class ichatmain
 	}
 
 	/**
-	 * @uses If particular login user wants to leave groupchat for particular nodeid
-	 * //called from leavechat
+	 * [validateNodeParticipant description]
+	 *
+	 * @param   integer  $uid  uid
+	 * @param   integer  $nid  node id
+	 *
+	 * @return  array  jsonarray
 	 */
 	function validateNodeParticipant($uid, $nid)
 	{
@@ -2377,9 +2599,14 @@ class ichatmain
 		return $this->jsonarray;
 	}
 
+
 	/**
-	 * @uses to get unread messages
-	 * //called from polling
+	 * function for get Unread Messages
+	 *
+	 * @param   integer  $nid  node id
+	 * @param   integer  $uid  uid
+	 *
+	 * @return  $messages
 	 */
 	function getUnreadMessages($nid, $uid)
 	{
@@ -2397,5 +2624,3 @@ class ichatmain
 		return $messages;
 	}
 }
-
-?>
