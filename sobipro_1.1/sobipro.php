@@ -7,12 +7,26 @@
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
+/**
+ * class for sobipro
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  sobipro_1.1
+ * @since       1.0
+ */
+
 class sobipro
 {
 	public $classname = "sobipro";
 	public $sessionWhiteList = array('isobipro.sectionCategories',
 		'isobipro.getsearchField',
 		'isobipro.addentryField');
+
+/**
+ * init function
+ *
+ * @return void
+ */
 
 	function init()
 	{
@@ -22,12 +36,24 @@ class sobipro
 		$lang->load('sobipro', $plugin_path . '/sobipro', $lang->getTag(), true);
 	}
 
+/**
+ * getconfig function
+ *
+ * @return json array
+ */
+
 	function getconfig()
 	{
 		$jsonarray = array();
 
 		return $jsonarray;
 	}
+
+/**
+ * write_configuration function
+ *
+ * @return name
+ */
 
 	function write_configuration(&$d)
 	{
@@ -52,6 +78,12 @@ class sobipro
 
 		return true;
 	}
+
+/**
+ * prepareHTML function
+ *
+ * @return void
+ */
 
 	function prepareHTML(&$config)
 	{
@@ -117,6 +149,14 @@ class sobipro
 		}
 	}
 }
+
+/**
+ * class for sobipro_menu
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  sobipro_1.1
+ * @since       1.0
+ */
 
 class sobipro_menu
 {

@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for event
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0_v1.5
+ * @since       1.0
+ */
+
 class friend
 {
 	private $jomHelper;
@@ -19,6 +27,10 @@ class friend
 	private $my;
 	private $config;
 	private $jsonarray = array();
+
+/**
+ * construct function
+ */
 
 	function __construct()
 	{

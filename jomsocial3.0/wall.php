@@ -9,16 +9,35 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for wall
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0
+ * @since       1.0
+ */
+
 class wall
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
+
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -806,8 +825,13 @@ class wall
 		return $this->jsonarray;
 	}
 
-	// called by wall,
-	// returns content id of the activity.
+	/**
+	 * getActivityContentID function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean       load result
+	 */
 	private function  getActivityContentID($id)
 	{
 		$query = "SELECT cid
@@ -818,8 +842,14 @@ class wall
 		return $this->db->loadResult();
 	}
 
-	// called by wall,
-	// get group data
+	/**
+	 * getGroupData function
+	 *
+	 * @param   integer  $id       id
+	 * @param   [type]   $result   result
+	 *
+	 * @return  boolean           void
+	 */
 	private function getGroupData($id, &$result)
 	{
 		CFactory::load('helpers', 'owner');
@@ -850,8 +880,14 @@ class wall
 		$result['isCommunityAdmin'] = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
 	}
 
-	// called by wall
-	// get event data
+	/**
+	 * [getEventData description]
+	 *
+	 * @param   integer  $id       id
+	 * @param   [type]   $result   result
+	 *
+	 * @return  boolean           void
+	 */
 	private function getEventData($id, &$result)
 	{
 		$event =  JTable::getInstance('Event', 'CTable');
@@ -872,7 +908,13 @@ class wall
 		$result['confirmed'] = $event->confirmedcount;
 	}
 
-
+	/**
+	 * _getData function
+	 *
+	 * @param   [type]  $options  options
+	 *
+	 * @return  boolean            objactivity
+	 */
 	private function _getData($options)
 	{
 		$dispatcher =  CDispatcher::getInstanceStatic();
@@ -1277,7 +1319,16 @@ class wall
 		return $objActivity;
 	}
 
-
+	/**
+	 * _appLink function
+	 *
+	 * @param   [type]   $name    name
+	 * @param   integer  $actor   actor
+	 * @param   integer  $userid  id of user
+	 * @param   string   $title   title
+	 *
+	 * @return  boolean            url
+	 */
 	private function _appLink($name, $actor = 0, $userid = 0, $title = '')
 	{
 		if (empty($name))
@@ -1320,7 +1371,14 @@ class wall
 		return $url;
 	}
 
-
+	/**
+	 * _targetLink function
+	 *
+	 * @param   integer  $id     id
+	 * @param   boolean  $onApp  [description]
+	 *
+	 * @return  boolean           instances
+	 */
 	private function _targetLink($id, $onApp = false)
 	{
 		static $instances = array();
@@ -1342,7 +1400,13 @@ class wall
 
 		return $instances[$id];
 	}
-
+	/**
+	 * _actorLink function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean       instances
+	 */
 	private function _actorLink($id)
 	{
 		static $instances = array();
@@ -1367,7 +1431,13 @@ class wall
 		return $instances[$id];
 	}
 
-
+	/**
+	 * _formatTitle function
+	 *
+	 * @param   [type]  $row  [description]
+	 *
+	 * @return  [type]        [description]
+	 */
 	private function _formatTitle($row)
 	{
 		// We will need to replace _QQQ_ here since
@@ -1579,10 +1649,10 @@ class wall
 
 
 	/**
-	 * this function is used by add function to add comment to wall list
+	 * addComment function
 	 *
-	 * this function is copied from com_community/controllers/system.php and edited.
-	 *
+	 * @param  [type]  $actid    [description]
+	 * @param  [type]  $comment  comment
 	 */
 	private function addComment($actid, $comment)
 	{
@@ -2276,7 +2346,13 @@ class wall
 		return $this->jsonarray;
 	}
 
-	// this function is used to delete wall comment. Call by remove function
+	/**
+	 * removeComment funtion
+	 *
+	 * @param   integer  $wallid  [description]
+	 *
+	 * @return  boolean           void
+	 */
 	private function removeComment($wallid)
 	{
 		$filter = JFilterInput::getInstance();

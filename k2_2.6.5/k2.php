@@ -7,6 +7,14 @@
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
+/**
+ * class for items
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  k2_2.6.5
+ * @since       1.0
+ */
+
 class k2
 {
 	public $classname = "k2";
@@ -28,12 +36,24 @@ class k2
 		'getExtraFieldGroup',
 		'categoriesTree');
 
+/**
+ * init function
+ *
+ * @return void
+ */
+
 	function init()
 	{
 		$lang =  JFactory::getLanguage();
 		$lang->load('com_k2');
 		$lang->load('k2', JPATH_COMPONENT_SITE . '/extensions/k2', $lang->getTag(), true);
 	}
+
+/**
+ * getconfig function
+ *
+ * @return json array
+ */
 
 	function getconfig()
 	{
@@ -51,6 +71,12 @@ class k2
 		return $jsonarray;
 
 	}
+
+/**
+ * write_configuration function
+ *
+ * @return void
+ */
 
 	function write_configuration(&$d)
 	{
@@ -72,11 +98,25 @@ class k2
 		}
 	}
 
+/**
+ * prepareHTML function
+ *
+ * @return void
+ */
+
 	function prepareHTML(&$config)
 	{
 		//k2 related html tags
 	}
 }
+
+/**
+ * class for k2_menu
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  k2_2.6.5
+ * @since       1.0
+ */
 
 class k2_menu
 {

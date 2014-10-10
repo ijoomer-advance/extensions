@@ -11,6 +11,14 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.model');
 require_once JPATH_ROOT . '/components/com_community/models/models.php';
 
+/**
+ * class for message
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0_v1.5
+ * @since       1.0
+ */
+
 class message
 {
 	private $jomHelper;
@@ -21,6 +29,10 @@ class message
 	private $my;
 	private $config;
 	private $jsonarray = array();
+
+/**
+ * construct function
+ */
 
 	function __construct()
 	{

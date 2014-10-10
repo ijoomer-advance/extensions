@@ -9,10 +9,24 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for jomsocial
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.2
+ * @since       1.0
+ */
+
 class jomsocial
 {
 	var $classname = 'jomsocial';
 	var $sessionWhiteList = array("user.profileTypes");
+
+/**
+ * init function
+ *
+ * @return void
+ */
 
 	function init()
 	{
@@ -38,6 +52,12 @@ class jomsocial
 			require_once JPATH_COMPONENT_SITE . '/extensions/jomsocial' . '/' . "helper.php";
 		}
 	}
+
+/**
+ * getconfig function
+ *
+ * @return json array
+ */
 
 	function getconfig()
 	{

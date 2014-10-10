@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for jomhelper
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0_v1.5
+ * @since       1.0
+ */
+
 class jomHelper
 {
 	private $date_now;
@@ -17,6 +25,10 @@ class jomHelper
 	private $db;
 	private $my;
 	private $config;
+
+/**
+ * construct function
+ */
 
 	function __construct()
 	{
@@ -43,6 +55,12 @@ class jomHelper
 		return $name;
 	}
 
+/**
+ * isconnected function
+ *
+ * @return result
+ */
+
 	function isconnected($id1, $id2)
 	{
 		if (($id1 == $id2) && ($id1 != 0))
@@ -62,6 +80,12 @@ class jomHelper
 		return $result;
 	}
 
+/**
+ * isMember function
+ *
+ * @return result
+ */
+
 	function isMember($id1 = 0)
 	{
 		if ($id1 == 0)
@@ -75,7 +99,11 @@ class jomHelper
 
 		return $result;
 	}
-
+/**
+ * getjomcialversion function
+ *
+ * @return version
+ */
 	function getjomsocialversion()
 	{
 
@@ -85,6 +113,12 @@ class jomHelper
 
 		return $version;
 	}
+
+/**
+ * getNotificationParams function
+ *
+ * @return result
+ */
 
 	function getNotificationParams($userid = 0)
 	{
@@ -121,6 +155,11 @@ class jomHelper
 
 		return $result;
 	}
+
+/**
+ * GetLatLong function
+ *
+ */
 
 	function GetLatLong($addrss = '', $city = '', $state = '', $country = '')
 	{

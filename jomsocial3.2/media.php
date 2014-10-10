@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for media
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.2
+ * @since       1.0
+ */
+
 class media
 {
 	private $jomHelper;
@@ -19,6 +27,10 @@ class media
 	private $my;
 	private $config;
 	private $jsonarray = array();
+
+/**
+ * construct function
+ */
 
 	function __construct()
 	{

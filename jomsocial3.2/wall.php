@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for wall
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.2
+ * @since       1.0
+ */
+
 class wall
 {
 	private $jomHelper;
@@ -19,6 +27,10 @@ class wall
 	private $my;
 	private $config;
 	private $jsonarray = array();
+
+/**
+ * construct function
+ */
 
 	function __construct()
 	{

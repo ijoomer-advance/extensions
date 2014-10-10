@@ -17,6 +17,7 @@ JHTML::_('behavior.tooltip');
 			<td width="50%" valign="top">
 				<?php
 				$i = 0;
+
 				foreach ($this->groups as $group)
 				{
 					if ($i == 4)
@@ -34,13 +35,15 @@ JHTML::_('behavior.tooltip');
 								<tr>
 									<td class="paramlist_key" width="40%">
 											<span class="hasTip"
-											      title="<?php echo $value->caption; ?>::<?php echo $value->description; ?>">
+											      title="<?php echo $value->caption; ?>::
+											      <?php echo $value->description; ?>">
 												<?php echo $value->caption; ?>
 											</span>
 									</td>
 									<td><?php echo $value->html; ?></td>
 								</tr>
-							<?php } ?>
+							<?php
+							} ?>
 						</table>
 					</fieldset>
 					<?php
@@ -48,6 +51,7 @@ JHTML::_('behavior.tooltip');
 					{
 						echo '<td>';
 					}
+
 					$i++;
 				}?>
 			</td>

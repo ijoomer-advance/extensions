@@ -11,6 +11,14 @@ defined('_JEXEC') or die ('Restricted access');
 jimport('joomla.application.component.helper');
 jimport('joomla.filesystem.folder');
 
+/**
+ * class for items
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  k2_2.6.5
+ * @since       1.0
+ */
+
 class items
 {
 
@@ -20,6 +28,10 @@ class items
 	private $my;
 	private $jsonarray = array();
 	static $catcount;
+
+/**
+ * construct function
+ */
 
 	function __construct()
 	{
