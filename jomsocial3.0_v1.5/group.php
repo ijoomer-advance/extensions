@@ -28,9 +28,9 @@ class group
 	private $config;
 	private $jsonarray = array();
 
-/**
- * construct function
- */
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -105,7 +105,13 @@ class group
 		return $this->jsonarray;
 	}
 
-	// called from categories
+	/**
+	 * subCategories function
+	 *
+	 * @param   integer  $pid  parent id
+	 *
+	 * @return  boolean        jsonarray
+	 */
 	private function subCategories($pid)
 	{
 		$groupModel =  CFactory::getModel('groups');
@@ -400,7 +406,11 @@ class group
 		}
 	}
 
-
+	/**
+	 * save function
+	 *
+	 * @return  boolean  validated
+	 */
 	private function save()
 	{
 		// Get my current data.
@@ -626,7 +636,11 @@ class group
 		return $validated;
 	}
 
-	// called by save()
+	/**
+	 * _bindParams function
+	 *
+	 * @return  boolean  params
+	 */
 	private function _bindParams()
 	{
 		$params  = new CParameter('');
@@ -738,7 +752,11 @@ class group
 	}
 
 
-	// called from
+	/**
+	 * addGroupFields funtion
+	 *
+	 * @param   integer  $uniqueID  unique id
+	 */
 	private function addGroupFields($uniqueID)
 	{
 		$fiedList = array("name"                         => array("text", 1, JText::_('COM_COMMUNITY_GROUPS_TITLE')),
@@ -848,7 +866,14 @@ class group
 
 		return $this->jsonarray;
 	}
-
+	/**
+	 * getFieldCategories function
+	 *
+	 * @param   [type]  $categories  categories
+	 * @param   [type]  $parent      parent
+	 *
+	 * @return  boolean              categories
+	 */
 	private function getFieldCategories($categories, $parent)
 	{
 		if ($parent > 0)
@@ -2784,7 +2809,13 @@ class group
 		}
 	}
 
-
+	/**
+	 * _saveDiscussion function
+	 *
+	 * @param   [type]  &$discussion  discussion
+	 *
+	 * @return  boolean               validated
+	 */
 	private function _saveDiscussion(&$discussion)
 	{
 		$uniqueID                      = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -2814,7 +2845,7 @@ class group
 		}
 
 		$isNew = is_null($discussion->id) || !$discussion->id ? true : false;
-		//echo $my->id;
+
 		if ($isNew)
 		{
 			$discussion->creator = $this->my->id;
@@ -4131,7 +4162,13 @@ class group
 	}
 
 
-	// called from join
+	/**
+	 * _saveMember function
+	 *
+	 * @param   integer  $groupID  id of group
+	 *
+	 * @return  boolean            member
+	 */
 	private function _saveMember($groupID)
 	{
 		$group =  JTable::getInstance('Group', 'CTable');
@@ -4952,7 +4989,11 @@ class group
 		}
 	}
 
-
+	/**
+	 * agotime function
+	 *
+	 * @param  integer  $date  date
+	 */
 	private function Agotime($date)
 	{
 		if (empty($date))

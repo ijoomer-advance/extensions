@@ -16,7 +16,6 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial3.0_v1.5
  * @since       1.0
  */
-
 class wall
 {
 	private $jomHelper;
@@ -28,10 +27,9 @@ class wall
 	private $config;
 	private $jsonarray = array();
 
-/**
- * construct function
- */
-
+	/**
+	 * construct function
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -819,8 +817,13 @@ class wall
 		return $this->jsonarray;
 	}
 
-	// called by wall,
-	// returns content id of the activity.
+	/**
+	 * getActivityContentID function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean       loadresult
+	 */
 	private function  getActivityContentID($id)
 	{
 		$query = "SELECT cid
@@ -831,8 +834,14 @@ class wall
 		return $this->db->loadResult();
 	}
 
-	// called by wall,
-	// get group data
+	/**
+	 * getGroupData function
+	 *
+	 * @param   integer  $id       id
+	 * @param   [type]   &$result  result
+	 *
+	 * @return  void
+	 */
 	private function getGroupData($id, &$result)
 	{
 		CFactory::load('helpers', 'owner');
@@ -863,8 +872,14 @@ class wall
 		$result['isCommunityAdmin'] = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
 	}
 
-	// called by wall
-	// get event data
+	/**
+	 * getEventData function
+	 *
+	 * @param   integer  $id      id
+	 * @param   [type]   $result  result
+	 *
+	 * @return  void
+	 */
 	private function getEventData($id, &$result)
 	{
 		$event =  JTable::getInstance('Event', 'CTable');
@@ -885,7 +900,13 @@ class wall
 		$result['confirmed'] = $event->confirmedcount;
 	}
 
-
+	/**
+	 * _getData function
+	 *
+	 * @param   [type]  $options  options
+	 *
+	 * @return  boolean            object activity
+	 */
 	private function _getData($options)
 	{
 		$dispatcher =  CDispatcher::getInstanceStatic();
@@ -1290,7 +1311,16 @@ class wall
 		return $objActivity;
 	}
 
-
+	/**
+	 * _appLink function
+	 *
+	 * @param   string   $name    name
+	 * @param   integer  $actor   actor
+	 * @param   integer  $userid  id of user
+ 	 * @param   string   $title   title
+	 *
+	 * @return  boolean            url
+	 */
 	private function _appLink($name, $actor = 0, $userid = 0, $title = '')
 	{
 		if (empty($name))
@@ -1333,7 +1363,14 @@ class wall
 		return $url;
 	}
 
-
+	/**
+	 * _targetLink function
+	 *
+	 * @param   integer  $id     id
+	 * @param   boolean  $onApp  onApp
+	 *
+	 * @return  boolean           instances
+	 */
 	private function _targetLink($id, $onApp = false)
 	{
 		static $instances = array();
@@ -1356,6 +1393,13 @@ class wall
 		return $instances[$id];
 	}
 
+	/**
+	 * _actorLink function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean       instances
+	 */
 	private function _actorLink($id)
 	{
 		static $instances = array();
@@ -1380,7 +1424,13 @@ class wall
 		return $instances[$id];
 	}
 
-
+	/**
+	 * _formatTitle function
+	 *
+	 * @param   [type]  $row  row
+	 *
+	 * @return  boolean        returns value
+	 */
 	private function _formatTitle($row)
 	{
 		// We will need to replace _QQQ_ here since
@@ -1592,10 +1642,12 @@ class wall
 
 
 	/**
-	 * this function is used by add function to add comment to wall list
+	 * addComment function
 	 *
-	 * this function is copied from com_community/controllers/system.php and edited.
+	 * @param   integer  $actid    action id
+	 * @param   string   $comment  comment
 	 *
+	 * @return boolean returns value
 	 */
 	private function addComment($actid, $comment)
 	{
@@ -2289,13 +2341,17 @@ class wall
 		return $this->jsonarray;
 	}
 
-	// this function is used to delete wall comment. Call by remove function
+	/**
+	 * removeComment function
+	 *
+	 * @param   integer  $wallid  wall id
+	 *
+	 * @return  void
+	 */
 	private function removeComment($wallid)
 	{
 		$filter = JFilterInput::getInstance();
 		$wallid = $filter->clean($wallid, 'int');
-
-		//CFactory::load('helper', 'owner');
 		$table =  JTable::getInstance('Wall', 'CTable');
 		$table->load($wallid);
 		if ($table->delete())
