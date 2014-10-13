@@ -29,10 +29,9 @@ class items
 	private $jsonarray = array();
 	static $catcount;
 
-/**
- * construct function
- */
-
+	/**
+	 * construct function
+	 */
 	function __construct()
 	{
 		$this->mainframe = JFactory::getApplication();
@@ -342,6 +341,13 @@ class items
 		return $jsonarray;
 	}
 
+	/**
+	 * getMainCategories function
+	 *
+	 * @param   integer  $catID  category id
+	 *
+	 * @return  array         jsonarray
+	 */
 	private function getMainCategories($catID)
 	{
 		$implode = implode(",", $catID);
@@ -842,7 +848,7 @@ class items
 		   			AND i.catid IN (" . $implodeCAT . ")
 		   			AND i.created_by='" . $userID . "'
 		   			AND i.created_by_alias=''";
-			//AND i.id IN (".$implodeTagitem.")";
+
 		}
 		$query .= " ORDER BY " . $orderby;
 		$query .= " LIMIT $startFrom, " . $pageLimit . "";
@@ -1489,7 +1495,7 @@ class items
 		$commentEmail = IJReq::getTaskData('commentEmail', 1, 'char');
 		$commentURL   = IJReq::getTaskData('commentURL', 1, 'char');
 
-		//jimport( 'joomla.application.component.helper' );
+
 		$parameters = JComponentHelper::getParams('com_k2');
 		$published  = $parameters->get('commentsPublishing');
 
@@ -1593,6 +1599,13 @@ class items
 		return $jsonarray;
 	}
 
+	/**
+	 * getExtraField function
+	 *
+	 * @param   [type]  $group  group
+	 *
+	 * @return  array          jsonarray
+	 */
 	function getExtraField($group)
 	{
 		$query = "SELECT  ex.*
@@ -1621,6 +1634,13 @@ class items
 		return $jsonarray;
 	}
 
+	/**
+	 * getCategoryTree function
+	 *
+	 * @param   [type]  $categories  categories
+	 *
+	 * @return  [type]               categories
+	 */
 	function getCategoryTree($categories)
 	{
 		$mainframe = JFactory::getApplication();
@@ -1677,6 +1697,15 @@ class items
 		return $categories;
 	}
 
+	/**
+	 * categoriesTree function
+	 *
+	 * @param   [type]   $row              row
+	 * @param   boolean  $hideTrashed      hide trashed
+	 * @param   boolean  $hideUnpublished  hide unpublished
+	 *
+	 * @return  [type]                     mitems
+	 */
 	function categoriesTree($row = null, $hideTrashed = false, $hideUnpublished = true)
 	{
 		$db = JFactory::getDBO();
@@ -1744,6 +1773,14 @@ class items
 		return $mitems;
 	}
 
+	/**
+	 * getCategoryChildren function
+	 *
+	 * @param   integer   $catid  category id
+	 * @param   boolean   $clear  clear
+	 *
+	 * @return  array
+	 */
 	function getCategoryChildren($catid, $clear = false)
 	{
 		static $array = array();
@@ -1768,6 +1805,14 @@ class items
 		return $array;
 	}
 
+	/**
+	 * getCategorySubcat function
+	 *
+	 * @param   integer   $catid  category id
+	 * @param   boolean   $clear  clear
+	 *
+	 * @return  array
+	 */
 	function getCategorySubcat($catid, $clear = false)
 	{
 		static $array = array();
@@ -1792,7 +1837,13 @@ class items
 		return $array;
 	}
 
-	// Deprecated function, left for compatibility reasons
+	/**
+	 * hasChildren function
+	 *
+	 * @param   integer   $id  id
+	 *
+	 * @return  boolean
+	 */
 	function hasChildren($id)
 	{
 		$user  = JFactory::getUser();

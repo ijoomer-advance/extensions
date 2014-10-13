@@ -28,10 +28,9 @@ class user
 	private $config;
 	private $jsonarray = array();
 
-/**
- * construct function
- */
-
+	/**
+	 * construct function
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -242,8 +241,11 @@ class user
 
 
 	/**
-	 * @uses this function is used to add a view count to the visited user profile.
+	 * profileViewCount function
 	 *
+	 * @param   integer  $ID  id
+	 *
+	 * @return         returns value
 	 */
 	private function profileViewCount($ID)
 	{
@@ -545,8 +547,12 @@ class user
 	}
 
 	/**
-	 * @uses called from updateprofile
+	 * update function
 	 *
+	 * @param   integer  $id      id
+	 * @param   [type]   $status  status
+	 *
+	 * @return             returns value
 	 */
 	private function update($id, $status)
 	{
@@ -699,8 +705,9 @@ class user
 	}
 
 	/**
-	 * @uses to get the user detail form along with user data
+	 * getUserDetail function
 	 *
+	 * @return  array  jsonarray
 	 */
 	private function getUserDetail()
 	{
@@ -835,8 +842,9 @@ class user
 	}
 
 	/**
-	 * @uses to set the user detail
+	 * setUserDetail function
 	 *
+	 * @return array jsonsrray
 	 */
 	private function setUserDetail()
 	{
@@ -1447,8 +1455,9 @@ class user
 	}
 
 	/**
-	 * @uses to get the form for user privacy settings
+	 * getPreferences function
 	 *
+	 * @return  array  jsonarray
 	 */
 	private function getPreferences()
 	{
@@ -1791,8 +1800,9 @@ class user
 	}
 
 	/**
-	 * @uses to set the user privacy settings
+	 * setPreferences funtion
 	 *
+	 * @return void
 	 */
 	private function setPreferences()
 	{
@@ -1834,7 +1844,13 @@ class user
 		}
 	}
 
-
+	/**
+	 * timeLapse function
+	 *
+	 * @param   [type]  $date  date
+	 *
+	 * @return  boolean         lapse
+	 */
 	private function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
@@ -1868,6 +1884,14 @@ class user
 		return $lapse;
 	}
 
+	/**
+	 * getDate function
+	 *
+	 * @param   string   $str  [description]
+	 * @param   integer  $off  [description]
+	 *
+	 * @return  integer         date
+	 */
 	private function getDate($str = '', $off = 0)
 	{
 		$extraOffset = $this->config->get('daylightsavingoffset');

@@ -22,12 +22,11 @@ class jomsocial
 	var $classname = 'jomsocial';
 	var $sessionWhiteList = array("user.profileTypes");
 
-/**
- * init function
- *
- * @return void
- */
-
+	/**
+	 * init function
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 		jimport('joomla.utilities.date');
@@ -53,12 +52,11 @@ class jomsocial
 		}
 	}
 
-/**
- * getconfig function
- *
- * @return json array
- */
-
+	/**
+	 * getconfig function
+	 *
+	 * @return json array
+	 */
 	function getconfig()
 	{
 		$this->init();
@@ -84,6 +82,13 @@ class jomsocial
 		return $jsonarray;
 	}
 
+	/**
+	 * write_configuration function
+	 *
+	 * @param   [type]  &$d  [description]
+	 *
+	 * @return        returns value
+	 */
 	function write_configuration(&$d)
 	{
 		$db    =  JFactory::getDBO();
@@ -111,9 +116,13 @@ class jomsocial
 		return true;
 	}
 
-	/*
-    * Prepares special type of html for jomsocial
-    */
+	/**
+	 * prepareHTML function
+	 *
+	 * @param   [type]  &$config  configuration
+	 *
+	 * @return  void
+	 */
 	function prepareHTML(&$config)
 	{
 		$db =  JFactory::getDBO();
@@ -148,5 +157,3 @@ class jomsocial
 		}
 	}
 }
-
-?>

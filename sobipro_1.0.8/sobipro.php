@@ -22,12 +22,11 @@ class sobipro
 		'isobipro.getsearchField',
 		'isobipro.addentryField');
 
-/**
- * init function
- *
- * @return void
- */
-
+	/**
+	 * init function
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 		$lang =  JFactory::getLanguage();
@@ -36,12 +35,11 @@ class sobipro
 		$lang->load('sobipro', $plugin_path . '/sobipro', $lang->getTag(), true);
 	}
 
-/**
- * getconfig function
- *
- * @return json array
- */
-
+	/**
+	 * getconfig function
+	 *
+	 * @return json array
+	 */
 	function getconfig()
 	{
 		$jsonarray = array();
@@ -49,12 +47,11 @@ class sobipro
 		return $jsonarray;
 	}
 
-/**
- * write_configuration function
- *
- * @return void
- */
-
+	/**
+	 * write_configuration function
+	 *
+	 * @return void
+	 */
 	function write_configuration(&$d)
 	{
 		$db    =  JFactory::getDBO();
@@ -79,13 +76,11 @@ class sobipro
 		return true;
 	}
 
-/**
- * prepareHTML function
- *
- * @return void
- */
-
-
+	/**
+	 * prepareHTML function
+	 *
+	 * @return void
+	 */
 	function prepareHTML(&$config)
 	{
 		$db =  JFactory::getDBO();
@@ -360,6 +355,16 @@ class sobipro_menu
 		}
 	}
 
+	/**
+	 * setRequiredInput function
+	 *
+	 * @param  [type]  $extension    extension
+	 * @param  [type]  $extView      extView
+	 * @param  [type]  $extTask      extTask
+	 * @param  [type]  $remoteTask   remoteTask
+	 * @param  [type]  $menuoptions  menuoptions
+	 * @param  [type]  $data         data
+	 */
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
 		$db      = JFactory::getDBO();

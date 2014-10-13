@@ -36,12 +36,11 @@ class k2
 		'getExtraFieldGroup',
 		'categoriesTree');
 
-/**
- * init function
- *
- * @return void
- */
-
+	/**
+	 * init function
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 		$lang =  JFactory::getLanguage();
@@ -49,12 +48,11 @@ class k2
 		$lang->load('k2', JPATH_COMPONENT_SITE . '/extensions/k2', $lang->getTag(), true);
 	}
 
-/**
- * getconfig function
- *
- * @return json array
- */
-
+	/**
+	 * getconfig function
+	 *
+	 * @return json array
+	 */
 	function getconfig()
 	{
 		$jsonarray = array();
@@ -72,12 +70,11 @@ class k2
 
 	}
 
-/**
- * write_configuration function
- *
- * @return void
- */
-
+	/**
+	 * write_configuration function
+	 *
+	 * @return void
+	 */
 	function write_configuration(&$d)
 	{
 		$db    = JFactory::getDbo();
@@ -98,12 +95,11 @@ class k2
 		}
 	}
 
-/**
- * prepareHTML function
- *
- * @return void
- */
-
+	/**
+	 * prepareHTML function
+	 *
+	 * @return void
+	 */
 	function prepareHTML(&$config)
 	{
 		//k2 related html tags
@@ -117,7 +113,6 @@ class k2
  * @subpackage  k2_2.6.5
  * @since       1.0
  */
-
 class k2_menu
 {
 	public function getRequiredInput($extension, $extTask, $menuoptions)
@@ -656,6 +651,18 @@ class k2_menu
 		}
 	}
 
+	/**
+	 * setRequiredInput function
+	 *
+	 * @param   [type]  $extension    extension
+	 * @param   [type]  $extView      ext view
+	 * @param   [type]  $extTask      ext view
+	 * @param   [type]  $remoteTask   remote task
+	 * @param   [type]  $menuoptions  menu options
+	 * @param   [type]  $data         data
+	 *
+	 * @return void
+	 */
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
 		$db      = JFactory::getDBO();
