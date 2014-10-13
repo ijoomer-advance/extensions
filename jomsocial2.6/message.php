@@ -11,6 +11,13 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.model');
 require_once JPATH_ROOT . '/components/com_community/models/models.php';
 
+/**
+ * class for message
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
 class message
 {
 	private $jomHelper;
@@ -22,6 +29,9 @@ class message
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -50,6 +60,7 @@ class message
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function conversation()
 	{
@@ -150,6 +161,7 @@ class message
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function detail()
 	{
@@ -268,6 +280,7 @@ class message
 	 *            "full":"full" // 0: remove sigle message, 1: remove entire thread.
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function remove()
 	{
@@ -350,6 +363,7 @@ class message
 	 *            "body":"body"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function write()
 	{
@@ -680,7 +694,14 @@ class message
 		return $this->jsonarray;
 	}
 
-
+	/**
+	 * function isSpam
+	 *
+	 * @param   string   $user  user
+	 * @param   mixed   $data  data
+	 *
+	 * @return boolean true on success or false on failure
+	 */
 	private function _isSpam($user, $data)
 	{
 		// @rule: Spam checks

@@ -8,7 +8,13 @@
  */
 
 defined('_JEXEC') or die;
-
+/**
+ * class for wall
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
 class wall
 {
 	private $jomHelper;
@@ -20,6 +26,9 @@ class wall
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * contructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -51,7 +60,7 @@ class wall
 	 *            "type":"type" // wall, activity
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function wall()
 	{
@@ -704,8 +713,13 @@ class wall
 		return $this->jsonarray;
 	}
 
-	// called by wall,
-	// returns content id of the activity.
+	/**
+	 * returns content id of the activity.
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  result
+	 */
 	private function  getActivityContentID($id)
 	{
 		$query = "SELECT cid
@@ -716,8 +730,14 @@ class wall
 		return $this->db->loadResult();
 	}
 
-	// called by wall,
-	// get group data
+	/**
+	 * function for get Group Data
+	 *
+	 * @param   integer  $id      id
+	 * @param   mixed    $result  wall data object on success, false on failure.
+	 *
+	 * @return  void
+	 */
 	private function getGroupData($id, &$result)
 	{
 		CFactory::load('helpers', 'owner');
@@ -748,8 +768,14 @@ class wall
 		$result['isCommunityAdmin'] = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
 	}
 
-	// called by wall
-	// get event data
+	/**
+	 * function for getEventData
+	 *
+	 * @param   integer  $id      id
+	 * @param   mixed   $result  wall data object on success, false on failure.
+	 *
+	 * @return  $objActivity
+	 */
 	private function getEventData($id, &$result)
 	{
 		$event  = JTable::getInstance('Event', 'CTable');
@@ -1173,7 +1199,16 @@ class wall
 		return $objActivity;
 	}
 
-
+	/**
+	 * function _appLink
+	 *
+	 * @param   string   $name    name
+	 * @param   integer  $actor   actor
+	 * @param   integer  $userid  id of user
+	 * @param   string   $title   title
+	 *
+	 * @return  string  url
+	 */
 	private function _appLink($name, $actor = 0, $userid = 0, $title = '')
 	{
 		if (empty($name))
@@ -1216,7 +1251,14 @@ class wall
 		return $url;
 	}
 
-
+	/**
+	 * function _targetLink
+	 *
+	 * @param   integer   $id     id
+	 * @param   boolean  $onApp   onApplication
+	 *
+	 * @return  array
+	 */
 	private function _targetLink($id, $onApp = false)
 	{
 		static $instances = array();
@@ -1239,6 +1281,13 @@ class wall
 		return $instances[$id];
 	}
 
+	/**
+	 * function _actorLink
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  array
+	 */
 	private function _actorLink($id)
 	{
 		static $instances = array();
@@ -1263,7 +1312,13 @@ class wall
 		return $instances[$id];
 	}
 
-
+	/**
+	 * function  _formatTitle
+	 *
+	 * @param   [type]  $row  row
+	 *
+	 * @return  [type]
+	 */
 	private function _formatTitle($row)
 	{
 		// We will need to replace _QQQ_ here since
@@ -1296,7 +1351,7 @@ class wall
 	 *            "comment":"0/1" // 0: if wall post, 1: if comment.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function add()
 	{
@@ -1473,12 +1528,13 @@ class wall
 		return $this->jsonarray;
 	}
 
-
 	/**
 	 * this function is used by add function to add comment to wall list
 	 *
-	 * this function is copied from com_community/controllers/system.php and edited.
+	 * @param  integer  $actid    actid
+	 * @param  string   $comment   comment
 	 *
+	 *  @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	private function addComment($actid, $comment)
 	{
@@ -2111,6 +2167,7 @@ class wall
 	 *            "type":"type" // comment type if comment=0
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function remove()
 	{
@@ -2207,7 +2264,13 @@ class wall
 		return $this->jsonarray;
 	}
 
-	// this function is used to delete wall comment. Call by remove function
+	/**
+	 * this function is used to delete wall comment. Call by remove function
+	 *
+	 * @param   integer  $wallid  wall id
+	 *
+	 * @return  boolean  true on success or false on failure
+	 */
 	private function removeComment($wallid)
 	{
 		$filter = JFilterInput::getInstance();
@@ -2242,6 +2305,7 @@ class wall
 	 *            "type":"type"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function like()
 	{
@@ -2278,6 +2342,7 @@ class wall
 	 *            "type":"type"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unlike()
 	{
@@ -2311,6 +2376,7 @@ class wall
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function getLikes()
 	{
@@ -2396,6 +2462,7 @@ class wall
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function getComments()
 	{
@@ -2488,6 +2555,7 @@ class wall
 	 *            "message":""//report message
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	public function report()
 	{

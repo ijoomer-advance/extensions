@@ -10,6 +10,13 @@
 defined('_JEXEC') or die;
 jimport('joomla.version');
 
+/**
+ * class for event
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.8
+ * @since       1.0
+ */
 class event
 {
 	private $jomHelper;
@@ -21,6 +28,9 @@ class event
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -45,7 +55,7 @@ class event
 	 *        "extView":"event",
 	 *        "extTask":"categories"
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function categories()
 	{
@@ -101,8 +111,13 @@ class event
 		return $this->jsonarray;
 	}
 
-
-	// called from categories
+	/**
+	 * function for subcategories
+	 *
+	 * @param   integer  $pid  pid
+	 *
+	 * @return  array  jsonarray
+	 */
 	private function subCategories($pid)
 	{
 		$now       = new JDate;
@@ -166,7 +181,7 @@ class event
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function events()
 	{
@@ -333,7 +348,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function search_field()
 	{
@@ -415,7 +430,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function detail()
 	{
@@ -635,7 +650,7 @@ class event
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function members()
 	{
@@ -760,7 +775,7 @@ class event
 	 *            "block":"block" // boolean 0/1
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeMember()
 	{
@@ -808,8 +823,11 @@ class event
 		}
 	}
 
-
-	// called from remove admin
+	/**
+	 * function for blockMember
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function blockMember()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -858,7 +876,7 @@ class event
 	 *            "userID":"userID" // user id
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unblockMember()
 	{
@@ -919,7 +937,7 @@ class event
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function sendmail()
 	{
@@ -1042,7 +1060,7 @@ class event
 	 *            "uniqueID":"uniqueID",
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function requestInvite()
 	{
@@ -1191,7 +1209,7 @@ class event
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function approveMember()
 	{
@@ -1321,7 +1339,7 @@ class event
 	 *            "status":"status" // 1: attend, 2: not Attend
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function response()
 	{
@@ -1451,7 +1469,7 @@ class event
 	 *    }
 	 *
 	 * // avatar image will be post with the name 'image'
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function editAvatar()
 	{
@@ -1602,7 +1620,7 @@ class event
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function like()
 	{
@@ -1640,7 +1658,7 @@ class event
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function dislike()
 	{
@@ -1679,7 +1697,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unlike()
 	{
@@ -1718,6 +1736,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function ignore()
 	{
@@ -1763,6 +1782,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function delete()
 	{
@@ -1878,6 +1898,7 @@ class event
 	 *            "message":"message"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function report()
 	{
@@ -1925,6 +1946,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setAdmin()
 	{
@@ -1978,6 +2000,7 @@ class event
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setUser()
 	{
@@ -2032,6 +2055,7 @@ class event
 	 *            "fields":"fields" // optional: if 0: add/edit event, 1: field list.
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addEvent()
 	{
@@ -2107,8 +2131,13 @@ class event
 		return $this->jsonarray;
 	}
 
-
-	// to get field list to add/edit event.
+	/**
+	 * to get field list to add/edit event.
+	 *
+	 * @param  integer  $uniqueID  uniqueid
+	 *
+	 * @return array  jsonarray
+	 */
 	private function addEventFields($uniqueID = 0)
 	{
 		CFactory::load('helpers', 'event');
@@ -2201,8 +2230,13 @@ class event
 		return $this->jsonarray;
 	}
 
-
-	// call from addEvent
+	/**
+	 * to get field list to add/edit event.
+	 *
+	 * @param   [type]  $event  event
+	 *
+	 * @return  integer/boolean  id and true on success or false on failure
+	 */
 	private function save(&$event)
 	{
 		// Get my current data.
@@ -2496,8 +2530,13 @@ class event
 		return $event->id;
 	}
 
-
-	// call from save()
+	/**
+	 * function _formatStartEndDate description
+	 *
+	 * @param   string  $postData  postdata
+	 *
+	 * @return  void
+	 */
 	private function _formatStartEndDate(&$postData)
 	{
 		if (isset($postData['starttime-ampm']) && $postData['starttime-ampm'] == 'PM' && $postData['starttime-hour'] != 12)
@@ -2545,7 +2584,14 @@ class event
 		unset($postData['privacy']);
 	}
 
-
+	/**
+	 * function _generateRepeatList
+	 *
+	 * @param   [type]  $event     event
+	 * @param   string  $postData  postdata
+	 *
+	 * @return  $eventList
+	 */
 	private function _generateRepeatList($event, $postData = '')
 	{
 		$day   = 0;
@@ -2637,7 +2683,13 @@ class event
 		return $eventList;
 	}
 
-
+	/**
+	 * function saveMember
+	 *
+	 * @param   [type]  $event  event
+	 *
+	 * @return  void
+	 */
 	private function _saveMember($event)
 	{
 
@@ -2657,7 +2709,16 @@ class event
 		$member->store();
 	}
 
-
+	/**
+	 * function _saveRepeatChild
+	 *
+	 * @param   [type]   $event       event
+	 * @param   [type]   $eventChild  eventChild
+	 * @param   boolean  $isNew       isNew
+	 * @param   string   $postData    postData
+	 *
+	 * @return  void
+	 */
 	private function _saveRepeatChild($event, $eventChild, $isNew = true, $postData = '')
 	{
 		$insertList = array();
@@ -2757,14 +2818,26 @@ class event
 
 	}
 
-
+	/**
+	 * function _addActivityStream
+	 *
+	 * @param  [type]  $event  event
+	 *
+	 * @return void
+	 */
 	private function _addActivityStream($event)
 	{
 		CFactory::load('libraries', 'events');
 		CEvents::addEventStream($event);
 	}
 
-
+	/**
+	 * function  _addGroupNotification
+	 *
+	 * @param  [type]  $event  event
+	 *
+	 * @return void
+	 */
 	private function _addGroupNotification($event)
 	{
 		CFactory::load('libraries', 'events');
@@ -2785,6 +2858,7 @@ class event
 	 *            "message":"message" // optional
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function invite()
 	{
@@ -2942,6 +3016,7 @@ class event
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function friendList()
 	{
@@ -3074,6 +3149,7 @@ class event
 	 *            "comment":"comment" // boolean 0/1, if 1 comment will be add.
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addWall()
 	{
