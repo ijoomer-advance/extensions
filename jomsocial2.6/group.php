@@ -104,7 +104,7 @@ class group
 	}
 
 	/**
-	 * [subCategories description]
+	 * function for subCategories
 	 *
 	 * @param   integer  $pid  pid
 	 *

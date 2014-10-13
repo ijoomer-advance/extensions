@@ -1619,7 +1619,7 @@ class event
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 * @return boolean/array  jsonarray and true or false
+	 * @return boolean/array  jsonarray and true on success and false on failure
 	 */
 	function dislike()
 	{
@@ -2087,7 +2087,7 @@ class event
 	}
 
 	/**
-	 * to get field list to add/edit event.
+	 * used to get field list to add/edit event.
 	 *
 	 * @param  integer  $uniqueID  uniqueid
 	 *

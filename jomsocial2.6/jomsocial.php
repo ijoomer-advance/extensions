@@ -124,7 +124,7 @@ class jomsocial
 	/**
 	 * Prepares special type of html for jomsocial[prepareHTML description]
 	 *
-	 * @param   [type]  $config  configuration
+	 * @param   array   $config  Configuration array for model. Optional.
 	 *
 	 * @return  void
 	 */

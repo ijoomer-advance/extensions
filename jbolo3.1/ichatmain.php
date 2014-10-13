@@ -816,7 +816,7 @@ class ichatmain
 	}
 
 	/**
-	 * [pushChat description]
+	 * function for pushChat
 	 *
 	 * @param   string   $msgType         type of msg
 	 * @param   integer   $nid            node id
@@ -1267,7 +1267,7 @@ class ichatmain
 	/**
 	 * function for get_user_path
 	 *
-	 * @return  [type]
+	 * @return  some value
 	 */
 	function get_user_path()
 	{
@@ -1386,7 +1386,7 @@ class ichatmain
 	 * @param   string   $file_path         file path
 	 * @param   boolean  $clear_stat_cache  clear_stat_cache
 	 *
-	 * @return  [type]
+	 * @return  some value
 	 */
 	function get_file_size($file_path, $clear_stat_cache = false)
 	{
@@ -2620,7 +2620,7 @@ class ichatmain
 	 *
 	 * @param   integer  $uid  uid
 	 *
-	 * @return  mixed    ichatmain data object on success, false on failure.
+	 * @return  boolean  ichatmain data object on success, false on failure.
 	 */
 	function getBlockedByUsers($uid)
 	{

@@ -1148,7 +1148,7 @@ class ichatmain
 	 * @param   string  $file_name  name of file
 	 * @param   float   $version     version
 	 *
-	 * @return   aray   An array of JHtml options
+	 * @return   array  An array of JHtml options
 	 */
 	function get_upload_path($file_name = null, $version = null)
 	{
@@ -1753,7 +1753,7 @@ class ichatmain
 	/**
 	 * function for get version parameter
 	 *
-	 * @return  [type]
+	 * @return  some value
 	 */
 	function get_version_param()
 	{
@@ -1893,7 +1893,7 @@ class ichatmain
 	 *
 	 * @param   boolean  $print_response  print response
 	 *
-	 * @return  [type]
+	 * @return  some  value
 	 */
 	public function get($print_response = true)
 	{
@@ -1923,7 +1923,7 @@ class ichatmain
 	 *
 	 * @param   boolean  $print_response  print response
 	 *
-	 * @return  [type]
+	 * @return  some  value
 	 */
 	public function delete($print_response = true)
 	{
@@ -2377,7 +2377,7 @@ class ichatmain
 	 * @param   integer  $sendToActor    sendToActor
 	 * @param   integer  $uid            uid
 	 *
-	 * @return  void  true
+	 * @return  boolean  true on success and false on failure
 	 */
 	function pushJoinedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
 	{

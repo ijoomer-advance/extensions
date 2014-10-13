@@ -1179,7 +1179,7 @@ class media
 	}
 
 	/**
-	 * [addVideoComment description]
+	 * function addVideoComment
 	 *
 	 * @param  string  $message   message
 	 * @param  integer $uniqueId  uniqueid

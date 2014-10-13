@@ -4486,7 +4486,7 @@ class media
 	 * @param   [type]  $album      album
 	 * @param   [type]  $handler    handler
 	 *
-	 * @return  mixed    media data object on success, false on failure.
+	 * @return  boolean   media data object on success, false on failure.
 	 *
 	 */
 	private function _checkUploadedFile($imageFile, $album, $handler)
@@ -4961,7 +4961,7 @@ class media
 	}
 
 	/**
-	 * [reportVideo description]
+	 * function reportVideo
 	 *
 	 * @param   integer  $uniqueID  uniqueid
 	 * @param   integer  $userID    user id

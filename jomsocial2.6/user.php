@@ -1302,7 +1302,7 @@ class user
 	}
 
 	/**
-	 * [getPreferences description]
+	 * function for get Preferences
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */

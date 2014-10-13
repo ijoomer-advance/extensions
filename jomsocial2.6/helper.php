@@ -40,11 +40,11 @@ class jomHelper
 	}
 
 	/**
-	 * function forget Name
+	 * function for get name
 	 *
 	 * @param   object  $obj  object
 	 *
-	 * @return  void
+	 * @return  $name some value
 	 */
 	function getName($obj)
 	{
@@ -129,7 +129,7 @@ class jomHelper
 	 *
 	 * @param   integer  $userid  userid
 	 *
-	 * @return  mixed    jomHelper data object on success, false on failure.
+	 * @return  boolean  jomHelper data object on success, false on failure.
 	 */
 	function getNotificationParams($userid = 0)
 	{
@@ -477,7 +477,7 @@ class jomHelper
 	}
 
 	/**
-	 * [timeLapse description]
+	 * function timeLapse
 	 *
 	 * @param   date  $date  date
 	 *
@@ -593,7 +593,7 @@ class jomHelper
 	 * @param   string  $tz      tz
 	 * @param   integer  $offset offset
 	 *
-	 * @return  $date
+	 * @return  date  $date
 	 */
 	function showDate($time, $mode = 'datetime_today', $tz = 'kunena', $offset = null)
 	{

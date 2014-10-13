@@ -300,7 +300,7 @@ class friend
 	}
 
 	/**
-	 * [triggerFriendEvents description]
+	 * function triggerFriendEvents
 	 *
 	 * @param   string  $eventName  event name
 	 * @param   array   $args       arguments

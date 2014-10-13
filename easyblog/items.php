@@ -456,7 +456,7 @@ class items
 	}
 
 	/**
-	 * [formatImageUri description]
+	 * function for formatImageUri
 	 *
 	 * @param   string  $imagepath  path of image
 	 *
