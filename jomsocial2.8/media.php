@@ -9,6 +9,13 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for media
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.8
+ * @since       1.0
+ */
 class media
 {
 	private $jomHelper;
@@ -20,6 +27,9 @@ class media
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper ();
@@ -48,6 +58,7 @@ class media
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function allAlbums()
 	{
@@ -177,6 +188,7 @@ class media
 	 *    }
 	 *
 	 * copied from photos model _getAlbums()
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function myAlbums()
 	{
@@ -284,7 +296,7 @@ class media
 	 *            "privacy":"privacy" // optional for group albums
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addAlbum($aname = '', $adesc = '', $alat = '', $along = '')
 	{
@@ -501,7 +513,7 @@ class media
 	 *            "albumID":"albumID", // optional.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeAlbum()
 	{
@@ -576,7 +588,7 @@ class media
 	 *            "type":"type" // 'albums'(default), 'photos', 'videos'
 	 *        }
 	 *    }
-	 *
+	 *  @return array  jsonarray
 	 */
 	function comments()
 	{
@@ -678,7 +690,7 @@ class media
 	 *            "type":"type" // 'albums'(default), 'photos', 'videos'
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addComment()
 	{
@@ -739,8 +751,15 @@ class media
 		}
 	}
 
-	// called by addComment
-	// copied from com_community/controller/photos.php and modified
+	/**
+	 * function for add Album Comment
+	 *
+	 * @param  string  $message   message
+	 * @param  integer  $uniqueId  uniqueid
+	 * @param  integer  $appId     application id
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function addAlbumComment($message, $uniqueId, $appId = null)
 	{
 		$filter   = JFilterInput::getInstance();
@@ -852,8 +871,15 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by addComment
-	// copied from com_community/controller/photos.php
+	/**
+	 * function for addPhotoComment
+	 *
+	 * @param  string  $message   message
+	 * @param  integer $uniqueId  uniqueid
+	 * @param  integer $appId     application id
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function addPhotoComment($message, $uniqueId, $appId = null)
 	{
 		$filter   = JFilterInput::getInstance();
@@ -1152,8 +1178,14 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by addComment
-	// copied from com_community/contrillers/videos.php
+	/**
+	 * function addVideoComment
+	 *
+	 * @param  string  $message   message
+	 * @param  integer $uniqueId  uniqueid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function addVideoComment($message, $uniqueId)
 	{
 		$filter   = JFilterInput::getInstance();
@@ -1446,8 +1478,23 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by addAlbumComment
-	// copied from com_community/controller/photos.php
+	/**
+	 * function addActivity
+	 *
+	 * @param  [type]  $command     command
+	 * @param  [type]  $actor       actor
+	 * @param  [type]  $target      target
+	 * @param  string  $title       title
+	 * @param  [type]  $content     content
+	 * @param  [type]  $app         application
+	 * @param  integer  $cid         cid
+	 * @param  [type]  $group       group
+	 * @param  [type]  $event       event
+	 * @param  string  $param       parameter
+	 * @param  [type]  $permission  permission
+	 *
+	 * @return void
+	 */
 	private function _addActivity($command, $actor, $target, $title, $content, $app, $cid, $group, $event, $param = '', $permission)
 	{
 		CFactory::load('libraries', 'activities');
@@ -1480,8 +1527,14 @@ class media
 		CActivityStream::add($act, $param);
 	}
 
-	// called by addAlbumComment
-	// copied from com_community/controller/photos.php
+	/**
+	 * function for get Application Premission
+	 *
+	 * @param   [type]  $app    application
+	 * @param   [type]  $album  album
+	 *
+	 * @return  $permission
+	 */
 	private function _getAppPremission($app, $album)
 	{
 		switch ($app)
@@ -1513,7 +1566,7 @@ class media
 	 *            "type":"type", // album, photo, videos
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeComment()
 	{
@@ -1558,8 +1611,13 @@ class media
 		}
 	}
 
-	// called by removeComment
-	// copied from com_community/controller/photos.php
+	/**
+	 * function for remove Album Comment
+	 *
+	 * @param   integer  $wallId  wallid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function removeAlbumComment($wallId)
 	{
 		require_once JPATH_SITE . '/components/com_community/libraries/activities.php';
@@ -1606,8 +1664,13 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by removePhotoComment
-	// copied from com_community/controllers/photos.php
+	/**
+	 * function remove Photo Comment
+	 *
+	 * @param   integer  $wallId  wallid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function removePhotoComment($wallId)
 	{
 		require_once JPATH_SITE . '/components/com_community/libraries/activities.php';
@@ -1661,8 +1724,13 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by removeComment
-	// copied from com_community/controllers/photos.php
+	/**
+	 * function for remove Video Comment
+	 *
+	 * @param   integer  $wallId  wallid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function removeVideoComment($wallId)
 	{
 		require_once JPATH_SITE . '/components/com_community/libraries/activities.php';
@@ -1730,7 +1798,7 @@ class media
 	 *            "type":"type", // album, photo, videos
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function like()
 	{
@@ -1766,7 +1834,7 @@ class media
 	 *            "type":"type", // album, photo, videos
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function dislike()
 	{
@@ -1799,7 +1867,7 @@ class media
 	 *            "type":"type", // album, photo, videos
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unlike()
 	{
@@ -1834,7 +1902,7 @@ class media
 	 *            "limit":"limit"
 	 *        }
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function photos()
 	{
@@ -1929,7 +1997,7 @@ class media
 	 *    }
 	 *
 	 * photos will be post with name "image"
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function uploadPhoto()
 	{
@@ -2145,7 +2213,7 @@ class media
 	 *    }
 	 *
 	 * photos will be post with name "image"
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removePhoto()
 	{
@@ -2211,7 +2279,7 @@ class media
 	 *    }
 	 *
 	 * photos will be post with name "image"
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function tags()
 	{
@@ -2254,7 +2322,13 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by tags
+	/**
+	 * function photoTags
+	 *
+	 * @param   integer  $uniqueID  uniqueid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function photoTags($uniqueID)
 	{
 		$query = "SELECT pt.*, p.creator
@@ -2290,7 +2364,13 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by tags
+	/**
+	 * function videoTags
+	 *
+	 * @param   integer  $uniqueID  uniqueid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function videoTags($uniqueID)
 	{
 		$query = "SELECT *
@@ -2351,7 +2431,7 @@ class media
 	 *            "type":"type" // photos, videos
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function tagFriends()
 	{
@@ -2430,7 +2510,7 @@ class media
 	 *            "type":"type"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addTag()
 	{
@@ -2638,7 +2718,15 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by addTag
+	/**
+	 * function add Photo Tag
+	 *
+	 * @param  integer  $uniqueID  uniqueid
+	 * @param  integer  $userID    userid
+	 * @param  [type]  $position  position
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function addPhotoTag($uniqueID, $userID, $position)
 	{
 		$query = "SELECT count(*)
@@ -2677,7 +2765,15 @@ class media
 		}
 	}
 
-	// called by addTag
+	/**
+	 * function for add Video Tag
+	 *
+	 * @param  integer  $uniqueID  uniqueid
+	 * @param  integer  $userID    userid
+	 * @param  [type]   $position  position
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function addVideoTag($uniqueID, $userID, $position)
 	{
 		$query = "SELECT count(*)
@@ -2727,7 +2823,7 @@ class media
 	 *            "type":"type"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeTag()
 	{
@@ -2770,7 +2866,13 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called by removeTag()
+	/**
+	 * function for remove Photo Tag
+	 *
+	 * @param   integer  $uniqueID  uniqueid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function removePhotoTag($uniqueID)
 	{
 		$query = "DELETE FROM `#__community_photos_tag`
@@ -2792,7 +2894,13 @@ class media
 		}
 	}
 
-	// called by removeTag()
+	/**
+	 * function for remove Video Tag
+	 *
+	 * @param   integer  $uniqueID  uniqueid
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function removeVideoTag($uniqueID)
 	{
 		$query = "DELETE FROM `#__community_videos_tag`
@@ -2835,7 +2943,7 @@ class media
 	 *    }
 	 *
 	 * photos will be post with name "image"
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 
 	function uploadVideo()
@@ -3182,7 +3290,7 @@ class media
 	 *        "taskData":{
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function videoCategories()
 	{
@@ -3235,7 +3343,7 @@ class media
 	 *            "withLimit":"withLimit" // TRUE(default), FALSE
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function allVideos()
 	{
@@ -3275,7 +3383,7 @@ class media
 	 *            "withLimit":"withLimit" // TRUE(default), FALSE
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function myVideos()
 	{
@@ -3327,7 +3435,15 @@ class media
 		return $this->jsonarray;
 	}
 
-	// video fached for allvideo and myvideo.
+	/**
+	 * function for Videos
+	 *
+	 * @param  [type]  $filters       filters
+	 * @param  integer  $limit         limit
+	 * @param  [type]  $limitSetting  limitsetting
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function Videos($filters, $limit, $limitSetting)
 	{
 		$where = array();
@@ -3575,7 +3691,7 @@ class media
 	 *            "videoID":"videoID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeVideo()
 	{
@@ -3648,7 +3764,15 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called from removeVideo
+	/**
+	 * funcxtion _deleteVideoWalls
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  [type]        [description]
+	 *
+	 * @return  boolean  true on success or false on failure
+	 */
 	private function _deleteVideoWalls($id = 0)
 	{
 		CFactory::load('helpers', 'owner');
@@ -3663,7 +3787,13 @@ class media
 		$video->deleteVideoWalls($id);
 	}
 
-	// called from removeVideo
+	/**
+	 * function for deleteVideoActivities
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean  true on success or false on failure
+	 */
 	private function _deleteVideoActivities($id = 0)
 	{
 		if (!COwnerHelper::isRegisteredUser())
@@ -3677,7 +3807,13 @@ class media
 		$video->deleteVideoActivities($id);
 	}
 
-	// called from removeVideo
+	/**
+	 * function for _deleteFeaturedVideos
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean  true on success or false on failure
+	 */
 	private function _deleteFeaturedVideos($id = 0)
 	{
 		if (!COwnerHelper::isRegisteredUser())
@@ -3693,7 +3829,13 @@ class media
 		$featuredVideo->delete($id);
 	}
 
-	// called from removeVideo
+	/**
+	 * function for _deleteVideoFiles
+	 *
+	 * @param   [type]  $video  video
+	 *
+	 * @return  boolean true on success or false on failure
+	 */
 	private function _deleteVideoFiles($video)
 	{
 		if (!$video)
@@ -3728,7 +3870,14 @@ class media
 		return true;
 	}
 
-	// called from removeVideo
+	/**
+	 * function for _deleteProfileVideo
+	 *
+	 * @param   [type]  $creator         [description]
+	 * @param   integer  $deletedvideoid  deleted video id
+	 *
+	 * @return  boolean  true on success or false on failure
+	 */
 	private function _deleteProfileVideo($creator, $deletedvideoid)
 	{
 		if (!COwnerHelper::isRegisteredUser())
@@ -3775,7 +3924,7 @@ class media
 	 *            "caption":"caption"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function linkVideo()
 	{
@@ -4044,6 +4193,14 @@ class media
 		return $this->jsonarray;
 	}
 
+	/**
+	 * function for _triggerEvent
+	 *
+	 * @param   [type]  $event  event
+	 * @param   array  $args   arguments
+	 *
+	 * @return  void
+	 */
 	private function _triggerEvent($event, $args)
 	{
 		// Trigger for onVideoCreate
@@ -4055,6 +4212,14 @@ class media
 		$apps->triggerEvent($event, $params);
 	}
 
+	/**
+	 * function for fetch Thumbnail
+	 *
+	 * @param   integer  $id           id
+	 * @param   boolean  $returnThumb  return thumb
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function _fetchThumbnail($id = 0, $returnThumb = false)
 	{
 		if (!$id)
@@ -4261,8 +4426,12 @@ class media
 	}
 
 	/**
-	 *    Generates a resized image of the photo
-	 **/
+	 * Generates a resized image of the photo
+	 *
+	 * @param   boolean  $showPhoto  showphoto
+	 *
+	 * @return  void
+	 */
 	private function showimage($showPhoto = true)
 	{
 		jimport('joomla.filesystem.file');
@@ -4322,7 +4491,15 @@ class media
 		}
 	}
 
-	// called by uploadPhotos
+	/**
+	 * function for _checkUploadedFile
+	 *
+	 * @param   [type]  $imageFile  image file
+	 * @param   [type]  $album      album
+	 * @param   [type]  $handler    handler
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function _checkUploadedFile($imageFile, $album, $handler)
 	{
 		require_once JPATH_ROOT . '/components/com_community/controllers/photos.php';
@@ -4474,7 +4651,13 @@ class media
 		return $result;
 	}
 
-	// called by _checkUploadedFile
+	/**
+	 * function check's validImage  or not
+	 *
+	 * @param   [type]  $image  image
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function _validImage($image)
 	{
 		CFactory::load('helpers', 'image');
@@ -4508,7 +4691,13 @@ class media
 		return true;
 	}
 
-	// called by _checkUploadedFile
+	/**
+	 * function checks _imageLimitExceeded
+	 *
+	 * @param   byte  $size  size
+	 *
+	 * @return  byte/boolean  image size and true on success or false on failure
+	 */
 	private function _imageLimitExceeded($size)
 	{
 		$uploadLimit = ( double ) $this->config->get('maxuploadsize');
@@ -4524,7 +4713,16 @@ class media
 		return $size > $uploadLimit;
 	}
 
-	//
+	/**
+	 * function for _rotatePhoto
+	 *
+	 * @param   [type]  $imageFile   imagefile
+	 * @param   [type]  $photoTable  photoTable
+	 * @param   string  $storedPath  storedpath
+	 * @param   string  $thumbPath   thumbpath
+	 *
+	 * @return  void
+	 */
 	private function _rotatePhoto($imageFile, $photoTable, $storedPath, $thumbPath)
 	{
 		require_once JPATH_ROOT . '/components/com_community/controllers/photos.php';
@@ -4575,7 +4773,16 @@ class media
 		}
 	}
 
-	//
+	/**
+	 * function _storeOriginal
+	 *
+	 * @param   string   $tmpPath   temporory path
+	 * @param   string   $destPath  destination path
+	 * @param   integer  $albumId   album id
+	 * @param   integer  $userid    user id
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function _storeOriginal($tmpPath, $destPath, $albumId = 0, $userid)
 	{
 		jimport('joomla.filesystem.file');
@@ -4605,7 +4812,13 @@ class media
 		return true;
 	}
 
-	//
+	/**
+	 * function  _getHandler
+	 *
+	 * @param   CTableAlbum  $album  album
+	 *
+	 * @return  $handler
+	 */
 	private function _getHandler(CTableAlbum $album)
 	{
 		require_once JPATH_ROOT . "/components/com_community/controllers/photos.php";
@@ -4629,7 +4842,11 @@ class media
 		return $handler;
 	}
 
-	// called by uploadVideo
+	/**
+	 * function for check Video Access
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function checkVideoAccess()
 	{
 		if (!$this->config->get('enablevideos'))
@@ -4658,7 +4875,7 @@ class media
 	 *            "type":"type" // 'photos', 'videos'
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function report()
 	{
@@ -4714,7 +4931,16 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called from report()
+	/**
+	 * function reportPhoto
+	 *
+	 * @param   integer  $uniqueID  uniqueid
+	 * @param   integer  $albumID   albumid
+	 * @param   integer  $userID    user id
+	 * @param   string   $message   message
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function reportPhoto($uniqueID, $albumID, $userID, $message)
 	{
 		CFactory::load('libraries', 'reporting');
@@ -4745,7 +4971,15 @@ class media
 		return $this->jsonarray;
 	}
 
-	// called from report()
+	/**
+	 * function reportVideo
+	 *
+	 * @param   integer  $uniqueID  uniqueid
+	 * @param   userid   $userID    userid
+	 * @param   string   $message   message
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function reportVideo($uniqueID, $userID, $message)
 	{
 		CFactory::load('libraries', 'reporting');
@@ -4788,7 +5022,7 @@ class media
 	 *            "albumID":"albumID",
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setCover()
 	{
@@ -4835,7 +5069,7 @@ class media
 	 *            "uniqueID":"uniqueID" // photo id
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setAvatar()
 	{
@@ -4975,7 +5209,7 @@ class media
 	 *            "uniqueID":"uniqueID" // photo id
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setProfileVideo()
 	{
@@ -5011,7 +5245,7 @@ class media
 	 *            "caption":"caption"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setPhotoCaption()
 	{
@@ -5085,7 +5319,7 @@ class media
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function searchVideo()
 	{
@@ -5201,7 +5435,7 @@ class media
 	 *            "uniqueID":"uniqueID", // photoid
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setUserCover()
 	{

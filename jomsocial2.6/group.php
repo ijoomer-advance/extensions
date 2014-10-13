@@ -9,6 +9,13 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for group
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
 class group
 {
 	private $jomHelper;
@@ -20,6 +27,9 @@ class group
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -44,7 +54,7 @@ class group
 	 *        "extView":"group",
 	 *        "extTask":"categories"
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function categories()
 	{
@@ -93,7 +103,13 @@ class group
 		return $this->jsonarray;
 	}
 
-	// called from categories
+	/**
+	 * function for subCategories
+	 *
+	 * @param   integer  $pid  pid
+	 *
+	 * @return  array  jsonarray
+	 */
 	private function subCategories($pid)
 	{
 		$groupModel  = CFactory::getModel('groups');
@@ -138,7 +154,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function groups()
 	{
@@ -276,7 +292,7 @@ class group
 	 *            "fields":"fields" // optional: if 0: add/edit group, 1: field list.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addGroup()
 	{
@@ -405,7 +421,11 @@ class group
 		}
 	}
 
-
+	/**
+	 * function for save data
+	 *
+	 * @return boolean/integer  true on success or false on failure and id
+	 */
 	private function save()
 	{
 		// Get my current data.
@@ -631,7 +651,11 @@ class group
 		return $validated;
 	}
 
-	// called by save()
+	/**
+	 * function for bind parameters
+	 *
+	 * @return boolean  true on success or false on failure and parameters
+	 */
 	private function _bindParams()
 	{
 		$params  = new CParameter('');
@@ -743,7 +767,14 @@ class group
 	}
 
 
-	// called from
+
+	/**
+	 * function for add Group Fields
+	 *
+	 * @param  integer  $uniqueID  uniqueid
+	 *
+	 * @return array  jsonarray
+	 */
 	private function addGroupFields($uniqueID)
 	{
 		$fiedList = array("name"                         => array("text", 1, JText::_('COM_COMMUNITY_GROUPS_TITLE')),
@@ -854,6 +885,14 @@ class group
 		return $this->jsonarray;
 	}
 
+	/**
+	 * function for getFieldCategories
+	 *
+	 * @param   array  $categories  categories
+	 * @param   [type] $parent     parent
+	 *
+	 * @return  array  categories
+	 */
 	private function getFieldCategories($categories, $parent)
 	{
 		if ($parent > 0)
@@ -906,7 +945,7 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return  array jsonarray
 	 */
 	function detail()
 	{
@@ -1256,7 +1295,7 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function join()
 	{
@@ -1323,7 +1362,7 @@ class group
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	public function approveMember()
 	{
@@ -1431,7 +1470,7 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function leave()
 	{
@@ -1495,7 +1534,7 @@ class group
 	 *            "type":"type" // group, discussion
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function report()
 	{
@@ -1581,7 +1620,7 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function delete()
 	{
@@ -1721,7 +1760,7 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unpublish()
 	{
@@ -1785,7 +1824,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function announcement()
 	{
@@ -1867,7 +1906,7 @@ class group
 	 *            "file":"file" // boolean 0/1, 1: if members allow to upload files.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addAnnouncement()
 	{
@@ -2067,7 +2106,7 @@ class group
 	 *            "announcementID":"announcementID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function deleteAnnouncement()
 	{
@@ -2135,7 +2174,7 @@ class group
 	 *            "type":"type" // announcement, discussion, group, hits, delete
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function files()
 	{
@@ -2302,7 +2341,7 @@ class group
 	 *    }
 	 *
 	 * file should be posted to "files"
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function uploadFile()
 	{
@@ -2525,7 +2564,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function discussion()
 	{
@@ -2616,7 +2655,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function discussionDetail()
 	{
@@ -2713,7 +2752,7 @@ class group
 	 *            "file":"file" // file upload permission for member, boolean value 0/1
 	 *        }
 	 *    }
-	 *
+	 * @return boolean  true on success or false on failure
 	 */
 	function adddiscussion()
 	{
@@ -2779,7 +2818,13 @@ class group
 		}
 	}
 
-
+	/**
+	 * function for save Discussion
+	 *
+	 * @param   [type]  $discussion  discussion
+	 *
+	 * @return  boolean true on success or false on failure
+	 */
 	private function _saveDiscussion(&$discussion)
 	{
 		$uniqueID                      = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -3064,7 +3109,7 @@ class group
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addDiscussionReply()
 	{
@@ -3301,7 +3346,7 @@ class group
 	 *            "type":"type" // discussion, reply
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function deleteDiscussion()
 	{
@@ -3427,7 +3472,7 @@ class group
 	 *            "discussionID":"discussionID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function lockDiscussion()
 	{
@@ -3504,7 +3549,7 @@ class group
 	 *    }
 	 *
 	 * avatar will be posted as image.
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function editAvatar()
 	{
@@ -3668,7 +3713,7 @@ class group
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function like()
 	{
@@ -3706,7 +3751,7 @@ class group
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function dislike()
 	{
@@ -3745,7 +3790,7 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unlike()
 	{
@@ -3786,7 +3831,7 @@ class group
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function sendmail()
 	{
@@ -3902,7 +3947,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function members()
 	{
@@ -4048,7 +4093,7 @@ class group
 	 *            "admin":"admin" // 0: to set as member, 1: to set as admin.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function setAdmin()
 	{
@@ -4094,7 +4139,7 @@ class group
 	 *            "type":"type" // 0: reject, 1: accept.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function invitation()
 	{
@@ -4126,8 +4171,13 @@ class group
 		return $this->jsonarray;
 	}
 
-
-	// called from join
+	/**
+	 * function for save memeber
+	 *
+	 * @param   integer  $groupID  group id
+	 *
+	 * @return  $member
+	 */
 	private function _saveMember($groupID)
 	{
 		$group  = JTable::getInstance('Group', 'CTable');
@@ -4263,7 +4313,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function friendList()
 	{
@@ -4339,7 +4389,7 @@ class group
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function invite()
 	{
@@ -4470,7 +4520,7 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function banMembers()
 	{
@@ -4554,7 +4604,7 @@ class group
 	 *            "ban":"ban" // 0: to unban, 1: to ban
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function ban()
 	{
@@ -4627,7 +4677,7 @@ class group
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeMember()
 	{
@@ -4706,7 +4756,7 @@ class group
 	 *            "comment":"comment" // boolean 0/1, if 1 comment will be add.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addWall()
 	{
@@ -4948,5 +4998,3 @@ class group
 		}
 	}
 }
-
-?>

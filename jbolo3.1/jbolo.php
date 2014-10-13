@@ -7,6 +7,13 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+/**
+ * class for jbolo
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jbolo3.1
+ * @since       1.0
+ */
 class jbolo
 {
 	public $classname = "jbolo";
@@ -16,6 +23,11 @@ class jbolo
 		'ichatmain.chathistory',
 		'ichatmain.upload_file');
 
+	/**
+	 * function for initialization
+	 *
+	 * @return  void
+	 */
 	function init()
 	{
 		$lang  = JFactory::getLanguage();
@@ -23,6 +35,11 @@ class jbolo
 		$lang->load('jbolo', JPATH_COMPONENT_SITE . '/extensions/jbolo', $lang->getTag(), true);
 	}
 
+	/**
+	 * function for get configuration
+	 *
+	 * @return  array jsonarray
+	 */
 	function getconfig()
 	{
 		$jsonarray                 = array();
@@ -36,6 +53,13 @@ class jbolo
 		return $jsonarray;
 	}
 
+	/**
+	 * function for write configuration
+	 *
+	 * @param   array  $d  d
+	 *
+	 * @return  void
+	 */
 	function write_configuration(&$d)
 	{
 		$db    = JFactory::getDbo();
@@ -56,14 +80,37 @@ class jbolo
 		}
 	}
 
+	/**
+	 * function for prepareHTML
+	 *
+	 * @param   array   &$config  Configuration array
+	 *
+	 * @return  void
+	 */
 	function prepareHTML(&$config)
 	{
 		//jbolo related html tags
 	}
 }
 
+/**
+ * class for jbolo_menu
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jbolo3.1
+ * @since       1.0
+ */
 class jbolo_menu
 {
+	/**
+	 * function for getRequiredInput
+	 *
+	 * @param   string  $extension    extension
+	 * @param   string  $extTask      extension task
+	 * @param   [type]  $menuoptions  menuoptions
+	 *
+	 * @return  void
+	 */
 	public function getRequiredInput($extension, $extTask, $menuoptions)
 	{
 		$menuoptions = json_decode($menuoptions, true);
@@ -74,6 +121,18 @@ class jbolo_menu
 		}
 	}
 
+	/**
+	 * function for set Required Input
+	 *
+	 * @param   string  $extension    extension name
+	 * @param   string  $extView      extension view
+	 * @param   string  $extTask      extension task
+	 * @param   [type]  $remoteTask   remote task
+	 * @param   [type]  $menuoptions  menu option
+	 * @param   mixed   $data         data
+	 *
+	 * @return void
+	 */
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
 		$db      = JFactory::getDBO();

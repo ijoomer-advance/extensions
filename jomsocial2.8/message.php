@@ -11,6 +11,13 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.model');
 require_once JPATH_ROOT . '/components/com_community/models/models.php';
 
+/**
+ * class for message
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.8
+ * @since       1.0
+ */
 class message
 {
 	private $jomHelper;
@@ -22,6 +29,10 @@ class message
 	private $config;
 	private $jsonarray = array();
 
+
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -50,6 +61,7 @@ class message
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function conversation()
 	{
@@ -142,6 +154,7 @@ class message
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function detail()
 	{
@@ -252,6 +265,7 @@ class message
 	 *            "full":"full" // 0: remove sigle message, 1: remove entire thread.
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function remove()
 	{
@@ -334,6 +348,7 @@ class message
 	 *            "body":"body"
 	 *        }
 	 *    }
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function write()
 	{
@@ -662,7 +677,14 @@ class message
 		return $this->jsonarray;
 	}
 
-
+	/**
+	 * function checks _isSpam or not
+	 *
+	 * @param   string   $user  user
+	 * @param   mixed    $data  data
+	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
+	 */
 	private function _isSpam($user, $data)
 	{
 		// @rule: Spam checks
@@ -687,6 +709,11 @@ class message
 		return false;
 	}
 
+	/**
+	 * function write1
+	 *
+	 * @return  array  jsonarray
+	 */
 	function write1()
 	{
 		$userID  = IJReq::getTaskData('userID');
@@ -735,6 +762,14 @@ class message
 		return $this->jsonarray;
 	}
 
+	/**
+	 * function addReceipient
+	 *
+	 * @param  object  $msgObj       message object
+	 * @param  integer $recepientId  recepient id
+	 *
+	 * @return boolean true on success or false on failure
+	 */
 	private function addReceipient($msgObj, $recepientId)
 	{
 

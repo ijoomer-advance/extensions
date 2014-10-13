@@ -10,11 +10,20 @@
 defined('_JEXEC') or die;
 jimport('joomla.application.component.helper');
 
+/**
+ * class for articles
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  icms
+ * @since       1.0
+ */
 class articles
 {
-
 	private $db;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->db  = JFactory::getDBO();
@@ -32,6 +41,7 @@ class articles
 	 *        }
 	 *    }
 	 *
+	 * @return mixed items and total
 	 */
 	function archive()
 	{
@@ -62,6 +72,7 @@ class articles
 	 *        }
 	 *    }
 	 *
+	 * @return mixed items and total
 	 */
 	function featured()
 	{
@@ -108,6 +119,7 @@ class articles
 	 *        }
 	 *    }
 	 *
+	 * @return mixed items and total
 	 */
 	public function search()
 	{
@@ -150,10 +162,13 @@ class articles
 	}
 
 	/**
-	 * @uses To provide welformed list of articles
-	 * params : $articles = Object of articles
-	 *            $total      = Total article counts
+	 * function provide welformed list of articles
 	 *
+	 * @param   object   $articles     Object of articles
+	 * @param   int      $total        Total article counts
+	 * @param   boolean  $applayLimit  applayLimit
+	 *
+	 * @return  array of json
 	 */
 	public function getArticleList($articles, $total, $applayLimit = true)
 	{
@@ -228,6 +243,7 @@ class articles
 	 *        "taskData":""
 	 *    }
 	 *
+	 * @return int id
 	 */
 	public function singleArticle()
 	{
@@ -246,6 +262,7 @@ class articles
 	 *        "taskData":""
 	 *    }
 	 *
+	 * @return int id
 	 */
 	public function articleDetail()
 	{
@@ -254,10 +271,12 @@ class articles
 		return $this->getarticleDetail($id);
 	}
 
-	/*
+	/**
 	 * Function for get article detail
-	 * params : article id
 	 *
+	 * @param   int  $id  article id
+	 *
+	 * @return  array of json
 	 */
 	private function getarticleDetail($id)
 	{
@@ -269,6 +288,7 @@ class articles
 		{
 			$result = array();
 			preg_match_all('/<img[^>]+>/i', $items->introtext, $result);
+
 			foreach ($result[0] as $key => $value)
 			{
 				$imgpath = array();
@@ -401,6 +421,7 @@ class articles
 			$itemsurls                    = json_decode($items->urls);
 			$jsonarray['article']['urls'] = array();
 			$i                            = 0;
+
 			if (isset($itemsurls->urla) && !empty($itemsurls->urla))
 			{
 				$jsonarray['article']['urls'][$i]['url']     = $itemsurls->urla;
@@ -408,18 +429,21 @@ class articles
 				$i++;
 
 			}
+
 			if (isset($itemsurls->urlb) && !empty($itemsurls->urlb))
 			{
 				$jsonarray['article']['urls'][$i]['url']     = $itemsurls->urlb;
 				$jsonarray['article']['urls'][$i]['urltext'] = $itemsurls->urlbtext;
 				$i++;
 			}
+
 			if (isset($itemsurls->urlc) && !empty($itemsurls->urlc))
 			{
 				$jsonarray['article']['urls'][$i]['url']     = $itemsurls->urlc;
 				$jsonarray['article']['urls'][$i]['urltext'] = $itemsurls->urlctext;
 				$i++;
 			}
+
 			unset($i);
 			$jsonarray['article']['created']   = $items->created;
 			$jsonarray['article']['author']    = $items->author;
@@ -433,6 +457,13 @@ class articles
 		return $jsonarray;
 	}
 
+	/**
+	 *  Function for format image uri
+	 *
+	 * @param   string  $imagepath  path of image
+	 *
+	 * @return  string $imagepath
+	 */
 	private function formatImageUri($imagepath)
 	{
 		$image_properties = parse_url($imagepath);
