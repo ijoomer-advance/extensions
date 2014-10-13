@@ -82,6 +82,7 @@ class tmpobject extends SPDBObject
 
 }
 
+
 class isobipro extends SPEntryCtrl
 {
 
@@ -117,7 +118,11 @@ class isobipro extends SPEntryCtrl
 
 
 	/**
-	 * @uses This function is used to gettypes based on whatever fields mapped in backend ijoomeradv sobipro config.
+	 * gettypes function
+	 *
+	 * @param   integer  $fieldid  file id
+	 *
+	 * @return              typeArrs
 	 */
 	function gettypes($fieldid)
 	{
@@ -348,7 +353,11 @@ class isobipro extends SPEntryCtrl
 
 
 	/**
-	 * @uses This function is used to getDealtypes based on whatever fields mapped in backend ijoomeradv sobipro config.
+	 * getDealTypes function
+	 *
+	 * @param   integer  $fieldid  file id
+	 *
+	 * @return             typeArrs
 	 */
 	function getDealTypes($fieldid)
 	{
@@ -1636,7 +1645,12 @@ class isobipro extends SPEntryCtrl
 	}
 
 	/**
-	 * @uses This function is used to get radius search based on latitude,longitude and distance passed.
+	 * radius_search function
+	 *
+	 * @param   integer  $sid        sid
+	 * @param   [type]   $latfields  late fields
+	 *
+	 * @return                results
 	 */
 	private function radius_search($sid, $latfields)
 	{
@@ -1696,6 +1710,15 @@ class isobipro extends SPEntryCtrl
 		}
 	}
 
+	/**
+	 * getrad function
+	 *
+	 * @param   [type]  $longitude  [description]
+	 * @param   [type]  $latitude   [description]
+	 * @param   [type]  $radius     [description]
+	 *
+	 * @return  cor
+	 */
 	private function getrad($longitude, $latitude, $radius)
 	{
 		$cor            = array();
@@ -2036,7 +2059,11 @@ class isobipro extends SPEntryCtrl
 		return $jsonarray;
 	}
 
-
+	/**
+	 * verify function
+	 *
+	 * @return  void
+	 */
 	private function verify()
 	{
 		if ($this->_results)
@@ -2072,7 +2099,13 @@ class isobipro extends SPEntryCtrl
 		}
 	}
 
-
+	/**
+	 * getResults function
+	 *
+	 * @param   integer  $entryIDs  entry ids
+	 *
+	 * @return  array             jsonarray
+	 */
 	function getResults($entryIDs)
 	{
 		$sectionID = IJReq::getTaskData('sectionID', 0);
@@ -2573,6 +2606,13 @@ class isobipro extends SPEntryCtrl
 		return $jsonarray;
 	}
 
+	/**
+	 * loadFields function
+	 *
+	 * @param   integer  $sid  sid
+	 *
+	 * @return          fields
+	 */
 	function loadFields($sid)
 	{
 		$fields = null;
@@ -2612,6 +2652,14 @@ class isobipro extends SPEntryCtrl
 		return ($obj->get('priority') == $to->get('priority')) ? 0 : (($obj->get('priority') < $to->get('priority')) ? -1 : 1);
 	}
 
+	/**
+	 * searchWords function
+	 *
+	 * @param   [type]   $all  all
+	 * @param   integer  $sid  sid
+	 *
+	 * @return         results
+	 */
 	function searchWords($all, $sid)
 	{
 		/* @TODO categories */
@@ -2656,6 +2704,15 @@ class isobipro extends SPEntryCtrl
 		$this->_results = $this->travelFields("REGEXP:[[:<:]]{$search}[[:>:]]", true, $sid);
 	}
 
+	/**
+	 * travelFields function
+	 *
+	 * @param   string    $word   word
+	 * @param   boolean   $regex  regex
+	 * @param   integer   $sid    sid
+	 *
+	 * @return             results
+	 */
 	function travelFields($word, $regex = false, $sid)
 	{
 		$results = array();
@@ -2828,8 +2885,12 @@ class isobipro extends SPEntryCtrl
 		return $jsonarray;
 	}
 
-	/*
-	 * fetch criteria for the review vote
+	/**
+	 * reviewFields function
+	 *
+	 * @param   integer  $sid  sid
+	 *
+	 * @return          fields
 	 */
 	private function reviewFields($sid)
 	{
@@ -3382,6 +3443,13 @@ class isobipro extends SPEntryCtrl
 		}
 	}
 
+	/**
+	 * [subcategory function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  array       jsonarray
+	 */
 	function subcategory($id)
 	{
 		$query = "SELECT so.id,so.name,so.counter,sc.description,sc.icon,sc.showIcon
@@ -3405,6 +3473,13 @@ class isobipro extends SPEntryCtrl
 		return $jsonarray;
 	}
 
+	/**
+	 * getcount function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return         count
+	 */
 	function getcount($id)
 	{
 		$query = "SELECT count(so.id)

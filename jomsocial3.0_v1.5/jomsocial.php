@@ -9,11 +9,23 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for jomsocial
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0_v1.5
+ * @since       1.0
+ */
 class jomsocial
 {
 	var $classname = 'jomsocial';
 	var $sessionWhiteList = array("user.profileTypes");
 
+	/**
+	 * init function
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 		jimport('joomla.utilities.date');
@@ -39,6 +51,11 @@ class jomsocial
 		}
 	}
 
+	/**
+	 * getconfig function
+	 *
+	 * @return json array
+	 */
 	function getconfig()
 	{
 		$this->init();
@@ -55,6 +72,11 @@ class jomsocial
 
 		return $jsonarray;
 	}
+
+	/**
+	 * write_configuration function
+	 *
+	 */
 
 	function write_configuration(&$d)
 	{

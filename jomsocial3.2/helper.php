@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for jomHelper
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.2
+ * @since       1.0
+ */
+
 class jomHelper
 {
 	private $date_now;
@@ -18,6 +26,9 @@ class jomHelper
 	private $my;
 	private $config;
 
+	/**
+	 * construct function
+	 */
 	function __construct()
 	{
 		$this->date_now  = JFactory::getDate();
@@ -28,6 +39,11 @@ class jomHelper
 		$this->config    = CFactory::getConfig();
 	}
 
+	/**
+	 * getName function
+	 *
+	 * @return name
+	 */
 	function getName($obj)
 	{
 		if (method_exists($obj, 'getDisplayName'))
@@ -43,6 +59,11 @@ class jomHelper
 		return $name;
 	}
 
+	/**
+	 * isconnected function
+	 *
+	 * @return result
+	 */
 	function isconnected($id1, $id2)
 	{
 		if (($id1 == $id2) && ($id1 != 0))
@@ -62,6 +83,11 @@ class jomHelper
 		return $result;
 	}
 
+	/**
+	 * isMember function
+	 *
+	 * @return result
+	 */
 	function isMember($id1 = 0)
 	{
 		if ($id1 == 0)
@@ -76,6 +102,11 @@ class jomHelper
 		return $result;
 	}
 
+	/**
+	 * getjomsocialversion function
+	 *
+	 * @return version
+	 */
 	function getjomsocialversion()
 	{
 
@@ -86,6 +117,11 @@ class jomHelper
 		return $version;
 	}
 
+	/**
+	 * getNotificationParams function
+	 *
+	 * @return result
+	 */
 	function getNotificationParams($userid = 0)
 	{
 		if ($userid == 0)
@@ -122,6 +158,9 @@ class jomHelper
 		return $result;
 	}
 
+	/**
+	 * GetLatLong function
+	 */
 	function GetLatLong($addrss = '', $city = '', $state = '', $country = '')
 	{
 		$q_array = array();
@@ -176,7 +215,15 @@ class jomHelper
 		return $l;
 	}
 
-	// Send Push Notification In Android
+	/**
+	 * googleAuthenticate function
+	 *
+	 * @param   string   $username  name of user
+	 * @param   boolean  $password  password
+	 * @param   [type]   $service   service
+	 *
+	 * @return  boolean             matches
+	 */
 	function googleAuthenticate($username, $password, $service)
 	{
 		// get an authorization token
@@ -215,6 +262,18 @@ class jomHelper
 		return $matches[2];
 	}
 
+	/**
+	 * sendMessageToAndroid function
+	 *
+	 * @param   integer  $authCode              authentication code
+	 * @param   integer  $deviceRegistrationId  device registration id
+	 * @param   string   $msgType               message type
+	 * @param   string   $messageText           message text
+	 * @param   string   $totMsg                total message
+	 * @param   [type]   $whentype              [description]
+	 *
+	 * @return  void
+	 */
 	function sendMessageToAndroid($authCode, $deviceRegistrationId, $msgType, $messageText, $totMsg = '', $whentype)
 	{
 		if (!empty($authCode) && !empty($deviceRegistrationId))
@@ -250,7 +309,16 @@ class jomHelper
 		}
 	}
 
-	// send push notification code start here
+	/**
+	 * send_push_notification function
+	 *
+	 * @param   [type]   $device_token  device token
+	 * @param   string   $message       message
+	 * @param   integer  $badge         badge
+	 * @param   string   $type          type
+	 *
+	 * @return  [type]                  returns value
+	 */
 	function send_push_notification($device_token, $message = '', $badge = 1, $type = '')
 	{
 		$server = 'ssl://gateway.push.apple.com:2195';
@@ -273,16 +341,12 @@ class jomHelper
 		/* End of Configurable Items */
 		$ctx = stream_context_create();
 		stream_context_set_option($ctx, 'ssl', 'local_cert', $keyCertFilePath);
-
-		// assume the private key passphase was removed.
-		//stream_context_set_option($ctx, 'ssl', 'passphrase', $pass);
-
 		$fp = stream_socket_client($server, $err, $errstr, 60, STREAM_CLIENT_CONNECT, $ctx);
 		// for production change the server to ssl://gateway.push.apple.com:219
 
 		if (!$fp)
 		{
-			//print "Failed to connect $err $errstr\n";
+
 			return;
 		}
 		$payload = json_encode($body);
@@ -291,7 +355,15 @@ class jomHelper
 		fwrite($fp, $msg);
 		fclose($fp);
 	}
-
+	/**
+	 * updateLatLong function
+	 *
+	 * @param   integer  $uid   user id
+	 * @param   integer  $lat   [description]
+	 * @param   integer  $long  [description]
+	 *
+	 * @return  void
+	 */
 	function updateLatLong($uid = 0, $lat = 255, $long = 255)
 	{
 		$db =  JFactory::getDBO();
@@ -305,7 +377,14 @@ class jomHelper
 		$this->db->Query();
 	}
 
-	// get location from lat, long.
+	/**
+	 * getaddress function
+	 *
+	 * @param   [type]  $lattitude  [description]
+	 * @param   [type]  $longitude  [description]
+	 *
+	 * @return  boolean              address
+	 */
 	function getaddress($lattitude, $longitude)
 	{
 		$address = '';
@@ -331,12 +410,18 @@ class jomHelper
 		return $address;
 	}
 
-	// get title from location.
+	/**
+	 * gettitle function
+	 *
+	 * @param   [type]  $location  location
+	 *
+	 * @return  [type]             returns value
+	 */
 	function gettitle($location)
 	{
 		if ($location != '')
 		{
-			//
+
 			CFactory::load('helpers', 'remote');
 			$url     = 'http://maps.google.com/maps/api/geocode/json?address=' . urlencode($location) . '&sensor=false';
 			$content = CRemoteHelper::getContent($url);
@@ -392,6 +477,13 @@ class jomHelper
 		}
 	}
 
+	/**
+	 * timeLapse function
+	 *
+	 * @param   integer  $date  date
+	 *
+	 * @return  boolean         lapse
+	 */
 	function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
@@ -426,6 +518,14 @@ class jomHelper
 		return $lapse;
 	}
 
+	/**
+	 * getDate function
+	 *
+	 * @param   string   $str  sring
+	 * @param   integer  $off  [description]
+	 *
+	 * @return  boolean         date
+	 */
 	function getDate($str = '', $off = 0)
 	{
 		require_once JPATH_ROOT . '/components/com_community/libraries/core.php';
@@ -486,6 +586,16 @@ class jomHelper
 		return $date;
 	}
 
+	/**
+	 * showDate function
+	 *
+	 * @param   integer  $time    time
+	 * @param   string   $mode    mode
+	 * @param   string   $tz      time zone
+	 * @param   [type]   $offset  [description]
+	 *
+	 * @return  [type]           [description]
+	 */
 	function showDate($time, $mode = 'datetime_today', $tz = 'kunena', $offset = null)
 	{
 		require_once JPATH_SITE . '/components/com_kunena/lib/kunena.timeformat.class.php';
@@ -636,8 +746,8 @@ class jomHelper
 	/**
 	 * Like an item. Update ajax count
 	 *
-	 * @param string $element Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
+	 * @param   string  $element  Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxLike
@@ -692,7 +802,7 @@ class jomHelper
 			$userid = $act->actor;
 		}
 
-		//===========================================================
+
 		//Send push notification
 		$sendpushflag = false;
 		switch ($element)
@@ -933,8 +1043,8 @@ class jomHelper
 	/**
 	 * Dislike an item
 	 *
-	 * @param string $element Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
+	 * @param   string  $element  Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxDislike
@@ -983,8 +1093,8 @@ class jomHelper
 	/**
 	 * Unlike an item
 	 *
-	 * @param string $element Can either be core object (photos/videos) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
+	 * @param   string  $element  Can either be core object (photos/videos) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxDislike
@@ -1034,9 +1144,9 @@ class jomHelper
 	/**
 	 * get like details
 	 *
-	 * @param string $element Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
-	 * @param mixed  $userId
+	 * @param   string  $element  Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
+	 * @param   mixed   $userId   id of user
 	 *
 	 */
 	function getLikes($element, $itemId, $userId)
@@ -1071,11 +1181,12 @@ class jomHelper
 
 
 	/**
-	 * This function returns the user permission over friend permission
+	 * getUserAccess function
 	 *
-	 * @param $userID   : the user who will be affected by the user permission.
-	 * @param $friendID : the user who set the permission.
+	 * @param   integer  $userID    id of user
+	 * @param   integer  $friendID  freind id
 	 *
+	 * @return  boolean             access_limit
 	 */
 	function getUserAccess($userID = null, $friendID = null)
 	{
@@ -1105,11 +1216,12 @@ class jomHelper
 
 
 	/**
-	 * This function returns comment count
+	 * getCommentCount function
 	 *
-	 * @param $uniqueID : id of the element.
-	 * @param $type     : type of the comment. // videos, albums, photos, profile.status,
+	 * @param   integer  $uniqueID  unique id
+	 * @param   [type]   $type      type
 	 *
+	 * @return  boolean             count
 	 */
 	function getCommentCount($uniqueID, $type)
 	{
@@ -1125,7 +1237,12 @@ class jomHelper
 
 
 	/**
-	 * This function is use to get user details
+	 * getUserDetail function
+	 *
+	 * @param   integer  $userID     id of user
+	 * @param   [type]   $frontUser  front user
+	 *
+	 * @return  boolean              user
 	 */
 	function getUserDetail($userID, $frontUser = null)
 	{
@@ -1191,7 +1308,7 @@ class jomHelper
 		$user->id        = ($this->IJUserID == $userObj->id) ? 0 : intval($userObj->id);
 		$user->name      = $this->getName($userObj);
 		$user->status    = $userObj->_status;
-		$user->avatar    = $userObj->getAvatar();//($userObj->_avatar) ? $p_url.$userObj->_avatar : JURI::base().'components/com_community/assets/user_thumb.png';
+		$user->avatar    = $userObj->getAvatar();
 		$user->latitude  = $latitude;
 		$user->longitude = $longitude;
 		$user->online    = ($userObj->_isonline != '') ? 1 : 0;
@@ -1203,6 +1320,13 @@ class jomHelper
 		return $user;
 	}
 
+	/**
+	 * getTitleTag function
+	 *
+	 * @param   [type]  $html_data  html data
+	 *
+	 * @return  boolean              titletag
+	 */
 	public function getTitleTag($html_data)
 	{
 
@@ -1396,7 +1520,7 @@ class jomHelper
 						$date       = CTimeHelper::getDate();
 
 						$users           = $usersModel->getUserRegisteredByMonth($now->format('Y-m'));
-						$totalRegistered = count($users); //$usersModel->getTotalRegisteredByMonth($now->format('Y-m'));
+						$totalRegistered = count($users);
 
 						$titletag = JText::_('COM_COMMUNITY_TOTAL_USERS_REGISTERED_THIS_MONTH');
 						$titletag .= "\n" . JText::sprintf('COM_COMMUNITY_TOTAL_USERS_REGISTERED_THIS_MONTH_ACTIVITY_TITLE', $totalRegistered, $date->monthToString($now->format('%m')));
@@ -1554,6 +1678,13 @@ class jomHelper
 		return trim(strip_tags($titletag));
 	}
 
+	/**
+	 * getAlbumContent function
+	 *
+	 * @param   [type]  $html_data  html data
+	 *
+	 * @return  boolean              photos
+	 */
 	public function getAlbumContent($html_data)
 	{
 		$db      = JFactory::getDBO();
@@ -1594,6 +1725,13 @@ class jomHelper
 		return $photos;
 	}
 
+	/**
+	 * getVideos function
+	 *
+	 * @param   [type]  $html_data  html data
+	 *
+	 * @return  boolean              video
+	 */
 	public function getVideos($html_data)
 	{
 		$video = array();
@@ -1607,6 +1745,11 @@ class jomHelper
 		return $video;
 	}
 
+	/**
+	 * uploadAudioFile function
+	 *
+	 * @return  void
+	 */
 	public function uploadAudioFile()
 	{
 		jimport('joomla.filesystem.file');

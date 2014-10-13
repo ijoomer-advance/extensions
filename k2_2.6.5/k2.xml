@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="extensions" method="upgrade">
 	<registration>0</registration>
-	<default_registration>0</default_registration>	
+	<default_registration>0</default_registration>
 	<name>K2</name>
 	<version>1.5</version>
 	<extension_classname>k2</extension_classname>
 	<extension_option>com_k2</extension_option>
-	
+
 	<files>
 		<folder extensions="k2">tmpl</folder>
 		<folder extensions="k2">theme</folder>
@@ -18,7 +18,7 @@
 	</files>
 
 	<config>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_K2_CHECK_SESSION"
 			value="1"
 			description="COM_IJOOMERADV_K2_CHECK_SESSION_EXPLAIN"
@@ -27,7 +27,7 @@
 			group="general"
 			server="0">CHECK_SESSION
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_K2_COMMENT_SETTINGS"
 			value=""
 			description="COM_IJOOMERADV_K2_COMMENT_SETTINGS_EXPLAIN"
@@ -37,7 +37,7 @@
 			server="0">COMMENT_SETTINGS
 		</cfg>
 	</config>
-	
+
 	<views>
 		<view>
 			<caption>Categories</caption>

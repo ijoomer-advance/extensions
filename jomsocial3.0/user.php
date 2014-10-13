@@ -9,16 +9,35 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for user
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0
+ * @since       1.0
+ */
+
 class user
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
+
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -191,8 +210,11 @@ class user
 
 
 	/**
-	 * @uses this function is used to add a view count to the visited user profile.
+	 * profileViewCount funtion
 	 *
+	 * @param   integer  $ID  [description]
+	 *
+	 * @return  boolean       returns value
 	 */
 	private function profileViewCount($ID)
 	{
@@ -478,8 +500,12 @@ class user
 	}
 
 	/**
-	 * @uses called from updateprofile
+	 * update function
 	 *
+	 * @param   integer  $id      id
+	 * @param   [type]   $status  status
+	 *
+	 * @return  boolean           returns value
 	 */
 	private function update($id, $status)
 	{
@@ -632,8 +658,9 @@ class user
 	}
 
 	/**
-	 * @uses to get the user detail form along with user data
+	 * getUserDetail function
 	 *
+	 * @return  boolean  jsonarray
 	 */
 	private function getUserDetail()
 	{
@@ -1301,8 +1328,9 @@ class user
 	}
 
 	/**
-	 * @uses to get the form for user privacy settings
+	 * getPreferences funtion
 	 *
+	 * @return  boolean  jsonarray
 	 */
 	private function getPreferences()
 	{
@@ -1688,7 +1716,13 @@ class user
 		}
 	}
 
-
+	/**
+	 * timeLapse function
+	 *
+	 * @param   integer  $date  date
+	 *
+	 * @return  boolean         lapse
+	 */
 	private function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
@@ -1721,7 +1755,14 @@ class user
 
 		return $lapse;
 	}
-
+	/**
+	 * getDate funtion
+	 *
+	 * @param   string   $str  string
+	 * @param   integer  $off  [description]
+	 *
+	 * @return  boolean         date
+	 */
 	private function getDate($str = '', $off = 0)
 	{
 		$extraOffset = $this->config->get('daylightsavingoffset');

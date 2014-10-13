@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for event
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0_v1.5
+ * @since       1.0
+ */
+
 class friend
 {
 	private $jomHelper;
@@ -19,6 +27,10 @@ class friend
 	private $my;
 	private $config;
 	private $jsonarray = array();
+
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -282,7 +294,15 @@ class friend
 		return $this->jsonarray;
 	}
 
-
+	/**
+	 * triggerFriendEvents function
+	 *
+	 * @param   string  $eventName  [description]
+	 * @param   [type]  $args       arguments
+	 * @param   [type]  $target     target
+	 *
+	 * @return  boolean              returns value
+	 */
 	private function triggerFriendEvents($eventName, &$args, $target = null)
 	{
 		require_once JPATH_SITE . '/components/com_community/libraries/apps.php';
@@ -347,7 +367,13 @@ class friend
 		}
 	}
 
-
+	/**
+	 * delete function
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean       returns value
+	 */
 	private function delete($id)
 	{
 		$friend = CFactory::getUser($id);
@@ -663,7 +689,13 @@ class friend
 	}
 
 
-	// called by search()
+	/**
+	 * getFiltered function
+	 *
+	 * @param   array   $wheres  [description]
+	 *
+	 * @return  boolean           result
+	 */
 	private function getFiltered($wheres = array())
 	{
 		$wheres[] = 'block = 0';

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="extensions" method="upgrade">
 	<registration>0</registration>
-	<default_registration>0</default_registration>	
+	<default_registration>0</default_registration>
 	<name>Sobi Pro</name>
 	<version>1.5</version>
 	<extension_classname>sobipro</extension_classname>
@@ -15,9 +15,9 @@
 		<image extensions="sobipro">sobipro.png</image>
 		<image extensions="sobipro">sobipro_48.png</image>
 	</files>
-	
+
 	<config>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_CHECK_SESSION"
 			value="1"
 			description="COM_IJOOMERADV_SOBI_CHECK_SESSION_EXPLAIN"
@@ -26,7 +26,7 @@
 			group="general"
 			server="0">CHECK_SESSION
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_PAGE_LIMIT"
 			value="1"
 			description="COM_IJOOMERADV_SOBI_PAGE_LIMIT_EXPLAIN"
@@ -35,7 +35,7 @@
 			group="general"
 			server="0">PAGE_LIMIT
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_SEARCH_LIMIT"
 			value="1"
 			description="COM_IJOOMERADV_SOBI_SEARCH_LIMIT_EXPLAIN"
@@ -44,7 +44,7 @@
 			group="general"
 			server="0">SEARCH_LIMIT
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_PHONE_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_PHONE_FIELD_EXPLAIN"
@@ -53,7 +53,7 @@
 			group="fields"
 			server="1">PHONE_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_EMAIL_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_EMAIL_FIELD_EXPLAIN"
@@ -62,7 +62,7 @@
 			group="fields"
 			server="1">EMAIL_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_ADDRESS1_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_ADDRESS1_FIELD_EXPLAIN"
@@ -71,7 +71,7 @@
 			group="fields"
 			server="1">ADDRESS1_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_ADDRESS2_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_ADDRESS2_FIELD_EXPLAIN"
@@ -80,7 +80,7 @@
 			group="fields"
 			server="1">ADDRESS2_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_CITY_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_CITY_FIELD_EXPLAIN"
@@ -89,7 +89,7 @@
 			group="fields"
 			server="1">CITY_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_STATE_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_STATE_FIELD_EXPLAIN"
@@ -98,7 +98,7 @@
 			group="fields"
 			server="1">STATE_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_COUNTRY_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_COUNTRY_FIELD_EXPLAIN"
@@ -107,7 +107,7 @@
 			group="fields"
 			server="1">COUNTRY_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_ZIP_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_ZIP_FIELD_EXPLAIN"
@@ -116,7 +116,7 @@
 			group="fields"
 			server="1">ZIP_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_WEBSITE_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_WEBSITE_FIELD_EXPLAIN"
@@ -125,7 +125,7 @@
 			group="fields"
 			server="1">WEBSITE_FIELD
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_DEAL_START_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_DEAL_START_FIELD_EXPLAIN"
@@ -134,7 +134,7 @@
 			group="fields"
 			server="1">DEAL_START
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_DEAL_END_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_DEAL_END_FIELD_EXPLAIN"
@@ -143,7 +143,7 @@
 			group="fields"
 			server="1">DEAL_END
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_DEAL_TEXT_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_DEAL_TEXT_FIELD_EXPLAIN"
@@ -152,7 +152,7 @@
 			group="fields"
 			server="1">DEAL_TEXT
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_DEAL_DESCRIPTION_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_DEAL_DESCRIPTION_FIELD_EXPLAIN"
@@ -161,7 +161,7 @@
 			group="fields"
 			server="1">DEAL_DESCRIPTION
 		</cfg>
-		<cfg 
+		<cfg
 			caption="COM_IJOOMERADV_SOBI_MENU_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_MENU_FIELD_EXPLAIN"
@@ -170,7 +170,7 @@
 			group="fields"
 			server="1">MENU_FIELD
 		</cfg>
-		<!--<cfg 
+		<!--<cfg
 			caption="COM_IJOOMERADV_SOBI_IMAGE_FIELD"
 			value=""
 			description="COM_IJOOMERADV_SOBI_IMAGE_FIELD_EXPLAIN"
@@ -179,9 +179,9 @@
 			group="fields"
 			server="1">IMAGE_FIELD
 		</cfg>-->
-		
+
 	</config>
-	
+
 	<views>
 		<view>
 			<caption>SobiPro Sections/Categories</caption>
