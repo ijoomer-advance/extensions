@@ -11,5 +11,5 @@ before_script:
   - phpenv rehash
 
 script:
-  - find ./-name '*.php' -exec php -l {} \;
+  - find ./ -name '*.php' -exec php -l {} \;
   - phing -f .travis.xml
