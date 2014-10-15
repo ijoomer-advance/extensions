@@ -16,8 +16,7 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial3.0
  * @since       1.0
  */
-
-class group
+class Group
 {
 	private $jomHelper;
 
@@ -39,16 +38,23 @@ class group
 	 * construct function
 	 */
 
-	function __construct()
+	public function __construct()
 	{
 		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		//  Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
@@ -56,16 +62,17 @@ class group
 	}
 
 	/**
-	 * @uses    to fetch all categories
+	 * uses    to fetch all categories
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
 	 *        "extView":"group",
 	 *        "extTask":"categories"
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function categories()
+	public function categories()
 	{
 		$groupModel = CFactory::getModel('groups');
 		$categories = $groupModel->getCategories(0);
@@ -99,7 +106,6 @@ class group
 			$subcat                                             = $this->subCategories($value->id);
 			$this->jsonarray['categories'][$key]['subCategory'] = $subcat;
 		}
-
 
 		$this->jsonarray['config'][0]['isGroupEnable']        = $this->config->get('enablegroups');
 		$this->jsonarray['config'][0]['isGroupCreate']        = $this->config->get('creategroups');
@@ -138,6 +144,7 @@ class group
 			$jsonarray[$key]['parent']      = $value->parent;
 			$jsonarray[$key]['categories']  = $count;
 			$jsonarray[$key]['groups']      = $value->count;
+
 			if ($count > 0)
 			{
 				$subcat                         = $this->sub_category($value->id);
@@ -149,7 +156,8 @@ class group
 	}
 
 	/**
-	 * @uses    to fetch all categories
+	 * uses    to fetch all categories
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -163,9 +171,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function groups()
+	public function groups()
 	{
 		$categoryID = IJReq::getTaskData('categoryID', null, 'int');
 		$sort       = IJReq::getTaskData('sort', 'latest');
@@ -226,7 +234,9 @@ class group
 		{
 			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($row->id);
-			$group->updateStats(); //ensure that stats are up-to-date
+
+			// Ensure that stats are up-to-date
+			$group->updateStats();
 			$grouplist[] = $group;
 		}
 
@@ -262,6 +272,7 @@ class group
 				else
 					$p_url = JURI::base();
 			}
+
 			$this->jsonarray['groups'][$key]['avatar']      = ($value->avatar == "") ? JURI::base() . 'components/com_community/assets/group.png' : $p_url . $value->avatar;
 			$this->jsonarray['groups'][$key]['members']     = intval($value->membercount);
 			$this->jsonarray['groups'][$key]['walls']       = intval($value->wallcount);
@@ -271,9 +282,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to fetch all categories
+	 * uses    to fetch all categories
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -284,9 +295,9 @@ class group
 	 *            "fields":"fields" // optional: if 0: add/edit group, 1: field list.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function addGroup()
+	public function addGroup()
 	{
 		if (!$this->my->id)
 		{
@@ -306,6 +317,7 @@ class group
 		if ($fields)
 		{
 			$this->jsonarray = $this->addGroupFields($uniqueID);
+
 			if (!$this->jsonarray)
 			{
 				return false;
@@ -317,7 +329,8 @@ class group
 		if (!$uniqueID)
 		{
 			if (!$this->config->get('enablegroups'))
-			{ // Check if Group is enable from jomsocial backend
+			{
+				// Check if Group is enable from jomsocial backend
 				IJReq::setResponse(706, JText::_('COM_COMMUNITY_GROUPS_DISABLE'));
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
@@ -326,8 +339,9 @@ class group
 
 			if ($this->config->get('creategroups') && (COwnerHelper::isCommunityAdmin($this->IJUserID) || (COwnerHelper::isRegisteredUser($this->IJUserID) && $this->my->canCreateGroups())))
 			{
-				// check if group creatio is allwed from jomsocial backend, and if loged in user is community admin, user is loged in? and a user has permission to create groups.
+				// Check if group creatio is allwed from jomsocial backend, and if loged in user is community admin, user is loged in? and a user has permission to create groups.
 				CFactory::load('libraries', 'limits');
+
 				if (CLimitsLibrary::exceedDaily('groups'))
 				{
 					IJReq::setResponse(416, JText::_('COM_COMMUNITY_GROUPS_LIMIT_REACHED'));
@@ -337,6 +351,7 @@ class group
 				}
 
 				CFactory::load('helpers', 'limits');
+
 				if (CLimitsHelper::exceededGroupCreation($this->my->id))
 				{
 					IJReq::setResponse(416, JText::_('COM_COMMUNITY_GROUPS_LIMIT'));
@@ -347,7 +362,6 @@ class group
 
 				$data             = new stdClass;
 				$data->categories = $groupModel->getCategories();
-
 
 				CFactory::load('libraries', 'apps');
 				$appsLib     = CAppPlugins::getInstance();
@@ -362,7 +376,7 @@ class group
 						$group = JTable::getInstance('Group', 'CTable');
 						$group->load($gid);
 
-						//trigger for onGroupCreate
+						// Trigger for onGroupCreate
 						$groupController->triggerGroupEvents('onGroupCreate', $group);
 
 						$this->jsonarray['code'] = 200;
@@ -385,7 +399,7 @@ class group
 		}
 		else
 		{
-			// edit group
+			// Edit group
 			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 			CFactory::load('helpers', 'owner');
@@ -499,7 +513,7 @@ class group
 				$activityModel->removeActivity('groups', $group->id);
 			}
 
-			// validate all fields
+			// Validate all fields
 			if (empty($group->name))
 			{
 				$validated = false;
@@ -554,7 +568,7 @@ class group
 					CFactory::load('libraries', 'activities');
 					CActivityStream::add($act, $params->toString());
 
-					//add user points
+					// Add user points
 					CFactory::load('libraries', 'userpoints');
 					CUserPoints::assignPoint('group.updated');
 
@@ -566,6 +580,7 @@ class group
 					return $validated;
 				}
 			}
+
 			CFactory::load('helpers', 'owner');
 
 			// Bind the post with the table first
@@ -579,11 +594,12 @@ class group
 
 			// @rule: check if moderation is turned on.
 			$group->published = ($this->config->get('moderategroupcreation')) ? 0 : 1;
-			// we here save the group 1st. else the group->id will be missing and causing the member connection and activities broken.
+
+			// We here save the group 1st. else the group->id will be missing and causing the member connection and activities broken.
 			$group->store();
 
 			// Since this is storing groups, we also need to store the creator / admin
-			// into the groups members table
+			// Into the groups members table
 			$member           = JTable::getInstance('GroupMembers', 'CTable');
 			$member->groupid  = $group->id;
 			$member->memberid = $group->ownerid;
@@ -611,7 +627,7 @@ class group
 
 				// Allow comments
 				$act->comment_type = 'groups.create';
-				$act->comment_id   = CActivities::COMMENT_SELF;;
+				$act->comment_id   = CActivities::COMMENT_SELF;
 
 				// Store the group now.
 				$group->updateStats();
@@ -626,7 +642,7 @@ class group
 				CActivityStream::add($act, $params->toString());
 			}
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('group.create');
 
@@ -691,7 +707,6 @@ class group
 			$params->set('videopermission', GROUP_VIDEO_PERMISSION_DISABLE);
 		}
 
-
 		// Set the group event permission
 		if (IJReq::getTaskData('eventpermission-admin', 0, 'bool'))
 		{
@@ -708,6 +723,7 @@ class group
 		}
 
 		$grouprecentphotos = IJReq::getTaskData('grouprecentphotos', GROUP_PHOTO_RECENT_LIMIT, 'int');
+
 		if ($grouprecentphotos < 1 && $this->config->get('enablephotos'))
 		{
 			IJReq::setResponse(500, JText::_('COM_COMMUNITY_GROUP_RECENT_ALBUM_SETTING_ERROR'));
@@ -715,9 +731,11 @@ class group
 
 			return false;
 		}
+
 		$params->set('grouprecentphotos', $grouprecentphotos);
 
 		$grouprecentvideos = IJReq::getTaskData('grouprecentvideos', GROUP_VIDEO_RECENT_LIMIT, 'int');
+
 		if ($grouprecentvideos < 1 && $this->config->get('enablevideos'))
 		{
 			IJReq::setResponse(500, JText::_('COM_COMMUNITY_GROUP_RECENT_VIDEOS_SETTING_ERROR'));
@@ -725,9 +743,11 @@ class group
 
 			return false;
 		}
+
 		$params->set('grouprecentvideos', $grouprecentvideos);
 
 		$grouprecentevent = IJReq::getTaskData('grouprecentevents', GROUP_EVENT_RECENT_LIMIT, 'int');
+
 		if ($grouprecentevent < 1)
 		{
 			IJReq::setResponse(500, JText::_('COM_COMMUNITY_GROUP_RECENT_EVENTS_SETTING_ERROR'));
@@ -735,6 +755,7 @@ class group
 
 			return false;
 		}
+
 		$params->set('grouprecentevents', $grouprecentevent);
 
 		$newmembernotification = IJReq::getTaskData('newmembernotification', 0, 'bool');
@@ -758,39 +779,40 @@ class group
 		return $params;
 	}
 
-
 	/**
 	 * addGroupFields function
 	 *
 	 * @param   [type]  $uniqueID  unique id
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
 	private function addGroupFields($uniqueID)
 	{
 		$fiedList = array("name"                         => array("text", 1, JText::_('COM_COMMUNITY_GROUPS_TITLE')),
-		                  "description"                  => array("textarea", 1, JText::_('COM_COMMUNITY_GROUPS_DESCRIPTION')),
-		                  "categoryid"                   => array("select", 1, JText::_('COM_COMMUNITY_GROUP_CATEGORY')),
-		                  "approvals"                    => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_PRIVATE_LABEL')),
+							"description"                  => array("textarea", 1, JText::_('COM_COMMUNITY_GROUPS_DESCRIPTION')),
+							"categoryid"                   => array("select", 1, JText::_('COM_COMMUNITY_GROUP_CATEGORY')),
+							"approvals"                    => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_PRIVATE_LABEL')),
 
-		                  "grouprecentphotos"            => array("text", 0, JText::_('COM_COMMUNITY_GROUPS_RECENT_PHOTO')),
-		                  "photopermission-admin"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_PHOTO_UPLOAD_ALOW_ADMIN')),
-		                  "photopermission-member"       => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_PHOTO_UPLOAD_ALLOW_MEMBER')),
+							"grouprecentphotos"            => array("text", 0, JText::_('COM_COMMUNITY_GROUPS_RECENT_PHOTO')),
+							"photopermission-admin"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_PHOTO_UPLOAD_ALOW_ADMIN')),
+							"photopermission-member"       => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_PHOTO_UPLOAD_ALLOW_MEMBER')),
 
-		                  "grouprecentvideos"            => array("text", 0, JText::_('COM_COMMUNITY_GROUPS_RECENT_VIDEO')),
-		                  "videopermission-admin"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_VIDEO_UPLOAD_ALLOW_ADMIN')),
-		                  "videopermission-member"       => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_VIDEO_UPLOAD_ALLOW_MEMBER')),
+							"grouprecentvideos"            => array("text", 0, JText::_('COM_COMMUNITY_GROUPS_RECENT_VIDEO')),
+							"videopermission-admin"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_VIDEO_UPLOAD_ALLOW_ADMIN')),
+							"videopermission-member"       => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_VIDEO_UPLOAD_ALLOW_MEMBER')),
 
-		                  "grouprecentevents"            => array("text", 0, JText::_('COM_COMMUNITY_GROUPS_EVENT')),
-		                  "eventpermission-admin"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUP_EVENTS_ADMIN_CREATION')),
-		                  "eventpermission-member"       => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUP_EVENTS_MEMBERS_CREATION')),
+							"grouprecentevents"            => array("text", 0, JText::_('COM_COMMUNITY_GROUPS_EVENT')),
+							"eventpermission-admin"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUP_EVENTS_ADMIN_CREATION')),
+							"eventpermission-member"       => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUP_EVENTS_MEMBERS_CREATION')),
 
-		                  "groupdiscussionfilesharing"   => array("checkbox", 0, JText::_('COM_COMMUNITY_FILES_ENABLE_SHARING')),
-		                  "discussordering"              => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_DISCUSS_ORDER_CREATION_DATE')),
+							"groupdiscussionfilesharing"   => array("checkbox", 0, JText::_('COM_COMMUNITY_FILES_ENABLE_SHARING')),
+							"discussordering"              => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_DISCUSS_ORDER_CREATION_DATE')),
 
-		                  "groupannouncementfilesharing" => array("checkbox", 0, JText::_('COM_COMMUNITY_FILES_ENABLE_SHARING')),
+							"groupannouncementfilesharing" => array("checkbox", 0, JText::_('COM_COMMUNITY_FILES_ENABLE_SHARING')),
 
-		                  "newmembernotification"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_NEW_MEMBER_NOTIFICATION')),
-		                  "joinrequestnotification"      => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_JOIN_REQUEST_NOTIFICATION')),
-		                  "wallnotification"             => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_WALL_NOTIFICATION'))
+							"newmembernotification"        => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_NEW_MEMBER_NOTIFICATION')),
+							"joinrequestnotification"      => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_JOIN_REQUEST_NOTIFICATION')),
+							"wallnotification"             => array("checkbox", 0, JText::_('COM_COMMUNITY_GROUPS_WALL_NOTIFICATION'))
 		);
 
 		$groupModel = CFactory::getModel('groups');
@@ -798,6 +820,7 @@ class group
 		$categories = $this->getFieldCategories($categories, 0);
 
 		$group = false;
+
 		if ($uniqueID != '' || $uniqueID != 0)
 		{
 			$group = JTable::getInstance('Group', 'CTable');
@@ -807,18 +830,22 @@ class group
 
 		$i                       = 0;
 		$this->jsonarray['code'] = 200;
+
 		foreach ($fiedList as $key => $field)
 		{
 			$this->jsonarray['fields'][$i]['name']     = $key;
 			$this->jsonarray['fields'][$i]['type']     = $field[0];
 			$this->jsonarray['fields'][$i]['required'] = $field[1];
 			$this->jsonarray['fields'][$i]['caption']  = $field[2];
+
 			if ($group)
-			{ // if edit event.. value should be passed to adit.
+			{
+				// If edit event.. value should be passed to adit.
 				$access = array('grouprecentphotos', 'photopermission-admin', 'photopermission-member',
 					'grouprecentvideos', 'videopermission-admin', 'videopermission-member',
 					'grouprecentevents', 'eventpermission-admin', 'eventpermission-member',
 					'groupdiscussionfilesharing', 'discussordering', 'groupannouncementfilesharing', 'newmembernotification', 'joinrequestnotification', 'wallnotification');
+
 				if (in_array($key, $access))
 				{
 					if ($key == 'photopermission-admin')
@@ -868,6 +895,7 @@ class group
 					$this->jsonarray['fields'][$i]['options'][$catk]['value'] = $catv->id;
 				}
 			}
+
 			$i++;
 		}
 
@@ -901,7 +929,6 @@ class group
 						return $value->name;
 					}
 				}
-
 			}
 		}
 		else
@@ -922,9 +949,9 @@ class group
 		return $categories;
 	}
 
-
 	/**
-	 * @uses    to fetch group details
+	 * uses    to fetch group details
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -934,14 +961,15 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function detail()
+	public function detail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', null, 'int');
 		$group    = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 		$params = $group->getParams();
+
 		if (!$group->id)
 		{
 			IJReq::setResponse(400);
@@ -949,10 +977,11 @@ class group
 
 			return false;
 		}
+
 		CFactory::load('helpers', 'owner');
 		CFactory::load('helpers', 'group');
 
-		// get admin of group
+		// Get admin of group
 		$groupModel = CFactory::getModel('groups');
 		$groupModel->setState('limit', 9999);
 		$groupModel->setState('limitstart', 0);
@@ -968,7 +997,8 @@ class group
 		$this->jsonarray ['group'] ['user_profile']  = $usr->profile;
 		$format                                      = "%A, %d %B %Y";
 		$this->jsonarray ['group'] ['date']          = CTimeHelper::getFormattedTime($group->createdate, $format);
-		// likes
+
+		// Likes
 		$likes                                  = $this->jomHelper->getLikes('groups', $uniqueID, $this->IJUserID);
 		$this->jsonarray ['group'] ['likes']    = $likes->likes;
 		$this->jsonarray ['group'] ['dislikes'] = $likes->dislikes;
@@ -980,17 +1010,16 @@ class group
 			$this->jsonarray ['group'] ['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewgroup&groupid={$uniqueID}";
 		}
 
-		// cover images
+		// Cover images
 		if ($group->cover)
 		{
 			$this->jsonarray ['group'] ['cover'] = JURI::base() . $group->cover;
 		}
 		else
 		{
-			//set default group coverpic.
+			// Set default group coverpic.
 			$this->jsonarray ['group'] ['cover'] = JURI::base() . "components/com_community/templates/default/images/cover/group-default.png";
 		}
-
 
 		$isMember        = $group->isMember($this->my->id) ? 1 : 0;
 		$isBanned        = $group->isBanned($this->my->id) ? 1 : 0;
@@ -1012,12 +1041,13 @@ class group
 		$allowWall        = (!$this->config->get('lockgroupwalls') || ($this->config->get('lockgroupwalls') /*&& $group->isMember( $this->my->id ) && !$isBanned*/) || COwnerHelper::isCommunityAdmin());
 		$isInvited        = $groupModel->isInvited($this->my->id, $group->id) ? 1 : 0;
 
-		// file count
+		// File count
 		$query = "SELECT count(id)
 		 		FROM #__community_files
 		 		WHERE groupid = {$uniqueID}";
 		$this->db->setQuery($query);
 		$total = $this->db->loadResult();
+
 		if ((($isAdmin) || ($isMine) || ($isMember && !$isBanned)) && $total)
 		{
 			$this->jsonarray ['group'] ['files'] = intval($total);
@@ -1028,7 +1058,9 @@ class group
 		}
 
 		$this->jsonarray['group']['likeAllowed']     = intval(!($isInvited OR $isBanned) AND $isMember);
-		$this->jsonarray['group']['isInvitation']    = $isInvited; // if user is invited to join group.
+
+		// If user is invited to join group.
+		$this->jsonarray['group']['isInvitation']    = $isInvited;
 		$this->jsonarray['group']['albumpermission'] = $allowManagealbum;
 		$this->jsonarray['group']['photopermission'] = $allowManagePhotos ? 1 : 0;
 		$this->jsonarray['group']['videopermission'] = $allowManageVideos ? 1 : 0;
@@ -1037,7 +1069,7 @@ class group
 
 		if ($isInvited)
 		{
-			//fetch invitor
+			// Fetch invitor
 			$query = "SELECT `creator`
 					FROM #__community_groups_invite
 					WHERE `groupid`={$uniqueID}
@@ -1046,10 +1078,11 @@ class group
 			$invitor = $this->db->loadResult();
 			$invitor = CFactory::getUser($invitor);
 
-			//check how many friends are the member of this group
+			// Check how many friends are the member of this group
 			$friendsModel = CFactory::getModel('friends');
 			$frids        = $friendsModel->getFriendIds($this->IJUserID);
 			$frdcount     = 0;
+
 			foreach ($members as $member)
 			{
 				if (in_array($member->id, $frids) && $member->id != $this->IJUserID && $member->id != $creator)
@@ -1059,10 +1092,12 @@ class group
 			}
 
 			$invitemessage = $invitor->name . " invited you to join this group.";
+
 			if ($frdcount)
 			{
 				$invitemessage .= " \n" . $frdcount . " of your friends are the members of this group.";
 			}
+
 			$this->jsonarray['group']['invitationMessage'] = $invitemessage;
 			$this->jsonarray['group']['invitationicon']    = JURI::root() . 'components/com_community/templates/default/images/action/icon-invite-32.png';
 		}
@@ -1077,11 +1112,14 @@ class group
 		$this->jsonarray['group']['isBanned']          = $isBanned;
 		$this->jsonarray['group']['isMember']          = $isMember;
 		$this->jsonarray['group']['isPrivate']         = intval($group->approvals);
-		$this->jsonarray['group']['isWaitingApproval'] = intval($waitingApproval); // loged in user waiting for admin approval.
+
+		// Loged in user waiting for admin approval.
+		$this->jsonarray['group']['isWaitingApproval'] = intval($waitingApproval);
 
 		if ($isMine || $isAdmin || $isSuperAdmin)
 		{
 			$memberWaiting = 0;
+
 			foreach ($members as $member)
 			{
 				if ($member->approved == 0)
@@ -1089,13 +1127,16 @@ class group
 					$memberWaiting++;
 				}
 			}
-			$this->jsonarray['group']['memberWaiting'] = $memberWaiting; // waiting user count.
+
+			// Waiting user count.
+			$this->jsonarray['group']['memberWaiting'] = $memberWaiting;
 		}
 
-		// options starts from here
+		// Options starts from here
 		$this->jsonarray['group']['menu']['shareGroup']  = 0;
 		$this->jsonarray['group']['menu']['reportGroup'] = 0;
-		if (($isMember /*&& !$isBanned*/) || ((!$isMember /*&& !$isBanned*/) && !$waitingApproval) || $isMine || $isAdmin || $isSuperAdmin)
+
+		if (($isMember) || ((!$isMember) && !$waitingApproval) || $isMine || $isAdmin || $isSuperAdmin)
 		{
 			$this->jsonarray['group']['menu']['shareGroup']  = 1;
 			$this->jsonarray['group']['menu']['reportGroup'] = 1;
@@ -1283,7 +1324,8 @@ class group
 	}
 
 	/**
-	 * @uses    to join group
+	 * uses    to join group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1293,11 +1335,12 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function join()
+	public function join()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -1316,6 +1359,7 @@ class group
 
 		// Load necessary tables
 		$groupModel = CFactory::getModel('groups');
+
 		if ($groupModel->isMember($this->my->id, $uniqueID))
 		{
 			IJReq::setResponse(707, JText::_('COM_COMMUNITY_GROUPS_ALREADY_MEMBER'));
@@ -1326,13 +1370,16 @@ class group
 		else
 		{
 			$member = $this->_saveMember($uniqueID);
+
 			if ($member->approved)
 			{
 				$notification = $this->jomHelper->getNotificationCount();
+
 				if (isset($notification['notification']))
 				{
 					$this->jsonarray['notification'] = $notification['notification'];
 				}
+
 				$this->jsonarray['code'] = 200;
 
 				return $this->jsonarray;
@@ -1343,13 +1390,12 @@ class group
 
 				return false;
 			}
-
 		}
 	}
 
-
 	/**
-	 * @uses    approve member to join group
+	 * uses    approve member to join group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1360,7 +1406,7 @@ class group
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
 	public function approveMember()
 	{
@@ -1412,14 +1458,14 @@ class group
 			{
 				$member->approve();
 
-				//Update member user table
+				// Update member user table
 				$gMember->updateGroupList(true);
 
 				CFactory::load('libraries', 'groups');
 				CGroups::joinApproved($group->id, $memberID);
 
-				//Send pushnotification
-				// get user push notification params
+				// Send pushnotification
+				// Get user push notification params
 				$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 						FROM #__ijoomeradv_users
 						WHERE `userid`={$memberID}";
@@ -1427,7 +1473,7 @@ class group
 				$puser    = $this->db->loadObject();
 				$ijparams = new CParameter($puser->jomsocial_params);
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                                   = array();
 				$pushOptions['detail']['content_data']['id']   = $this->my->id;
 				$pushOptions['detail']['content_data']['type'] = 'profile';
@@ -1439,6 +1485,7 @@ class group
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1448,20 +1495,21 @@ class group
 					$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_groups_member_approved';
 				}
 
-				//trigger for onGroupJoinApproved
+				// Trigger for onGroupJoinApproved
 				CFactory::load('controllers', 'groups');
 				$group_controller_obj = new CommunityGroupsController;
 				$group_controller_obj->triggerGroupEvents('onGroupJoinApproved', $group, $memberID);
 			}
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to join group
+	 * uses    to join group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1471,11 +1519,12 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function leave()
+	public function leave()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -1483,8 +1532,9 @@ class group
 
 			return false;
 		}
+
 		require_once JPATH_ROOT . '/components/com_community/controllers/groups.php';
-		$group_controller_obj = new CommunityGroupsController ();
+		$group_controller_obj = new CommunityGroupsController;
 
 		$groupModel = CFactory::getModel('groups');
 
@@ -1505,11 +1555,11 @@ class group
 
 		$groupModel->removeMember($data);
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('group.leave');
 
-		//trigger for onGroupLeave
+		// Trigger for onGroupLeave
 		$group_controller_obj->triggerGroupEvents('onGroupLeave', $group, $this->my->id);
 
 		// STore the group and update the data
@@ -1522,7 +1572,8 @@ class group
 	}
 
 	/**
-	 * @uses    to report group
+	 * uses    to report group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1535,9 +1586,9 @@ class group
 	 *            "type":"type" // group, discussion
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function report()
+	public function report()
 	{
 		$uniqueID     = IJReq::getTaskData('uniqueID', 0, 'int');
 		$discussionID = IJReq::getTaskData('discussionID', 0, 'int');
@@ -1565,6 +1616,7 @@ class group
 
 					return false;
 				}
+
 				$link = JURI::base() . "index.php?option=com_community&view=groups&task=viewgroup&groupid=" . $uniqueID;
 
 				$report->createReport(JText::_('Bad group'), $link, $message);
@@ -1584,6 +1636,7 @@ class group
 
 					return false;
 				}
+
 				$link = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid=" . $uniqueID . "&topicid=" . $discussionID;
 
 				$report->createReport(JText::_('COM_COMMUNITY_INVALID_DISCUSSION'), $link, $message);
@@ -1609,9 +1662,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to delete group
+	 * uses    to delete group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1621,9 +1674,9 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function delete()
+	public function delete()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
@@ -1631,7 +1684,7 @@ class group
 		CFactory::load('helpers', 'owner');
 		CFactory::load('models', 'groups');
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$groupModel   = CFactory::getModel('groups');
@@ -1655,6 +1708,7 @@ class group
 
 				return false;
 			}
+
 			// Delete all group bulletins
 			if (!CommunityModelGroups::deleteGroupBulletins($uniqueID))
 			{
@@ -1664,7 +1718,7 @@ class group
 				return false;
 			}
 
-			//Delete all group members
+			// Delete all group members
 			if (!CommunityModelGroups::deleteGroupMembers($uniqueID))
 			{
 				IJReq::setResponse(500);
@@ -1701,7 +1755,7 @@ class group
 			}
 
 			// Delete group
-			$group =  JTable::getInstance('Group', 'CTable');
+			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 			$groupData = $group;
 
@@ -1713,11 +1767,12 @@ class group
 
 				jimport('joomla.filesystem.file');
 
-				//@rule: Delete only thumbnail and avatars that exists for the specific group
+				// @rule: Delete only thumbnail and avatars that exists for the specific group
 				if ($groupData->avatar != 'components/com_community/assets/group.jpg' && !empty($groupData->avatar))
 				{
 					$path = explode('/', $groupData->avatar);
 					$file = JPATH_ROOT . '/' . $path[0] . '/' . $path[1] . '/' . $path[2] . '/' . $path[3];
+
 					if (JFile::exists($file))
 					{
 						JFile::delete($file);
@@ -1728,13 +1783,14 @@ class group
 				{
 					$path = explode('/', $groupData->thumb);
 					$file = JPATH_ROOT . '/' . $path[0] . '/' . $path[1] . '/' . $path[2] . '/' . $path[3];
+
 					if (JFile::exists($file))
 					{
 						JFile::delete($file);
 					}
 				}
 
-				//trigger for onGroupDelete
+				// Trigger for onGroupDelete
 				// Remove from activity stream
 				CActivityStream::remove('groups', $uniqueID);
 				$this->jsonarray['code'] = 200;
@@ -1751,7 +1807,8 @@ class group
 	}
 
 	/**
-	 * @uses    to delete group
+	 * uses    to delete group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1761,9 +1818,9 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function unpublish()
+	public function unpublish()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		CFactory::load('helpers', 'owner');
@@ -1778,7 +1835,7 @@ class group
 		else
 		{
 			CFactory::load('models', 'groups');
-			$group =  JTable::getInstance('Group', 'CTable');
+			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 
 			if ($group->id == 0)
@@ -1795,8 +1852,9 @@ class group
 				if ($group->store())
 				{
 					require_once JPATH_ROOT . '/components/com_community/controllers/groups.php';
-					$group_controller_obj = new CommunityGroupsController ();
-					//trigger for onGroupDisable
+					$group_controller_obj = new CommunityGroupsController;
+
+					// Trigger for onGroupDisable
 					$group_controller_obj->triggerGroupEvents('onGroupDisable', $group);
 					$this->jsonarray['code'] = 200;
 
@@ -1812,9 +1870,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to get announcement
+	 * uses  to get announcement
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1825,9 +1883,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function announcement()
+	public function announcement()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -1842,7 +1900,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$bulletinModel =  CFactory::getModel('bulletins');
+		$bulletinModel = CFactory::getModel('bulletins');
 		$bulletinModel->setState('limit', $limit);
 		$bulletinModel->setState('limitstart', $startFrom);
 
@@ -1877,10 +1935,12 @@ class group
 			$this->jsonarray['announcements'][$key]['date']           = CTimeHelper::getFormattedTime($value->date, $format);
 			$params                                                   = new CParameter($value->params);
 			$this->jsonarray['announcements'][$key]['filePermission'] = $params->get('filepermission-member');
+
 			if (SHARE_GROUP_BULLETIN == 1)
 			{
 				$this->jsonarray['announcements'][$key]['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewbulletin&groupid={$uniqueID}&bulletinid={$value->id}";
 			}
+
 			$query = "SELECT count(id)
 					FROM #__community_files
 					WHERE `groupid`={$uniqueID}
@@ -1893,7 +1953,8 @@ class group
 	}
 
 	/**
-	 * @uses    to get announcement
+	 * uses    to get announcement
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1907,9 +1968,9 @@ class group
 	 *            "file":"file" // boolean 0/1, 1: if members allow to upload files.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function addAnnouncement()
+	public function addAnnouncement()
 	{
 		$uniqueID       = IJReq::getTaskData('uniqueID', 0, 'int');
 		$announcementID = IJReq::getTaskData('announcementID', 0, 'int');
@@ -1932,7 +1993,7 @@ class group
 		// Load necessary models
 		$groupsModel = CFactory::getModel('groups');
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		// Ensure user has really the privilege to view this page.
@@ -1945,11 +2006,14 @@ class group
 		}
 
 		// Get variables from query
-		$bulletin =  JTable::getInstance('Bulletin', 'CTable');
+		$bulletin = JTable::getInstance('Bulletin', 'CTable');
+
 		if ($announcementID)
-		{ // edit announcement
+		{
+			// Edit announcement
 			$bulletin->load($announcementID);
 		}
+
 		$bulletin->title   = $title;
 		$bulletin->message = $message;
 		$bulletin->params  = '{"filepermission-member":' . $file . '}';
@@ -1989,12 +2053,13 @@ class group
 			{
 				$membersArray[] = $row->id;
 			}
+
 			unset($members);
 
 			// Add notification
 			CFactory::load('libraries', 'notification');
 
-			//$params			= new CParameter( '' );
+			// $params			= new CParameter( '' );
 			$params = new CParameter('');
 			$params->set('url', 'index.php?option=com_community&view=groups&task=viewgroup&groupid=' . $uniqueID);
 			$params->set('group', $group->name);
@@ -2002,8 +2067,8 @@ class group
 
 			CNotificationLibrary::add('groups.create.news', $this->my->id, $membersArray, JText::sprintf('COM_COMMUNITY_GROUPS_EMAIL_NEW_BULLETIN_SUBJECT', $group->name), '', 'groups.bulletin', $params);
 
-			//Send push notification
-			// get user push notification params and user device token and device type
+			// Send push notification
+			// Get user push notification params and user device token and device type
 			$memberslist = implode(',', $membersArray);
 			$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
@@ -2028,10 +2093,12 @@ class group
 			$announcementsdata['date']           = CTimeHelper::getFormattedTime($bulletin->date, $format);
 			$params                              = new CParameter($bulletin->params);
 			$announcementsdata['filePermission'] = $params->get('filepermission-member');
+
 			if (SHARE_GROUP_BULLETIN == 1)
 			{
 				$announcementsdata['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewbulletin&groupid={$uniqueID}&bulletinid={$bulletin->id}";
 			}
+
 			$query = "SELECT count(id)
 					FROM #__community_files
 					WHERE `groupid`={$uniqueID}
@@ -2039,7 +2106,7 @@ class group
 			$this->db->setQuery($query);
 			$announcementsdata['files'] = $this->db->loadResult();
 
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail']['content_data']['groupdetail']        = $groupdata;
 			$pushOptions['detail']['content_data']['announcementdetail'] = $announcementsdata;
 			$pushOptions['detail']['content_data']['type']               = 'announcement';
@@ -2053,6 +2120,7 @@ class group
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -2085,18 +2153,19 @@ class group
 				CActivityStream::add($act, $params->toString());
 			}
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('group.news.create');
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to delete announcement
+	 * uses    to delete announcement
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2107,9 +2176,9 @@ class group
 	 *            "announcementID":"announcementID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function deleteAnnouncement()
+	public function deleteAnnouncement()
 	{
 		$uniqueID       = IJReq::getTaskData('uniqueID', 0, 'int');
 		$announcementID = IJReq::getTaskData('announcementID', 0, 'int');
@@ -2134,16 +2203,17 @@ class group
 		CFactory::load('models', 'bulletins');
 
 		$groupsModel = CFactory::getModel('groups');
-		$group       =  JTable::getInstance('Group', 'CTable');
+		$group       = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		if ($groupsModel->isAdmin($this->IJUserID, $group->id) || COwnerHelper::isCommunityAdmin($this->IJUserID))
 		{
-			$bulletin =  JTable::getInstance('Bulletin', 'CTable');
+			$bulletin = JTable::getInstance('Bulletin', 'CTable');
 			$bulletin->load($announcementID);
+
 			if ($bulletin->delete())
 			{
-				//add user points
+				// Add user points
 				CFactory::load('libraries', 'userpoints');
 				CUserPoints::assignPoint('group.news.remove');
 
@@ -2161,9 +2231,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to get files
+	 * uses    to get files
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2175,9 +2245,9 @@ class group
 	 *            "type":"type" // announcement, discussion, group, hits, delete
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function files()
+	public function files()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -2201,7 +2271,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		CFactory::load('helpers', 'owner');
 
 		switch ($type)
@@ -2230,7 +2300,7 @@ class group
 				break;
 
 			case 'delete':
-				$file =  JTable::getInstance('File', 'CTable');
+				$file = JTable::getInstance('File', 'CTable');
 				$file->load($uniqueID);
 
 				if ($file->discussionid)
@@ -2296,6 +2366,7 @@ class group
 		{
 			$this->jsonarray['files'][$key]['id']   = $value->id;
 			$this->jsonarray['files'][$key]['name'] = $value->name;
+
 			if ($value->storage == 'file')
 			{
 				$p_url = JURI::base();
@@ -2308,6 +2379,7 @@ class group
 				else
 					$p_url = JURI::base();
 			}
+
 			$this->jsonarray['files'][$key]['url']          = $p_url . $value->filepath;
 			$this->jsonarray['files'][$key]['size']         = $value->filesize;
 			$this->jsonarray['files'][$key]['hits']         = $value->hits;
@@ -2317,19 +2389,21 @@ class group
 			$this->jsonarray['files'][$key]['user_profile'] = $usr->profile;
 			$format                                         = "%A, %d %B %Y";
 			$this->jsonarray['files'][$key]['date']         = CTimeHelper::getFormattedTime($value->created, $format);
+
 			if (!$group->id)
 			{
 				$group->load($value->groupid);
 			}
+
 			$this->jsonarray['files'][$key]['deleteAllowed'] = intval($this->IJUserID == $val->cretor OR $group->isAdmin($this->IJUserID) OR COwnerHelper::isCommunityAdmin($this->IJUserID));
 		}
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to upload files
+	 * uses    to upload files
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2342,9 +2416,9 @@ class group
 	 *    }
 	 *
 	 * file should be posted to "files"
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function uploadFile()
+	public function uploadFile()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type');
@@ -2365,7 +2439,7 @@ class group
 		$parentTable = JTable::getInstance(ucfirst($type), 'CTable');
 		$parentTable->load($uniqueID);
 
-		$table =  JTable::getInstance('File', 'CTable');
+		$table = JTable::getInstance('File', 'CTable');
 
 		CFactory::load('libraries', 'files');
 		$fileLib = new CFilesLibrary;
@@ -2421,7 +2495,7 @@ class group
 			if (!JFolder::exists(JPATH_ROOT . '/images/files' . '/' . $type . '/' . $parentTable->id))
 			{
 				JFolder::create(JPATH_ROOT . '/images/files' . '/' . $type . '/' . $parentTable->id, (int) octdec($this->config->get('folderpermissionsphoto')));
-				JFile::copy(JPATH_ROOT . '/components/com_community/index.html', JPATH_ROOT . '/files' . '/' . $type . '/' . $parentTable->id  '/index.html' );
+				JFile::copy(JPATH_ROOT . '/components/com_community/index.html', JPATH_ROOT . '/files' . '/' . $type . '/' . $parentTable->id  '/index.html');
 			}
 
 			JFile::copy($_file['tmp_name'], JPATH_ROOT . '/images/files' . '/' . $type . '/' . $parentTable->id . '/' . $fileName);
@@ -2434,12 +2508,13 @@ class group
 			CFactory::load('libraries', 'notification');
 
 			$params = new CParameter('');
+
 			switch ($type)
 			{
 				case 'discussion':
 					// Get repliers for this discussion and notify the discussion creator too
 					$discussionModel = CFactory::getModel('Discussions');
-					$discussion      =  JTable::getInstance('Discussion', 'CTable');
+					$discussion      = JTable::getInstance('Discussion', 'CTable');
 					$discussion->load($parentTable->id);
 					$users   = $discussionModel->getRepliers($discussion->id, $discussion->groupid);
 					$users[] = $discussion->creator;
@@ -2451,6 +2526,7 @@ class group
 					{
 						unset($users[$key]);
 					}
+
 					$params->set('url', 'index.php?option=com_community&view=groups&task=viewdiscussion&groupid=' . $discussion->groupid . '&topicid=' . $discussion->id);
 
 					$params->set('filename', $_file['name']);
@@ -2458,7 +2534,7 @@ class group
 					$params->set('discussion_url', 'index.php?option=com_community&view=groups&task=viewdiscussion&groupid=' . $discussion->groupid . '&topicid=' . $discussion->id);
 					CNotificationLibrary::add('groups_discussion_newfile', $this->IJUserID, $users, JText::sprintf('COM_COMMUNITY_GROUP_DISCUSSION_NEW_FILE_SUBJECT'), '', 'groups.discussion.newfile', $params);
 
-					//Send push notification
+					// Send push notification
 					$memberlist = implode(',', $users);
 					$query      = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 							FROM #__ijoomeradv_users
@@ -2466,7 +2542,7 @@ class group
 					$this->db->setQuery($query);
 					$puserlist = $this->db->loadObjectList();
 
-					$group =  JTable::getInstance('Group', 'CTable');
+					$group = JTable::getInstance('Group', 'CTable');
 					$group->load($discussion->groupid);
 					$groupdata['id'] = $group->id;
 					$groupModel      = CFactory::getModel('groups');
@@ -2483,15 +2559,17 @@ class group
 					$format                            = "%A, %d %B %Y";
 					$discussionsdata['date']           = CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 					$discussionsdata['isLocked']       = intval($discussion->lock);
-					$wallModel                         =  CFactory::getModel('wall');
+					$wallModel                         = CFactory::getModel('wall');
 					$wallContents                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 					$discussionsdata['topics']         = count($wallContents);
 					$params                            = new CParameter($discussion->params);
 					$discussionsdata['filePermission'] = $params->get('filepermission-member');
+
 					if (SHARE_GROUP_DISCUSSION == 1)
 					{
 						$discussionsdata['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$uniqueID}2&topicid={$discussion->id}";
 					}
+
 					$query = "SELECT count(id)
 							FROM #__community_files
 							WHERE `groupid`={$group->id}
@@ -2499,7 +2577,7 @@ class group
 					$this->db->setQuery($query);
 					$discussionsdata['files'] = $this->db->loadResult();
 
-					//send pushnotification data
+					// Send pushnotification data
 					$search  = array('{actor}', '{filename}', '{discussion}');
 					$replace = array($usr->name, $_file['name'], $discussion->title);
 					$message = str_replace($search, $replace, JText::sprintf('COM_COMMUNITY_GROUP_DISCUSSION_NEW_FILE_SUBJECT'));
@@ -2507,6 +2585,7 @@ class group
 					foreach ($puserlist as $puser)
 					{
 						$usr = $this->jomHelper->getUserDetail($this->IJUserID);
+
 						if ($puser->userid == $discussion->creator)
 						{
 							$discussionsdata['user_id'] = 0;
@@ -2515,10 +2594,11 @@ class group
 						{
 							$discussionsdata['user_id'] = $discussion->creator;
 						}
+
 						$groupdata['isAdmin']          = intval($groupModel->isAdmin($puser->userid, $group->id));
 						$groupdata['isCommunityAdmin'] = COwnerHelper::isCommunityAdmin($puser->userid) ? 1 : 0;
 
-						//change for id based push notification
+						// Change for id based push notification
 						$pushOptions                                               = array();
 						$pushOptions['detail']['content_data']['groupdetail']      = $groupdata;
 						$pushOptions['detail']['content_data']['discussiondetail'] = $discussionsdata;
@@ -2530,6 +2610,7 @@ class group
 						$obj->detail  = $pushOptions;
 						$obj->tocount = 1;
 						$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 						if ($obj->id)
 						{
 							$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -2547,14 +2628,15 @@ class group
 					break;
 			}
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get discussion
+	 * uses    to get discussion
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2565,9 +2647,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function discussion()
+	public function discussion()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -2590,7 +2672,7 @@ class group
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$discussModel =  CFactory::getModel('discussions');
+		$discussModel = CFactory::getModel('discussions');
 		$discussModel->setState('limit', $limit);
 		$discussModel->setState('limitstart', $startFrom);
 		$discussions = $discussModel->getDiscussionTopics($uniqueID);
@@ -2624,15 +2706,17 @@ class group
 			$format                                                 = "%A, %d %B %Y";
 			$this->jsonarray['discussions'][$key]['date']           = CTimeHelper::getFormattedTime($value->lastreplied, $format);
 			$this->jsonarray['discussions'][$key]['isLocked']       = $value->lock;
-			$wallModel                                              =  CFactory::getModel('wall');
+			$wallModel                                              = CFactory::getModel('wall');
 			$wallContents                                           = $wallModel->getPost('discussions', $value->id, 9999999, 0);
 			$this->jsonarray['discussions'][$key]['topics']         = count($wallContents);
 			$params                                                 = new CParameter($value->params);
 			$this->jsonarray['discussions'][$key]['filePermission'] = $params->get('filepermission-member');
+
 			if (SHARE_GROUP_DISCUSSION == 1)
 			{
 				$this->jsonarray['discussions'][$key]['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$uniqueID}2&topicid={$value->id}";
 			}
+
 			$query = "SELECT count(id)
 					FROM #__community_files
 					WHERE `groupid`={$uniqueID}
@@ -2645,7 +2729,8 @@ class group
 	}
 
 	/**
-	 * @uses    to get discussion
+	 * uses    to get discussion
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2656,9 +2741,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function discussionDetail()
+	public function discussionDetail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -2687,10 +2772,11 @@ class group
 		$this->db->setQuery($query);
 		$groupID = $this->db->loadResult();
 
-		$wallModel    =  CFactory::getModel('wall');
-		$groupModel   =  CFactory::getModel('groups');
+		$wallModel    = CFactory::getModel('wall');
+		$groupModel   = CFactory::getModel('groups');
 		$wallContents = $wallModel->getPost('discussions', $uniqueID, $limit, $startFrom);
 		$total        = count($wallModel->getPost('discussions', $uniqueID, 999999, 0));
+
 		if (count($wallContents) > 0)
 		{
 			$this->jsonarray['code']      = 200;
@@ -2735,9 +2821,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to add discussion
+	 * uses    to add discussion
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2751,9 +2837,9 @@ class group
 	 *            "file":"file" // file upload permission for member, boolean value 0/1
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function adddiscussion()
+	public function adddiscussion()
 	{
 		$uniqueID     = IJReq::getTaskData('uniqueID', 0, 'int');
 		$discussionID = IJReq::getTaskData('discussionID', 0, 'int');
@@ -2774,13 +2860,14 @@ class group
 			return false;
 		}
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		// Check if the user is banned
 		$isBanned = $group->isBanned($this->my->id);
 
 		CFactory::load('helpers', 'owner');
+
 		if ((!$group->isMember($this->my->id) || $isBanned) && !COwnerHelper::isCommunityAdmin($this->IJUserID))
 		{
 			IJReq::setResponse(706, JText::_('COM_COMMUNITY_PERMISSION_DENIED_WARNING'));
@@ -2789,13 +2876,15 @@ class group
 			return false;
 		}
 
-		$discussion =  JTable::getInstance('Discussion', 'CTable');
+		$discussion = JTable::getInstance('Discussion', 'CTable');
+
 		if ($discussionID)
 		{
 			$discussion->load($discussionID);
 			$creator      = CFactory::getUser($discussion->creator);
 			$groupsModel  = CFactory::getModel('Groups');
 			$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $discussion->groupid);
+
 			if ($this->my->id != $creator->id && !$isGroupAdmin && !COwnerHelper::isCommunityAdmin())
 			{
 				IJReq::setResponse(706, JText::_('COM_COMMUNITY_ACCESS_FORBIDDEN'));
@@ -2834,9 +2923,9 @@ class group
 		$data['groupid']               = $uniqueID;
 
 		$inputFilter = CFactory::getInputFilter(true);
-		$groupModel  =  CFactory::getModel('groups');
+		$groupModel  = CFactory::getModel('groups');
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$discussion->bind($data);
@@ -2853,11 +2942,12 @@ class group
 		}
 
 		$isNew = is_null($discussion->id) || !$discussion->id ? true : false;
-		//echo $my->id;
+
 		if ($isNew)
 		{
 			$discussion->creator = $this->my->id;
 		}
+
 		$discussion->groupid     = $uniqueID;
 		$discussion->created     = gmdate('Y-m-d H:i:s');
 		$discussion->lastreplied = $discussion->created;
@@ -2867,7 +2957,7 @@ class group
 		$discussion->title = strip_tags($discussion->title);
 
 		CFactory::load('libraries', 'apps');
-		$appsLib     =  CAppPlugins::getInstance();
+		$appsLib     = CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-groups-discussionform'));
 		$validated   = true;
 
@@ -2922,7 +3012,7 @@ class group
 
 			if ($isNew)
 			{
-				$group =  JTable::getInstance('Group', 'CTable');
+				$group = JTable::getInstance('Group', 'CTable');
 				$group->load($uniqueID);
 
 				// Add logging.
@@ -2952,7 +3042,7 @@ class group
 
 				CActivityStream::add($act, $params->toString());
 
-				//@rule: Add notification for group members whenever a new discussion created.
+				// @rule: Add notification for group members whenever a new discussion created.
 				if ($this->config->get('groupdiscussnotification') == 1)
 				{
 					$members = $groupModel->getMembers($uniqueID, null);
@@ -2969,6 +3059,7 @@ class group
 					{
 						$membersArray[] = $row->id;
 					}
+
 					unset($members);
 					unset($admins);
 
@@ -2989,18 +3080,22 @@ class group
 				$admins  = $groupModel->getAdmins($uniqueID, null);
 
 				$membersArray = array();
+
 				foreach ($members as $row)
 				{
 					$membersArray[] = $row->id;
 				}
+
 				foreach ($admins as $row)
 				{
 					$membersArray[] = $row->id;
 				}
+
 				unset($members);
 				unset($admins);
 				$membersArray = implode(',', $membersArray);
-				// get user push notification params and user device token and device type
+
+				// Get user push notification params and user device token and device type
 				$query = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 						FROM #__ijoomeradv_users
 						WHERE `userid` IN ('{$membersArray}')";
@@ -3020,15 +3115,17 @@ class group
 				$format                            = "%A, %d %B %Y";
 				$discussionsdata['date']           = CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 				$discussionsdata['isLocked']       = intval($discussion->lock);
-				$wallModel                         =  CFactory::getModel('wall');
+				$wallModel                         = CFactory::getModel('wall');
 				$wallContents                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 				$discussionsdata['topics']         = count($wallContents);
 				$params                            = new CParameter($discussion->params);
 				$discussionsdata['filePermission'] = $params->get('filepermission-member');
+
 				if (SHARE_GROUP_DISCUSSION == 1)
 				{
 					$discussionsdata['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$uniqueID}2&topicid={$discussion->id}";
 				}
+
 				$query = "SELECT count(id)
 						FROM #__community_files
 						WHERE `groupid`={$group->id}
@@ -3051,9 +3148,10 @@ class group
 					{
 						$uid = $group->ownerid;
 					}
+
 					$discussionsdata['user_id'] = $uid;
 
-					//change for id based push notification
+					// Change for id based push notification
 					$pushOptions                                               = array();
 					$pushOptions['detail']['content_data']['groupdetail']      = $groupdata;
 					$pushOptions['detail']['content_data']['discussiondetail'] = $discussionsdata;
@@ -3065,6 +3163,7 @@ class group
 					$obj->detail  = $pushOptions;
 					$obj->tocount = 1;
 					$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 					if ($obj->id)
 					{
 						$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -3078,7 +3177,7 @@ class group
 				$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_groups_create_discussion';
 			}
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('group.discussion.create');
 		}
@@ -3090,9 +3189,9 @@ class group
 		return $validated;
 	}
 
-
 	/**
-	 * @uses    to add /edit discussion reply
+	 * uses    to add /edit discussion reply
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3104,9 +3203,9 @@ class group
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function addDiscussionReply()
+	public function addDiscussionReply()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$wallID   = IJReq::getTaskData('wallID', 0, 'int');
@@ -3129,10 +3228,10 @@ class group
 		CFactory::load('libraries', 'activities');
 		CFactory::load('libraries', 'wall');
 
-		$discussion =  JTable::getInstance('Discussion', 'CTable');
+		$discussion = JTable::getInstance('Discussion', 'CTable');
 		$discussion->load($uniqueID);
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($discussion->groupid);
 
 		$discussionModel = CFactory::getModel('Discussions');
@@ -3169,9 +3268,10 @@ class group
 		}
 		// Save the wall content
 		$wall = CWallLibrary::saveWall($uniqueID, $message, 'discussions', $this->my, ($this->my->id == $discussion->creator), 'groups,discussion', 'wall.content', $wallID);
+
 		if (!$wallID)
 		{
-			$date                    =  JFactory::getDate();
+			$date                    = JFactory::getDate();
 			$discussion->lastreplied = $date->toSql();
 			$discussion->store();
 
@@ -3227,8 +3327,8 @@ class group
 
 			CNotificationLibrary::add('groups.discussion.reply', $this->my->id, $users, JText::sprintf('COM_COMMUNITY_GROUP_NEW_DISCUSSION_REPLY_SUBJECT', $this->my->getDisplayName(), $discussion->title), '', 'groups.discussion.reply', $params);
 
-			//Send pushnotification
-			// get user push notification params and user device token and device type
+			// Send pushnotification
+			// Get user push notification params and user device token and device type
 			$userslist = implode(',', $users);
 			$query     = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
@@ -3250,15 +3350,17 @@ class group
 			$format                            = "%A, %d %B %Y";
 			$discussionsdata['date']           = CTimeHelper::getFormattedTime($discussion->lastreplied, $format);
 			$discussionsdata['isLocked']       = intval($discussion->lock);
-			$wallModel                         =  CFactory::getModel('wall');
+			$wallModel                         = CFactory::getModel('wall');
 			$wallContents                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 			$discussionsdata['topics']         = count($wallContents);
 			$params                            = new CParameter($discussion->params);
 			$discussionsdata['filePermission'] = $params->get('filepermission-member');
+
 			if (SHARE_GROUP_DISCUSSION == 1)
 			{
 				$discussionsdata['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$uniqueID}2&topicid={$discussion->id}";
 			}
+
 			$query = "SELECT count(id)
 					FROM #__community_files
 					WHERE `groupid`={$group->id}
@@ -3266,13 +3368,13 @@ class group
 			$this->db->setQuery($query);
 			$discussionsdata['files'] = $this->db->loadResult();
 
-			//send pushnotification data
+			// Send pushnotification data
 			$usr     = $this->jomHelper->getUserDetail($this->IJUserID);
 			$match   = array('{actor}', '{discussion}');
 			$replace = array($usr->name, $discussion->title);
 			$message = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_GROUP_NEW_DISCUSSION_REPLY_SUBJECT'));
 
-			//send push notification
+			// Send push notification
 			foreach ($puserlist as $puser)
 			{
 				$usr                           = $this->jomHelper->getUserDetail($this->IJUserID);
@@ -3287,9 +3389,10 @@ class group
 				{
 					$uid = $group->ownerid;
 				}
+
 				$discussionsdata['user_id'] = $uid;
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                                               = array();
 				$pushOptions['detail']['content_data']['groupdetail']      = $groupdata;
 				$pushOptions['detail']['content_data']['discussiondetail'] = $discussionsdata;
@@ -3301,6 +3404,7 @@ class group
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -3313,7 +3417,7 @@ class group
 			$this->jsonarray['pushNotificationData']['type']       = 'group';
 			$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_groups_discussion_reply';
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('group.discussion.reply');
 
@@ -3327,9 +3431,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to deleteDiscussion
+	 * uses    to deleteDiscussion
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3342,9 +3446,9 @@ class group
 	 *            "type":"type" // discussion, reply
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function deleteDiscussion()
+	public function deleteDiscussion()
 	{
 		$uniqueID     = IJReq::getTaskData('uniqueID', 0, 'int');
 		$discussionID = IJReq::getTaskData('discussionID', 0, 'int');
@@ -3360,13 +3464,14 @@ class group
 		}
 
 		$groupsModel = CFactory::getModel('groups');
-		$group       =  JTable::getInstance('Group', 'CTable');
+		$group       = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 		$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $group->id);
 
 		switch ($type)
 		{
 			case 'discussion';
+
 				if (empty($discussionID) || empty($uniqueID))
 				{
 					IJReq::setResponse(400);
@@ -3390,7 +3495,7 @@ class group
 				$wallModel     = CFactory::getModel('wall');
 				$activityModel = CFactory::getModel('activities');
 				$fileModel     = CFactory::getModel('files');
-				$discussion    =  JTable::getInstance('Discussion', 'CTable');
+				$discussion    = JTable::getInstance('Discussion', 'CTable');
 				$discussion->load($discussionID);
 
 				if ($this->my->id == $discussion->creator || $isGroupAdmin || COwnerHelper::isCommunityAdmin())
@@ -3399,8 +3504,10 @@ class group
 					{
 						// Remove the replies to this discussion as well since we no longer need them
 						$wallModel->deleteAllChildPosts($discussionID, 'discussions');
+
 						// Remove from activity stream
 						CActivityStream::remove('groups.discussion', $discussionID);
+
 						// Remove Discussion Files
 						$fileModel->alldelete($discussionID, 'discussion');
 						$this->jsonarray['code'] = 200;
@@ -3421,7 +3528,7 @@ class group
 				$filter = JFilterInput::getInstance();
 				$wallid = $filter->clean($wallID, 'int');
 
-				$table =  JTable::getInstance('Wall', 'CTable');
+				$table = JTable::getInstance('Wall', 'CTable');
 				$table->load($wallID);
 
 				$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $group->id);
@@ -3450,14 +3557,15 @@ class group
 
 				return false;
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to lock / unloack Discussion
+	 * uses    to lock / unloack Discussion
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3468,9 +3576,9 @@ class group
 	 *            "discussionID":"discussionID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function lockDiscussion()
+	public function lockDiscussion()
 	{
 		$uniqueID     = IJReq::getTaskData('uniqueID', 0, 'int');
 		$discussionID = IJReq::getTaskData('discussionID', 0, 'int');
@@ -3496,10 +3604,10 @@ class group
 
 		$groupsModel = CFactory::getModel('groups');
 		$wallModel   = CFactory::getModel('wall');
-		$discussion  =  JTable::getInstance('Discussion', 'CTable');
+		$discussion  = JTable::getInstance('Discussion', 'CTable');
 		$discussion->load($discussionID);
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 		$isGroupAdmin = $groupsModel->isAdmin($this->my->id, $group->id);
 
@@ -3530,9 +3638,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to edit avatar
+	 * uses    to edit avatar
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3545,9 +3653,9 @@ class group
 	 *    }
 	 *
 	 * avatar will be posted as image.
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function editAvatar()
+	public function editAvatar()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
@@ -3562,8 +3670,8 @@ class group
 		$data     = new stdClass;
 		$data->id = $groupid;
 
-		$groupsModel =  CFactory::getModel('groups');
-		$group       =  JTable::getInstance('Group', 'CTable');
+		$groupsModel = CFactory::getModel('groups');
+		$group       = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -3589,7 +3697,7 @@ class group
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib     =  CAppPlugins::getInstance();
+		$appsLib     = CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-groups-uploadavatar'));
 
 		if (empty($saveSuccess) || !in_array(false, $saveSuccess))
@@ -3673,7 +3781,7 @@ class group
 						$act->app     = 'groups';
 						$act->cid     = $group->id;
 
-						//$params = new CParameter('');
+						// $params = new CParameter('');
 						$params = new CParameter('');
 						$params->set('group_url', 'index.php?option=com_community&view=groups&task=viewgroup&groupid=' . $group->id);
 
@@ -3681,12 +3789,12 @@ class group
 						CActivityStream::add($act, $params->toString());
 					}
 
-					//add user points
+					// Add user points
 					CFactory::load('libraries', 'userpoints');
 					CUserPoints::assignPoint('group.avatar.upload');
 
-
 					$this->jsonarray['code'] = 200;
+
 					return $this->jsonarray;
 				}
 			}
@@ -3698,9 +3806,9 @@ class group
 		return false;
 	}
 
-
 	/**
-	 * @uses    to add like to the group
+	 * uses    to add like to the group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3710,11 +3818,12 @@ class group
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function like()
+	public function like()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -3722,6 +3831,7 @@ class group
 
 			return false;
 		}
+
 		if ($this->jomHelper->Like('groups', $uniqueID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -3738,7 +3848,8 @@ class group
 	}
 
 	/**
-	 * @uses    to add dislike to the group
+	 * uses    to add dislike to the group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3748,11 +3859,12 @@ class group
 	 *            "uniqueID":"uniqueID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function dislike()
+	public function dislike()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -3760,6 +3872,7 @@ class group
 
 			return false;
 		}
+
 		if ($this->jomHelper->Dislike('groups', $uniqueID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -3775,9 +3888,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to unlike like/dislike value to the group
+	 * uses    to unlike like/dislike value to the group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3787,11 +3900,12 @@ class group
 	 *            "uniqueID":"uniqueID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function unlike()
+	public function unlike()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -3799,6 +3913,7 @@ class group
 
 			return false;
 		}
+
 		if ($this->jomHelper->Unlike('groups', $uniqueID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -3814,9 +3929,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to send mail to all members
+	 * uses    to send mail to all members
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3828,15 +3943,15 @@ class group
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function sendmail()
+	public function sendmail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$message  = IJReq::getTaskData('message', null);
 		$title    = IJReq::getTaskData('title', null);
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -3870,21 +3985,23 @@ class group
 			return false;
 		}
 
-
 		// Add notification
 		CFactory::load('libraries', 'notification');
 		$emails = array();
 		$total  = 0;
+
 		foreach ($members as $member)
 		{
-			$total += 1;
+			// $total += 1;
+			$total++;
 			$user     = CFactory::getUser($member->id);
 			$emails[] = $user->id;
 
 			// Exclude the actor
 			if ($user->id == $this->my->id)
 			{
-				$total -= 1;
+				// $total -= 1;
+				$total++;
 			}
 		}
 
@@ -3894,8 +4011,8 @@ class group
 		$params->set('message', $message);
 		CNotificationLibrary::add('groups.sendmail', $this->my->id, $emails, JText::sprintf('COM_COMMUNITY_GROUPS_SENDMAIL_SUBJECT', $group->name), '', 'groups.sendmail', $params);
 
-		//Send push notification
-		// get user push notification params and user device token and device type
+		// Send push notification
+		// Get user push notification params and user device token and device type
 		$memberslist = implode(',', $emails);
 		$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 				FROM #__ijoomeradv_users
@@ -3903,7 +4020,7 @@ class group
 		$this->db->setQuery($query);
 		$puserlist = $this->db->loadObjectList();
 
-		//change for id based push notification
+		// Change for id based push notification
 		$pushOptions['detail'] = array();
 		$pushOptions           = gzcompress(json_encode($pushOptions));
 
@@ -3916,6 +4033,7 @@ class group
 		$obj->detail  = $pushOptions;
 		$obj->tocount = count($puserlist);
 		$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 		if ($obj->id)
 		{
 			$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -3930,9 +4048,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get group member list
+	 * uses    to get group member list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3944,9 +4062,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function members()
+	public function members()
 	{
 		$uniqueID     = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO       = IJReq::getTaskData('pageNO', 0, 'int');
@@ -3974,7 +4092,7 @@ class group
 
 		$groupModel = CFactory::getModel('groups');
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		$query = "SELECT a.memberid AS id, a.approved , b.name as name, a.permissions
@@ -3984,6 +4102,7 @@ class group
 				AND a.groupid = {$this->db->Quote($uniqueID)}
 				AND b.block = {$this->db->Quote('0')}
 				AND a.permissions != {$this->db->quote(COMMUNITY_GROUP_BANNED)}";
+
 		if ($onlyApproved)
 		{
 			$query .= ' AND a.approved=' . $this->db->Quote('1');
@@ -4021,6 +4140,7 @@ class group
 				WHERE b.id=a.memberid
 				AND a.groupid = {$this->db->Quote($uniqueID)}
 				AND b.block = {$this->db->Quote('0')}";
+
 		if ($onlyApproved)
 		{
 			$query .= ' AND a.approved=' . $this->db->Quote('1');
@@ -4034,6 +4154,7 @@ class group
 		{
 			$query .= ' AND a.permissions=' . $this->db->Quote('0');
 		}
+
 		$this->db->setQuery($query);
 		$total = $this->db->loadResult();
 
@@ -4064,7 +4185,8 @@ class group
 			$this->jsonarray ['members'] [$key] ['user_long']    = $usr->longitude;
 			$this->jsonarray ['members'] [$key] ['user_online']  = $usr->online;
 			$this->jsonarray ['members'] [$key] ['user_profile'] = $usr->profile;
-			//check if admin
+
+			// Check if admin
 			$isAdmin = (int) $groupModel->isAdmin($value->id, $uniqueID);
 
 			$this->jsonarray ['members'] [$key] ['canRemove'] = intval((($cAdmin OR $cCommunityAdmin) AND $this->IJUserID != $usr->id AND $usr->id != 0));
@@ -4076,9 +4198,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to set / unset member as admin
+	 * uses    to set / unset member as admin
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4090,18 +4212,19 @@ class group
 	 *            "admin":"admin" // 0: to set as member, 1: to set as admin.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function setAdmin()
+	public function setAdmin()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$memberID = IJReq::getTaskData('memberID', 0, 'int');
 		$admin    = IJReq::getTaskData('admin', 0, 'bool');
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
+
 		if ($group->ownerid != $this->my->id && !COwnerHelper::isCommunityAdmin($this->IJUserID))
 		{
 			IJReq::setResponse(706, JText::_('COM_COMMUNITY_PERMISSION_DENIED_WARNING'));
@@ -4111,7 +4234,7 @@ class group
 		}
 		else
 		{
-			$member =  JTable::getInstance('GroupMembers', 'CTable');
+			$member = JTable::getInstance('GroupMembers', 'CTable');
 
 			$member->load($memberID, $group->id);
 			$member->permissions = $admin;
@@ -4123,9 +4246,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to accept / reject invitation to join group
+	 * uses    to accept / reject invitation to join group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4136,14 +4259,14 @@ class group
 	 *            "type":"type" // 0: reject, 1: accept.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function invitation()
+	public function invitation()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type', 0, 'bool');
 
-		$table                =  JTable::getInstance('GroupInvite', 'CTable');
+		$table                = JTable::getInstance('GroupInvite', 'CTable');
 		$groupkeys['userid']  = $this->my->id;
 		$groupkeys['groupid'] = $uniqueID;
 		$table->load($groupkeys);
@@ -4164,11 +4287,11 @@ class group
 		{
 			$table->delete();
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
-
 
 	/**
 	 * _saveMember function
@@ -4177,36 +4300,38 @@ class group
 	 *
 	 * @return  boolean            returns value
 	 */
-
 	private function _saveMember($groupID)
 	{
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($groupID);
 		$params = $group->getParams();
 
-		$member =  JTable::getInstance('GroupMembers', 'CTable');
+		$member = JTable::getInstance('GroupMembers', 'CTable');
+
 		// Set the properties for the members table
 		$member->groupid  = $group->id;
 		$member->memberid = $this->my->id;
 
 		CFactory::load('helpers', 'owner');
+
 		// @rule: If approvals is required, set the approved status accordingly.
 		$member->approved = ($group->approvals == COMMUNITY_PRIVATE_GROUP) ? '0' : 1;
 
 		// @rule: Special users should be able to join the group regardless if it requires approval or not
 		$member->approved = COwnerHelper::isCommunityAdmin() ? 1 : $member->approved;
 
-		//@todo: need to set the privileges
+		// @todo: need to set the privileges
 		$member->permissions = '0';
 
 		$member->store();
 		$owner = CFactory::getUser($group->ownerid);
 
-
 		require_once JPATH_ROOT . '/components/com_community/controllers/groups.php';
-		$group_controller_obj = new CommunityGroupsController ();
-		//trigger for onGroupJoin
+		$group_controller_obj = new CommunityGroupsController;
+
+		// Trigger for onGroupJoin
 		$group_controller_obj->triggerGroupEvents('onGroupJoin', $group, $this->my->id);
+
 		// Test if member is approved, then we add logging to the activities.
 		if ($member->approved)
 		{
@@ -4219,7 +4344,7 @@ class group
 			$act->app     = 'groups';
 			$act->cid     = $group->id;
 
-			//$params = new CParameter('');
+			// $params = new CParameter('');
 			$params = new CParameter('');
 			$params->set('group_url', 'index.php?option=com_community&view=groups&task=viewgroup&groupid=' . $group->id);
 
@@ -4227,7 +4352,7 @@ class group
 			CFactory::load('libraries', 'activities');
 			CActivityStream::add($act, $params->toString());
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('group.join');
 
@@ -4235,15 +4360,16 @@ class group
 			$group->updateStats();
 			$group->store();
 
-			//remove from invite table for remove pending list
-			$memberinvite          =  JTable::getInstance('GroupInvite', 'CTable');
+			// Remove from invite table for remove pending list
+			$memberinvite          = JTable::getInstance('GroupInvite', 'CTable');
 			$inviteKeys['userid']  = $this->my->id;
 			$inviteKeys['groupid'] = $groupID;
 			$memberinvite->load($inviteKeys);
 			$memberinvite->delete();
 		}
-		//Send push notification
-		// get user push notification params
+
+		// Send push notification
+		// Get user push notification params
 		$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 				FROM #__ijoomeradv_users
 				WHERE `userid`={$group->ownerid}";
@@ -4251,10 +4377,11 @@ class group
 		$puser    = $this->db->loadObject();
 		$ijparams = new CParameter($puser->jomsocial_params);
 
-		//change for id based push notification
+		// Change for id based push notification
 		$usr     = $this->jomHelper->getUserDetail($this->my->id);
 		$search  = array('{actor}', '{multiple}', '{actors}', '{/multiple}', '{single}', '{/single}');
 		$replace = array($usr->name, '', '', '', '', '');
+
 		if ($member->approved)
 		{
 			$message                                       = str_replace($search, $replace, JText::sprintf('COM_COMMUNITY_GROUPS_GROUP_JOIN', $group->getLink(), $group->name));
@@ -4279,6 +4406,7 @@ class group
 				else
 					$p_url = JURI::base();
 			}
+
 			$groupdata['avatar']      = ($group->avatar == "") ? JURI::base() . 'components/com_community/assets/group.png' : $p_url . $group->avatar;
 			$groupdata['members']     = intval($group->membercount);
 			$groupdata['walls']       = intval($group->wallcount);
@@ -4288,12 +4416,14 @@ class group
 			$pushOptions['detail']['content_data']         = $groupdata;
 			$pushOptions['detail']['content_data']['type'] = 'group';
 		}
+
 		$pushOptions  = gzcompress(json_encode($pushOptions));
 		$obj          = new stdClass;
 		$obj->id      = null;
 		$obj->detail  = $pushOptions;
 		$obj->tocount = 1;
 		$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 		if ($obj->id)
 		{
 			$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -4306,9 +4436,9 @@ class group
 		return $member;
 	}
 
-
 	/**
-	 * @uses    to get group friend list to invite
+	 * uses    to get group friend list to invite
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4319,9 +4449,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function friendList()
+	public function friendList()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -4354,6 +4484,7 @@ class group
 
 		$groupsModel = CFactory::getModel('groups');
 		$members     = $groupsModel->getInviteListByName('', $this->IJUserID, $uniqueID, $startFrom, $limit);
+
 		if (count($members) > 0)
 		{
 			$this->jsonarray['code']      = 200;
@@ -4381,9 +4512,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to invite friends to group
+	 * uses    to invite friends to group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4395,9 +4526,9 @@ class group
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function invite()
+	public function invite()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$friends  = IJReq::getTaskData('friends');
@@ -4420,7 +4551,7 @@ class group
 			return false;
 		}
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		// Check if the user is banned
@@ -4436,19 +4567,20 @@ class group
 
 		foreach ($friends as $friend)
 		{
-			$groupInvite          =  JTable::getInstance('GroupInvite', 'CTable');
+			$groupInvite          = JTable::getInstance('GroupInvite', 'CTable');
 			$groupInvite->groupid = $group->id;
 			$groupInvite->userid  = $friend;
 			$groupInvite->creator = $this->my->id;
 			$groupInvite->store();
 
-			// get user push notification params
+			// Get user push notification params
 			$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
 					WHERE `userid`={$friend}";
 			$this->db->setQuery($query);
 			$puser    = $this->db->loadObject();
 			$ijparams = new CParameter($puser->jomsocial_params);
+
 			if ($ijparams->get('pushnotif_groups_invite') == 1 && $friend != $this->IJUserID && !empty($puser))
 			{
 				$usr     = $this->jomHelper->getUserDetail($this->IJUserID);
@@ -4472,12 +4604,13 @@ class group
 					else
 						$p_url = JURI::base();
 				}
+
 				$groupdata['avatar']      = ($group->avatar == "") ? JURI::base() . 'components/com_community/assets/group.png' : $p_url . $group->avatar;
 				$groupdata['members']     = intval($group->membercount);
 				$groupdata['walls']       = intval($group->wallcount);
 				$groupdata['discussions'] = intval($group->discusscount);
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                                   = array();
 				$pushOptions['detail']['content_data']         = $groupdata;
 				$pushOptions['detail']['content_data']['type'] = 'group';
@@ -4488,6 +4621,7 @@ class group
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -4498,6 +4632,7 @@ class group
 				}
 			}
 		}
+
 		// Add notification
 		CFactory::load('libraries', 'notification');
 
@@ -4513,9 +4648,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get ban member list
+	 * uses    to get ban member list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4526,9 +4661,9 @@ class group
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function banMembers()
+	public function banMembers()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -4584,7 +4719,7 @@ class group
 			$this->jsonarray ['members'] [$key] ['user_online']  = $usr->online;
 			$this->jsonarray ['members'] [$key] ['user_profile'] = $usr->profile;
 
-			//check if admin
+			// Check if admin
 			$isAdmin = (int) $groupsModel->isAdmin($value->id, $uniqueID);
 
 			$this->jsonarray ['members'] [$key] ['canRemove'] = intval((($cAdmin OR $cCommunityAdmin) AND $this->IJUserID != $usr->id));
@@ -4596,9 +4731,9 @@ class group
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get ban member list
+	 * uses    to get ban member list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4610,9 +4745,9 @@ class group
 	 *            "ban":"ban" // 0: to unban, 1: to ban
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function ban()
+	public function ban()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$memberID = IJReq::getTaskData('memberID', 0, 'int');
@@ -4636,7 +4771,7 @@ class group
 
 		CFactory::load('helpers', 'owner');
 
-		$group =  JTable::getInstance('Group', 'CTable');
+		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		if ($group->ownerid != $this->my->id && !COwnerHelper::isCommunityAdmin($this->IJUserID))
@@ -4648,7 +4783,7 @@ class group
 		}
 		else
 		{
-			$member =  JTable::getInstance('GroupMembers', 'CTable');
+			$member = JTable::getInstance('GroupMembers', 'CTable');
 			$member->load($memberID, $group->id);
 
 			if ($ban)
@@ -4659,6 +4794,7 @@ class group
 			{
 				$member->permissions = COMMUNITY_GROUP_MEMBER;
 			}
+
 			$member->store();
 
 			$group->updateStats();
@@ -4670,9 +4806,9 @@ class group
 		}
 	}
 
-
 	/**
-	 * @uses    to remove member from the group
+	 * uses    to remove member from the group
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4683,9 +4819,9 @@ class group
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function removeMember()
+	public function removeMember()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$memberID = IJReq::getTaskData('memberID', 0, 'int');
@@ -4698,8 +4834,8 @@ class group
 			return false;
 		}
 
-		$groupsModel =  CFactory::getModel('groups');
-		$group       =  JTable::getInstance('Group', 'CTable');
+		$groupsModel = CFactory::getModel('groups');
+		$group       = JTable::getInstance('Group', 'CTable');
 		$group->load($uniqueID);
 
 		CFactory::load('helpers', 'owner');
@@ -4721,7 +4857,7 @@ class group
 		}
 		else
 		{
-			$groupMember =  JTable::getInstance('GroupMembers', 'CTable');
+			$groupMember = JTable::getInstance('GroupMembers', 'CTable');
 			$groupMember->load($memberID, $uniqueID);
 
 			$data = new stdClass;
@@ -4731,13 +4867,13 @@ class group
 
 			$groupsModel->removeMember($data);
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('group.member.remove', $memberID);
 
-			//trigger for onGroupLeave
+			// Trigger for onGroupLeave
 			require_once JPATH_ROOT . '/components/com_community/controllers/groups.php';
-			$group_controller_obj = new CommunityGroupsController ();
+			$group_controller_obj = new CommunityGroupsController;
 			$group_controller_obj->triggerGroupEvents('onGroupLeave', $group, $memberID);
 		}
 
@@ -4750,7 +4886,8 @@ class group
 	}
 
 	/**
-	 * @uses    to add wall or comment
+	 * uses    to add wall or comment
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4762,15 +4899,16 @@ class group
 	 *            "comment":"comment" // boolean 0/1, if 1 comment will be add.
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function addWall()
+	public function addWall()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$comment  = IJReq::getTaskData('comment', 0, 'bool');
 		$message  = strip_tags(IJReq::getTaskData('message', ''));
 
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($audiofileupload)
 		{
 			$message = $message . $audiofileupload['voicetext'];
@@ -4800,7 +4938,7 @@ class group
 			$this->db->setQuery($query);
 			$data = $this->db->loadObject();
 
-			$table =  JTable::getInstance('Wall', 'CTable');
+			$table = JTable::getInstance('Wall', 'CTable');
 
 			$table->contentid = $data->comment_id;
 			$table->type      = $data->comment_type;
@@ -4816,7 +4954,7 @@ class group
 		else
 		{
 			$groupModel = CFactory::getModel('groups');
-			$group      =  JTable::getInstance('Group', 'CTable');
+			$group      = JTable::getInstance('Group', 'CTable');
 			$group->load($uniqueID);
 
 			if (!$this->my->authorise('community.save', 'groups.wall.' . $uniqueID, $group))
@@ -4865,14 +5003,15 @@ class group
 			$act->app     = 'groups.wall';
 			$act->cid     = $group->id;
 			$act->groupid = $group->id;
+
 			// Allow comments
 			$act->comment_type = 'groups.wall';
 			$act->comment_id   = CActivities::COMMENT_SELF;
+
 			// Allow Like
 			$act->like_type = 'groups.wall';
 			$act->like_id   = CActivities::COMMENT_SELF;
 			CActivityStream::add($act);
-			//}
 
 			// @rule: Add user points
 			CFactory::load('libraries', 'userpoints');
@@ -4905,6 +5044,7 @@ class group
 						$membersArray[] = $row->id;
 					}
 				}
+
 				unset($members);
 				unset($admins);
 
@@ -4918,32 +5058,37 @@ class group
 				CNotificationLibrary::add('groups.wall.create', $this->my->id, $membersArray, JText::sprintf('COM_COMMUNITY_NEW_WALL_POST_NOTIFICATION_EMAIL_SUBJECT', $this->my->getDisplayName(), $group->name), '', 'groups.wall', $params);
 			}
 
-			//send push notification
+			// Send push notification
 			$model   = CFactory::getModel('groups');
 			$members = $model->getMembers($uniqueID, null);
 			$admins  = $model->getAdmins($uniqueID, null);
 
 			$membersArray = array();
+
 			foreach ($members as $row)
 			{
 				$membersArray[] = $row->id;
 			}
+
 			foreach ($admins as $row)
 			{
 				$membersArray[] = $row->id;
 			}
+
 			unset($members);
 			unset($admins);
 
 			$membersArray = implode(',', $membersArray);
-			// get user push notification params and user device token and device type
+
+			// Get user push notification params and user device token and device type
 			$query = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
 					WHERE `userid` IN ('{$membersArray}')";
+
 			$this->db->setQuery($query);
 			$puserlist = $this->db->loadObjectList();
 
-			//send pushnotification data
+			// Send pushnotification data
 			$usr     = $this->jomHelper->getUserDetail($this->IJUserID);
 			$match   = array('{actor}', '{group}');
 			$replace = array($usr->name, $group->name);
@@ -4967,12 +5112,13 @@ class group
 					else
 						$p_url = JURI::base();
 				}
+
 				$groupdata['avatar']      = ($group->avatar == "") ? JURI::base() . 'components/com_community/assets/group.png' : $p_url . $group->avatar;
 				$groupdata['members']     = intval($group->membercount);
 				$groupdata['walls']       = intval($group->wallcount);
 				$groupdata['discussions'] = intval($group->discusscount);
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                                   = array();
 				$pushOptions['detail']['content_data']         = $groupdata;
 				$pushOptions['detail']['content_data']['type'] = 'group';
@@ -4983,6 +5129,7 @@ class group
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -5005,8 +5152,9 @@ class group
 	 * Agotime function
 	 *
 	 * @param   [type]  $date  describes date
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-
 	private function Agotime($date)
 	{
 		if (empty($date))
@@ -5019,13 +5167,13 @@ class group
 		$now       = time();
 		$unix_date = strtotime($date);
 
-		// check validity of date
+		// Check validity of date
 		if (empty($unix_date))
 		{
 			return '';
 		}
 
-		// is it future date or past date
+		// Is it future date or past date
 		if ($now > $unix_date)
 		{
 			$difference = $now - $unix_date;
@@ -5052,5 +5200,3 @@ class group
 		return "$difference$periods[$j]{$tense}";
 	}
 }
-
-?>

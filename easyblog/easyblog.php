@@ -16,9 +16,10 @@ defined('_JEXEC') or die;
  * @subpackage  easyblog
  * @since       1.0
  */
-class easyblog
+class Easyblog
 {
 	public $classname = "easyblog";
+
 	public $sessionWhiteList = array('categories.allCategories', 'categories.singleCategory', 'categories.category', 'categories.categoryBlog');
 
 	/**
@@ -53,10 +54,11 @@ class easyblog
 	 * prepareHTML function for Prepare custom html for EASYBLOG
 	 *
 	 * @param   array  &$Config  Configuration array
+	 *
 	 * @return  void
 	 */
 	function prepareHTML(&$Config)
 	{
-		//TODO : Prepare custom html for EASYBLOG
+		// TODO : Prepare custom html for EASYBLOG
 	}
 }

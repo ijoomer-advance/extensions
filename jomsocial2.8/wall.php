@@ -16,39 +16,53 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial2.8
  * @since       1.0
  */
-class wall
+class Wall
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object............
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object............
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Get the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
 		}
 	}
 
-
 	/**
-	 * @uses    fetch user wall
+	 * used to  fetch user wall
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -63,7 +77,7 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function wall()
+	public function wall()
 	{
 		if (!$this->IJUserID)
 		{
@@ -72,6 +86,7 @@ class wall
 
 			return false;
 		}
+
 		CFactory::load('libraries', 'activities');
 		CFactory::load('libraries', 'comment');
 		CFactory::load('helpers', 'owner');
@@ -97,7 +112,7 @@ class wall
 		{
 			case 'activity';
 				$actconfig    = $this->config->get('frontpageactivitydefault');
-				$friendsModel  =CFactory::getModel('friends');
+				$friendsModel = CFactory::getModel('friends');
 				$frids        = $friendsModel->getFriendIds($this->IJUserID);
 
 				if ($actconfig == 'all')
@@ -112,16 +127,16 @@ class wall
 
 			case 'event':
 				$options  = array('actor'           => '0',
-				                  'target'          => '0',
-				                  'date'            => '',
-				                  'maxList'         => MAXIMUM_WALL + 1,
-				                  'app'             => array('events.wall',
-					                  'event.attend'),
-				                  'cid'             => '',
-				                  'groupid'         => '',
-				                  'eventid'         => $uniqueID,
-				                  'exclusions'      => '',
-				                  'displayArchived' => '1');
+									'target'          => '0',
+									'date'            => '',
+									'maxList'         => MAXIMUM_WALL + 1,
+									'app'             => array('events.wall',
+									'event.attend'),
+									'cid'             => '',
+									'groupid'         => '',
+									'eventid'         => $uniqueID,
+									'exclusions'      => '',
+									'displayArchived' => '1');
 				$htmldata = $this->_getData($options);
 				break;
 
@@ -150,10 +165,12 @@ class wall
 
 		$htmldata = $htmldata->data;
 		$inc      = 0;
+
 		foreach ($htmldata as $data)
 		{
 			$data->title = $this->jomHelper->addAudioFile($data->title);
 			$titletag    = isset($data->title) ? $data->title : '';
+
 			if (isset($data->type) && $data->type == 'title')
 			{
 				continue;
@@ -163,6 +180,7 @@ class wall
 				$temp_htmldata[] = $data;
 			}
 		}
+
 		$htmldata = $temp_htmldata;
 		$cout     = ($pageNO + $limit >= count($htmldata)) ? count($htmldata) : $pageNO + $limit;
 
@@ -184,7 +202,8 @@ class wall
 		foreach ($htmldata as $key => $html)
 		{
 			$titletag = isset($html->title) ? $html->title : "";
-			//change titletag for all activities for version > 2.8
+
+			// Change titletag for all activities for version > 2.8
 			$titletag         = $this->jomHelper->getTitleTag($html);
 			$likeAllowed      = $html->likeAllowed == "" ? 0 : 1;
 			$commentAllowed   = $html->commentAllowed == "" ? 0 : 1;
@@ -208,17 +227,18 @@ class wall
 			{
 				$this->jsonarray['update'][$inc]['id'] = $html->id;
 
-				// add user detail
+				// Add user detail
 				$usr                                                            = $this->jomHelper->getUserDetail($html->actor);
 				$this->jsonarray['update'][$inc]['user_detail']['user_id']      = $usr->id;
 				$this->jsonarray['update'][$inc]['user_detail']['user_name']    = $usr->name;
 				$this->jsonarray['update'][$inc]['user_detail']['user_avatar']  = $usr->avatar;
 				$this->jsonarray['update'][$inc]['user_detail']['user_profile'] = $usr->profile;
 
-				// add content data
+				// Add content data
 				$html->content                              = $this->jomHelper->addAudioFile($html->content);
 				$this->jsonarray['update'][$inc]['content'] = strip_tags($html->content);
-				//add video detail
+
+				// Add video detail
 				if ($html->app == 'videos')
 				{
 					$this->jsonarray['update'][$inc]['content_data'] = $videotag;
@@ -254,7 +274,7 @@ class wall
 						$this->jsonarray['update'][$inc]['content_data']['user_name']    = $usrtar->name;
 						$this->jsonarray['update'][$inc]['content_data']['user_avatar']  = $usrtar->avatar;
 						$this->jsonarray['update'][$inc]['content_data']['user_profile'] = $usrtar->profile;
-						$this->jsonarray['update'][$inc]['deleteAllowed']                = (($html->actor == $this->my->id) || $isCommunityAdmin) && ($this->my->id != 0);//intval($this->my->authorise('community.delete','activities.'.$html->id));
+						$this->jsonarray['update'][$inc]['deleteAllowed']                = (($html->actor == $this->my->id) || $isCommunityAdmin) && ($this->my->id != 0);
 						break;
 
 					case 'videos':
@@ -323,14 +343,14 @@ class wall
 								$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
 
-							//likes
+							// Likes
 							$likes                                                       = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 							$this->jsonarray['update'][$inc]['content_data']['likes']    = $likes->likes;
 							$this->jsonarray['update'][$inc]['content_data']['dislikes'] = $likes->dislikes;
 							$this->jsonarray['update'][$inc]['content_data']['liked']    = $likes->liked;
 							$this->jsonarray['update'][$inc]['content_data']['disliked'] = $likes->disliked;
 
-							//comments
+							// Comments
 							$count                                                            = $this->jomHelper->getCommentCount($video->id, 'videos');
 							$this->jsonarray['update'][$inc]['content_data']['commentCount']  = $count;
 							$this->jsonarray['update'][$inc]['content_data']['deleteAllowed'] = intval(($this->IJUserID == $video->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -360,6 +380,7 @@ class wall
 								$rplc                                        = array("►", "\"");
 								$this->jsonarray['update'][$inc]['titletag'] = str_replace($srch, $rplc, strip_tags($titletag));
 							}
+
 							$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						}
 						break;
@@ -376,6 +397,7 @@ class wall
 
 						$album  = JTable::getInstance('Album', 'CTable');
 						$album->load($photos->albumid);
+
 						if ($album->id)
 						{
 							$photoModel = CFactory::getModel('photos');
@@ -396,22 +418,24 @@ class wall
 								$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
 
-							//likes
+							// Likes
 							$likes                                                       = $this->jomHelper->getLikes('album', $album->id, $this->IJUserID);
 							$this->jsonarray['update'][$inc]['content_data']['likes']    = $likes->likes;
 							$this->jsonarray['update'][$inc]['content_data']['dislikes'] = $likes->dislikes;
 							$this->jsonarray['update'][$inc]['content_data']['liked']    = $likes->liked;
 							$this->jsonarray['update'][$inc]['content_data']['disliked'] = $likes->disliked;
 
-							//comments
+							// Comments
 							$count                                                           = $this->jomHelper->getCommentCount($album->id, 'albums');
 							$this->jsonarray['update'][$inc]['content_data']['commentCount'] = $count;
 							$this->jsonarray['update'][$inc]['content_data']['shareLink']    = JURI::base() . "index.php?option=com_community&view=photos&task=album&albumid={$value->id}&userid={$value->creator}";
 
 							$photos = $this->jomHelper->getAlbumContent($html);
+
 							foreach ($photos as $key => $photo)
 							{
 								$p_url = JURI::base();
+
 								if ($photo->storage == 's3')
 								{
 									$s3BucketPath = $this->config->get('storages3bucket');
@@ -428,19 +452,20 @@ class wall
 								$this->jsonarray['update'][$inc]['image_data'][$key]['caption'] = $photo->caption;
 								$this->jsonarray['update'][$inc]['image_data'][$key]['thumb']   = $p_url . $photo->thumbnail;
 								$this->jsonarray['update'][$inc]['image_data'][$key]['url']     = $p_url . $photo->image;
+
 								if (SHARE_PHOTOS == 1)
 								{
 									$this->jsonarray['update'][$inc]['image_data'][$key]['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$photo->creator}&albumid={$photo->albumid}#photoid={$photo->id}";
 								}
 
-								//likes
+								// Likes
 								$likes                                                           = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 								$this->jsonarray['update'][$inc]['image_data'][$key]['likes']    = $likes->likes;
 								$this->jsonarray['update'][$inc]['image_data'][$key]['dislikes'] = $likes->dislikes;
 								$this->jsonarray['update'][$inc]['image_data'][$key]['liked']    = $likes->liked;
 								$this->jsonarray['update'][$inc]['image_data'][$key]['disliked'] = $likes->disliked;
 
-								//comments
+								// Comments
 								$count                                                               = $this->jomHelper->getCommentCount($photo->id, 'photos');
 								$this->jsonarray['update'][$inc]['image_data'][$key]['commentCount'] = $count;
 
@@ -484,7 +509,8 @@ class wall
 								$rplc                                                             = array("►", "\"");
 								$this->jsonarray['update'][$inc]['titletag']                      = str_replace($srch, $rplc, strip_tags($titletag));
 							}
-							$this->jsonarray['update'][$inc]['deleteAllowed'] = intval((($act->actor == $this->IJUserID) || COwnerHelper::isCommunityAdmin($this->IJUserID)) && ($this->IJUserID != 0));//intval($this->my->authorise('community.delete','activities.'.$html->id));
+
+							$this->jsonarray['update'][$inc]['deleteAllowed'] = intval((($act->actor == $this->IJUserID) || COwnerHelper::isCommunityAdmin($this->IJUserID)) && ($this->IJUserID != 0));
 						}
 						else
 						{
@@ -500,6 +526,7 @@ class wall
 						foreach ($photos as $key => $photo)
 						{
 							$p_url = JURI::base();
+
 							if ($photo->storage == 's3')
 							{
 								$s3BucketPath = $this->config->get('storages3bucket');
@@ -516,19 +543,20 @@ class wall
 							$this->jsonarray['update'][$inc]['image_data'][$key]['caption'] = $photo->caption;
 							$this->jsonarray['update'][$inc]['image_data'][$key]['thumb']   = $p_url . $photo->thumbnail;
 							$this->jsonarray['update'][$inc]['image_data'][$key]['url']     = $p_url . $photo->image;
+
 							if (SHARE_PHOTOS == 1)
 							{
 								$this->jsonarray['update'][$inc]['image_data'][$key]['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$photo->creator}&albumid={$photo->albumid}#photoid={$photo->id}";
 							}
 
-							//likes
+							// Likes
 							$likes                                                           = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 							$this->jsonarray['update'][$inc]['image_data'][$key]['likes']    = $likes->likes;
 							$this->jsonarray['update'][$inc]['image_data'][$key]['dislikes'] = $likes->dislikes;
 							$this->jsonarray['update'][$inc]['image_data'][$key]['liked']    = $likes->liked;
 							$this->jsonarray['update'][$inc]['image_data'][$key]['disliked'] = $likes->disliked;
 
-							//comments
+							// Comments
 							$count                                                               = $this->jomHelper->getCommentCount($photo->id, 'photos');
 							$this->jsonarray['update'][$inc]['image_data'][$key]['commentCount'] = $count;
 
@@ -539,6 +567,7 @@ class wall
 							$count                                                       = $this->db->loadResult();
 							$this->jsonarray['update'][$inc]['image_data'][$key]['tags'] = $count;
 						}
+
 						$this->jsonarray['update'][$inc]['titletag'] = $titletag;
 						$this->jsonarray['update'][$inc]['type']     = '';
 						break;
@@ -547,12 +576,14 @@ class wall
 						$model   = CFactory::getModel('user');
 						$members = $model->getPopularMember(10);
 						$minc    = 0;
+
 						foreach ($members as $user)
 						{
 							$this->jsonarray['update'][$inc]['member_data'][$minc]['username']     = $user->getDisplayName();
 							$this->jsonarray['update'][$inc]['member_data'][$minc]['friendscount'] = JText::sprintf((CStringHelper::isPlural($user->getFriendCount())) ? 'COM_COMMUNITY_FRIENDS_COUNT_MANY' : 'COM_COMMUNITY_FRIENDS_COUNT', $user->getFriendCount());
 							$minc++;
 						}
+
 						$this->jsonarray['update'][$inc]['titletag'] = $titletag;
 						$this->jsonarray['update'][$inc]['type']     = '';
 						break;
@@ -560,10 +591,12 @@ class wall
 					case 'system.groups.popular':
 						$groupsModel = CFactory::getModel('groups');
 						$activeGroup = $groupsModel->getMostActiveGroup();
+
 						if (!is_null($activeGroup))
 						{
 							$this->getGroupData($activeGroup->id, $this->jsonarray['update'][$inc]['group_data']);
 						}
+
 						$this->jsonarray['update'][$inc]['titletag']      = $titletag;
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						break;
@@ -574,6 +607,7 @@ class wall
 						$this->getGroupData($content_id, $this->jsonarray['update'][$inc]['content_data']);
 						$param  = new JRegistry($html->params);
 						$action = $param->get('action');
+
 						if ($action == 'group.create')
 						{
 							$this->jsonarray['update'][$inc]['deleteAllowed'] = 0;
@@ -582,6 +616,7 @@ class wall
 						{
 							$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						}
+
 						break;
 
 					case 'groups.bulletin':
@@ -590,6 +625,7 @@ class wall
 
 						$bulletin  = JTable::getInstance('Bulletin', 'CTable');
 						$bulletin->load($content_id);
+
 						if ($bulletin->id)
 						{
 							$this->jsonarray['update'][$inc]['content_data']['id']             = $bulletin->id;
@@ -604,14 +640,17 @@ class wall
 							$this->jsonarray['update'][$inc]['content_data']['date']           = CTimeHelper::getFormattedTime($bulletin->date, $format);
 							$params                                                            = new CParameter($bulletin->params);
 							$this->jsonarray['update'][$inc]['content_data']['filePermission'] = $params->get('filepermission-member');
+
 							if (SHARE_GROUP_BULLETIN == 1)
 							{
 								$this->jsonarray['update'][$inc]['content_data']['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewbulletin&groupid={$result->groupid}&bulletinid={$result->id}";
 							}
+
 							if ($type == 'group')
 							{
 								$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
+
 							$query = "SELECT count(id)
 									FROM #__community_files
 									WHERE `groupid`={$bulletin->groupid}
@@ -619,11 +658,11 @@ class wall
 							$this->db->setQuery($query);
 							$this->jsonarray['update'][$inc]['content_data']['files'] = $this->db->loadResult();
 
-							// group data.
+							// Group data.
 							$this->getGroupData($bulletin->groupid, $this->jsonarray['update'][$inc]['group_data']);
 							$srch                                             = array("&#9658;", "&quot;");
 							$rplc                                             = array("►", "\"");
-							$this->jsonarray['update'][$inc]['titletag']      = $titletag;//$usr->name." ► ".$this->jsonarray['update'][$inc]['group_data']['title']."\n".str_replace($srch,$rplc,strip_tags($titletag));
+							$this->jsonarray['update'][$inc]['titletag']      = $titletag;
 							$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						}
 						else
@@ -666,10 +705,12 @@ class wall
 							$this->jsonarray['update'][$inc]['content_data']['topics']         = count($wallContents);
 							$params                                                            = new CParameter($discussion->params);
 							$this->jsonarray['update'][$inc]['content_data']['filePermission'] = $params->get('filepermission-member');
+
 							if (SHARE_GROUP_DISCUSSION == 1)
 							{
 								$this->jsonarray['update'][$inc]['content_data']['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$discussion->groupid}2&topicid={$group->id}";
 							}
+
 							$query = "SELECT count(id)
 									FROM #__community_files
 									WHERE `groupid`={$discussion->groupid}
@@ -677,11 +718,11 @@ class wall
 							$this->db->setQuery($query);
 							$this->jsonarray['update'][$inc]['content_data']['files'] = $this->db->loadResult();
 
-							// group data.
+							// Group data.
 							$this->getGroupData($discussion->groupid, $this->jsonarray['update'][$inc]['group_data']);
 							$srch                                             = array("&#9658;", "&quot;");
 							$rplc                                             = array("►", "\"");
-							$this->jsonarray['update'][$inc]['titletag']      = $titletag;//$usr->name." ► ".$this->jsonarray['update'][$inc]['group_data']['title']."\n".str_replace($srch,$rplc,strip_tags($titletag));
+							$this->jsonarray['update'][$inc]['titletag']      = $titletag;
 							$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						}
 						else
@@ -702,6 +743,7 @@ class wall
 						$this->jsonarray['update'][$inc]['commentAllowed'] = $commentAllowed;
 						$this->jsonarray['update'][$inc]['likeCount']      = intval($html->likeCount);
 						$this->jsonarray['update'][$inc]['commentCount']   = intval($html->commentCount);
+
 						if ($type == 'group')
 						{
 							$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked >= 0) ? 0 : 1;
@@ -710,13 +752,14 @@ class wall
 						{
 							$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
+
 						$group  = JTable::getInstance('Group', 'CTable');
 						$group->load($html->groupid);
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $group->isAdmin($this->IJUserID));
 						$this->jsonarray['update'][$inc]['liketype']      = 'groups.wall';
 						$this->jsonarray['update'][$inc]['commenttype']   = 'groups.wall';
 
-						// event data
+						// Event data
 						$this->getGroupData($group->id, $this->jsonarray['update'][$inc]['group_data']);
 						$this->jsonarray['update'][$inc]['titletag']      = $usr->name . " ► " . $this->jsonarray['update'][$inc]['group_data']['title'] . "\n" . str_replace("&#9658;", "►", str_replace("&quot;", "\"", (strip_tags($titletag))));
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id, $group));
@@ -732,10 +775,11 @@ class wall
 						$this->jsonarray['update'][$inc]['type']           = 'event';
 						$content_id                                        = $this->getActivityContentID($html->id);
 
-						// event data
+						// Event data
 						$this->getEventData($content_id, $this->jsonarray['update'][$inc]['content_data']);
 						$param  = new JRegistry($html->params);
 						$action = $param->get('action');
+
 						if ($action == 'events.create')
 						{
 							$this->jsonarray['update'][$inc]['deleteAllowed'] = 0;
@@ -756,6 +800,7 @@ class wall
 						$this->jsonarray['update'][$inc]['commentAllowed'] = $commentAllowed;
 						$this->jsonarray['update'][$inc]['likeCount']      = intval($html->likeCount);
 						$this->jsonarray['update'][$inc]['commentCount']   = intval($html->commentCount);
+
 						if ($type == 'event')
 						{
 							$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked >= 0) ? 0 : 1;
@@ -764,13 +809,14 @@ class wall
 						{
 							$this->jsonarray['update'][$inc]['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
+
 						$event  = JTable::getInstance('Event', 'CTable');
 						$event->load($html->eventid);
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $event->isAdmin($this->IJUserID));
 						$this->jsonarray['update'][$inc]['liketype']      = 'events.wall';
 						$this->jsonarray['update'][$inc]['commenttype']   = 'events.wall';
 
-						// event data
+						// Event data
 						$this->getEventData($event->id, $this->jsonarray['update'][$inc]['event_data']);
 						$srch                                             = array("&#9658;", "&quot;");
 						$rplc                                             = array("►", "\"");
@@ -781,18 +827,19 @@ class wall
 					case 'profile':
 						$this->jsonarray['update'][$inc]['type']          = 'profile';
 						$this->jsonarray['update'][$inc]['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
+
 						if ($html->actor == $html->target)
 						{
 							$this->jsonarray['update'][$inc]['titletag'] = str_replace($srch, $rplc, strip_tags($titletag));
 						}
-						else if ($html->target != $userID)
+						elseif ($html->target != $userID)
 						{
 							$usr                                                             = $this->jomHelper->getUserDetail($html->target);
 							$this->jsonarray['update'][$inc]['content_data']['user_id']      = $usr->id;
 							$this->jsonarray['update'][$inc]['content_data']['user_name']    = $usr->name;
 							$this->jsonarray['update'][$inc]['content_data']['user_avatar']  = $usr->avatar;
 							$this->jsonarray['update'][$inc]['content_data']['user_profile'] = $usr->profile;
-							$this->jsonarray['update'][$inc]['titletag']                     = $titletag;//str_replace($srch,$rplc,strip_tags($titletag));
+							$this->jsonarray['update'][$inc]['titletag']                     = $titletag;
 						}
 						else
 						{
@@ -809,6 +856,7 @@ class wall
 						break;
 				}
 			}
+
 			$i++;
 			$inc++;
 		}
@@ -836,8 +884,8 @@ class wall
 	/**
 	 * function for get Group Data
 	 *
-	 * @param   integer  $id      id
-	 * @param   boolean  wall data object on success, false on failure.
+	 * @param   integer  $id       id
+	 * @param   boolean  &$result  wall data object on success, false on failure.
 	 *
 	 * @return  void
 	 */
@@ -863,6 +911,7 @@ class wall
 			else
 				$p_url = JURI::base();
 		}
+
 		$result['avatar']           = ($group->avatar == "") ? JURI::base() . 'components/com_community/assets/group.png' : $p_url . $group->avatar;
 		$result['members']          = $group->membercount;
 		$result['walls']            = $group->wallcount;
@@ -874,8 +923,8 @@ class wall
 	/**
 	 * function get Event Data
 	 *
-	 * @param   integer  $id      id
-	 * @param   boolean  wall data object on success, false on failure.
+	 * @param   integer  $id       id
+	 * @param   boolean  &$result  wall data object on success, false on failure.
 	 *
 	 * @return  void
 	 */
@@ -911,6 +960,7 @@ class wall
 		$dispatcher  = CDispatcher::getInstanceStatic();
 		$observers   = $dispatcher->getObservers();
 		$plgObj     = false;
+
 		for ($i = 0; $i < count($observers); $i++)
 		{
 			if ($observers[$i] instanceof plgCommunityWordfilter)
@@ -925,7 +975,7 @@ class wall
 			'target'          => 0,
 			'date'            => null,
 			'app'             => null,
-			'cid'             => null, // don't filter with cid
+			'cid'             => null,
 			'groupid'         => null,
 			'eventid'         => null,
 			'maxList'         => 20,
@@ -949,7 +999,7 @@ class wall
 		$actorId    = 0;
 		$htmlData   = array();
 
-		//Get blocked list
+		// Get blocked list
 		$model         = CFactory::getModel('block');
 		$blockLists    = $model->getBanList($this->my->id);
 		$blockedUserId = array();
@@ -973,12 +1023,12 @@ class wall
 		{
 			$rows = $activities->getActivities($actor, $target, $date, $maxList, $this->config->get('respectactivityprivacy'), $exclusions, $displayArchived);
 		}
+
 		$day = -1;
 
-
-		// If exclusion is set, we need to remove activities that arrives
-		// after the exclusion list is set.
-		// Inject additional properties for processing
+		/* If exclusion is set, we need to remove activities that arrives
+		 after the exclusion list is set.
+		Inject additional properties for processing*/
 		for ($i = 0; $i < count($rows); $i++)
 		{
 			$row  = $rows[$i];
@@ -996,7 +1046,6 @@ class wall
 
 		unset($row);
 
-
 		$dayinterval = ACTIVITY_INTERVAL_DAY;
 		$lastTitle   = '';
 
@@ -1007,9 +1056,11 @@ class wall
 		for ($i = 0; $i < count($rows) && (count($htmlData) <= $maxList); $i++)
 		{
 			$row  = $rows[$i];
-			$oRow  = $rows[$i];    // The original object
 
-			// store aggregated activities
+			// The original object
+			$oRow  = $rows[$i];
+
+			// Store aggregated activities
 			$oRow->activities = array();
 
 			if (!$row->used && count($htmlData) <= $maxList)
@@ -1031,27 +1082,27 @@ class wall
 					{
 						$act->title = JText::_('TODAY');
 					}
-					else if ($day == 1)
+					elseif ($day == 1)
 					{
 						$act->title = JText::_('COM_COMMUNITY_ACTIVITIES_YESTERDAY');
 					}
-					else if ($day < 7)
+					elseif ($day < 7)
 					{
 						$act->title = JText::sprintf('COM_COMMUNITY_ACTIVITIES_DAYS_AGO', $day);
 					}
-					else if (($day >= 7) && ($day < 30))
+					elseif (($day >= 7) && ($day < 30))
 					{
 						$dayinterval = ACTIVITY_INTERVAL_WEEK;
 						$act->title  = (intval($day / $dayinterval) == 1 ? JText::_('COM_COMMUNITY_ACTIVITIES_WEEK_AGO') : JText::sprintf('COM_COMMUNITY_ACTIVITIES_WEEK_AGO_MANY', intval($day / $dayinterval)));
 					}
-					else if (($day >= 30))
+					elseif (($day >= 30))
 					{
 						$dayinterval = ACTIVITY_INTERVAL_MONTH;
 						$act->title  = (intval($day / $dayinterval) == 1 ? JText::_('COM_COMMUNITY_ACTIVITIES_MONTH_AGO') : JText::sprintf('COM_COMMUNITY_ACTIVITIES_MONTH_AGO_MANY', intval($day / $dayinterval)));
 					}
 
-					// set to a new 'title' type if this new one has a new title
-					// only add if this is a new title
+					// Set to a new 'title' type if this new one has a new title
+					// Only add if this is a new title
 					if ($act->title != $lastTitle)
 					{
 						$lastTitle  = $act->title;
@@ -1063,9 +1114,9 @@ class wall
 				$act       = new stdClass;
 				$act->type = 'content';
 
-				// Set to compact view if necessary
-				// This method is a bit crude, but we have no other reliable data
-				// to choose which will go to compact view
+				/* Set to compact view if necessary
+				 This method is a bit crude, but we have no other reliable data
+				to choose which will go to compact view*/
 
 				// Attend an event
 				$act->compactView = !(strpos($oRow->params, 'action=events.attendence.attend') === false);
@@ -1093,13 +1144,13 @@ class wall
 				$cid   = $row->cid;
 				$actor = $row->actor;
 
-				//Check for event or group title if exists
+				// Check for event or group title if exists
 				if ($row->eventid)
 				{
 					$eventModel    = CFactory::getModel('events');
 					$act->appTitle = $eventModel->getTitle($row->eventid);
 				}
-				else if ($row->groupid)
+				elseif ($row->groupid)
 				{
 					$groupModel    = CFactory::getModel('groups');
 					$act->appTitle = $groupModel->getGroupName($row->groupid);
@@ -1108,19 +1159,14 @@ class wall
 				for ($j = $i; ($j < count($rows)) && ($row->getDayDiff() == $day); $j++)
 				{
 					$row = $rows[$j];
-					// we aggregate stream that has the same content on the same day.
-					// we should not however aggregate content that does not support
-					// multiple content. How do we detect? easy, they don't have
-					// {multiple} in the title string
+					/* we aggregate stream that has the same content on the same day.
+					 we should not however aggregate content that does not support
+					 multiple content. How do we detect? easy, they don't have
+					{multiple} in the title string*/
 
 					// However, if the activity is from the same user, we only want
-					// to show the laste acitivity
-					if (($row->getDayDiff() == $day)
-						&& ($row->title == $title)
-						&& ($app == $row->app)
-						&& ($cid == $row->cid)
-						&& ((JString::strpos($row->title, '{/multiple}') !== false) || ($row->actor == $actor))
-					)
+					// To show the laste acitivity
+					if (($row->getDayDiff() == $day) && ($row->title == $title) && ($app == $row->app) && ($cid == $row->cid) && ((JString::strpos($row->title, '{/multiple}') !== false) || ($row->actor == $actor)))
 					{
 						// @rule: If an exclusion is added, we need to fetch activities without these items.
 						// Aggregated activities should also be excluded.
@@ -1133,49 +1179,58 @@ class wall
 				$oRow->title = CString::str_ireplace('{app}', $app, $oRow->title);
 				$favicon     = '';
 
-				// this should not really be empty
+				// This should not really be empty
 				if (!empty($oRow->app))
 				{
 					// Favicon override with group image for known group stream data
-					//if(in_array($oRow->app, CGroups::getStreamAppCode())){
+					// if(in_array($oRow->app, CGroups::getStreamAppCode())){
 					if ($oRow->groupid)
 					{
-						// check if the image icon exist in template folder
+						// Check if the image icon exist in template folder
 						$favicon = JURI::root() . 'components/com_community/assets/favicon/groups.png';
-						if (JFile::exists(JPATH_ROOT . '/components/com_community/templates' . '/' . $this->config->get('template') '/images/favicon/groups.png') ){
-						$favicon = JURI::root() . 'components/com_community/templates/' . $config->get('template') . '/images/favicon/groups.png';
-					}
 
+						if (JFile::exists(JPATH_ROOT . '/components/com_community/templates' . '/' . $this->config->get('template') '/images/favicon/groups.png'))
+						{
+							$favicon = JURI::root() . 'components/com_community/templates/' . $config->get('template') . '/images/favicon/groups.png';
+						}
 					}
 
 					// Favicon override with event image for known event stream data
 					// This would override group favicon
 					if ($oRow->eventid)
 					{
-						// check if the image icon exist in template folder
+						// Check if the image icon exist in template folder
 						$favicon = JURI::root() . 'components/com_community/assets/favicon/events.png';
-						if (JFile::exists(JPATH_ROOT . '/components/com_community/templates' . '/' . $this->config->get('template') '/images/favicon/groups.png') ){
-						$favicon = JURI::root() . 'components/com_community/templates/' . $this->config->get('template') . '/images/favicon/events.png';
-					}
+
+						if (JFile::exists(JPATH_ROOT . '/components/com_community/templates' . '/' . $this->config->get('template') '/images/favicon/groups.png'))
+						{
+							$favicon = JURI::root() . 'components/com_community/templates/' . $this->config->get('template') . '/images/favicon/events.png';
+						}
 					}
 
 					// If it is not group or event stream, use normal favicon search
 					if (!($oRow->groupid || $oRow->eventid))
 					{
-						// check if the image icon exist in template folder
-						if (JFile::exists(JPATH_ROOT . '/components/com_community/templates' . '/' . $this->config->get('template') '/images/favicon' . '/' . $oRow->app . '.png') ){
-						$favicon = JURI::root() . 'components/com_community/templates/' . $this->config->get('template') . '/images/favicon/' . $oRow->app . '.png';
-					}else{
-						// check if the image icon exist in asset folder
-						if (JFile::exists(JPATH_ROOT . '/components/com_community/assets/favicon' . '/' . $oRow->app . '.png'))
+						// Check if the image icon exist in template folder
+						if (JFile::exists(JPATH_ROOT . '/components/com_community/templates' . '/' . $this->config->get('template') '/images/favicon' . '/' . $oRow->app . '.png'))
 						{
-							$favicon = JURI::root() . 'components/com_community/assets/favicon/' . $oRow->app . '.png';
+							$favicon = JURI::root() . 'components/com_community/templates/' . $this->config->get('template') . '/images/favicon/' . $oRow->app . '.png';
 						}
-						elseif (JFile::exists(CPluginHelper::getPluginPath('community', $oRow->app) . '/' . $oRow->app '/favicon.png') ){
-							$favicon = JURI::root() . CPluginHelper::getPluginURI('community', $oRow->app) . '/' . $oRow->app . '/favicon.png';
-						}else{
-							$favicon = JURI::root() . 'components/com_community/assets/favicon/default.png';
-						}
+						else
+						{
+							// Check if the image icon exist in asset folder
+							if (JFile::exists(JPATH_ROOT . '/components/com_community/assets/favicon' . '/' . $oRow->app . '.png'))
+							{
+								$favicon = JURI::root() . 'components/com_community/assets/favicon/' . $oRow->app . '.png';
+							}
+							elseif (JFile::exists(CPluginHelper::getPluginPath('community', $oRow->app) . '/' . $oRow->app '/favicon.png'))
+							{
+								$favicon = JURI::root() . CPluginHelper::getPluginURI('community', $oRow->app) . '/' . $oRow->app . '/favicon.png';
+							}
+							else
+							{
+								$favicon = JURI::root() . 'components/com_community/assets/favicon/default.png';
+							}
 						}
 					}
 				}
@@ -1190,23 +1245,26 @@ class wall
 
 				if (count($oRow->activities) > 1)
 				{
-					// multiple
+					// Multiple
 					$actorsLink = '';
+
 					foreach ($oRow->activities as $actor)
 					{
 						if (empty($actorsLink))
 							$actorsLink = $this->_actorLink(intval($actor->actor));
 						else
 						{
-							// only add if this actor is NOT already linked
+							// Only add if this actor is NOT already linked
 							$alink = $this->_actorLink(intval($actor->actor));
 							$pos   = strpos($actorsLink, $alink);
+
 							if ($pos === false)
 							{
 								$actorsLink .= ', ' . $alink;
 							}
 						}
 					}
+
 					$actorLink = $this->_actorLink(intval($oRow->actor));
 
 					$count = count($oRow->activities);
@@ -1216,7 +1274,7 @@ class wall
 
 					$oRow->title = CString::str_ireplace($search, '', $oRow->title);
 
-					//Joomla 1.6 CString::str_ireplace issue of not replacing correctly strings with backslashes
+					// Joomla 1.6 CString::str_ireplace issue of not replacing correctly strings with backslashes
 					$oRow->title = str_ireplace($search, '', $oRow->title);
 
 					$oRow->title = CString::str_ireplace('{actors}', $actorsLink, $oRow->title);
@@ -1225,7 +1283,7 @@ class wall
 				}
 				else
 				{
-					// single
+					// Single
 					$actorLink = $this->_actorLink(intval($oRow->actor));
 
 					$oRow->title = preg_replace('/\{multiple\}(.*)\{\/multiple\}/i', '', $oRow->title);
@@ -1236,14 +1294,16 @@ class wall
 
 				// If the param contains any data, replace it with the content
 				preg_match_all("/{(.*?)}/", $oRow->title, $matches, PREG_SET_ORDER);
+
 				if (!empty($matches))
 				{
 					$params = new CParameter($oRow->params);
+
 					foreach ($matches as $val)
 					{
 						$replaceWith = $params->get($val[1], null);
 
-						//if the replacement start with 'index.php', we can CRoute it
+						// If the replacement start with 'index.php', we can CRoute it
 						if (strpos($replaceWith, 'index.php') === 0)
 						{
 							$replaceWith = CRoute::_($replaceWith);
@@ -1272,6 +1332,7 @@ class wall
 				$date       = CTimeHelper::getDate($oRow->created);
 
 				$createdTime = '';
+
 				if ($this->config->get('activitydateformat') == COMMUNITY_DATE_FIXED)
 				{
 					$createdTime = $date->toFormat($dayinterval == ACTIVITY_INTERVAL_DAY ? $timeFormat : $dayFormat, true);
@@ -1280,6 +1341,7 @@ class wall
 				{
 					$createdTime = CTimeHelper::timeLapse($date);
 				}
+
 				$act->created        = $createdTime;
 				$act->createdDate    = (C_JOOMLA_15 == 1) ? $date->toFormat(JText::_('DATE_FORMAT_LC2')) : $date->Format(JText::_('DATE_FORMAT_LC2'));
 				$act->app            = $oRow->app;
@@ -1329,19 +1391,14 @@ class wall
 		// @todo: check if this app exist
 		if (true)
 		{
-			// if no target specified, we use actor
+			// If no target specified, we use actor
 			if ($userid == 0)
 				$userid = $actor;
 
-			if ($userid != 0
-				&& $name != 'profile'
-				&& $name != 'news_feed'
-				&& $name != 'photos'
-				&& $name != 'friends'
-			)
+			if ($userid != 0 && $name != 'profile' && $name != 'news_feed' && $name != 'photos' && $name != 'friends')
 			{
-
 				$url = CUrlHelper::userLink($userid) . '#app-' . $name;
+
 				if ($title == JText::_('COM_COMMUNITY_ACTIVITIES_APPLICATIONS_REMOVED'))
 				{
 					$url = $appModel->getAppTitle($name);
@@ -1363,8 +1420,8 @@ class wall
 	/**
 	 * function _targetLink
 	 *
-	 * @param   integer   $id     id
-	 * @param   boolean  $onApp   onApplication
+	 * @param   integer  $id     id
+	 * @param   boolean  $onApp  onApplication
 	 *
 	 * @return  array
 	 */
@@ -1411,10 +1468,12 @@ class wall
 
 			// Wrap the name with link to his/her profile
 			$html = $name;
+
 			if ($linkName)
 			{
 				$html = '<a class="actor-link" href="' . CUrlHelper::userLink($id) . '">' . $name . '</a>';
 			}
+
 			$instances[$id] = $html;
 		}
 
@@ -1445,9 +1504,9 @@ class wall
 		return CKses::kses($row->title, CKses::allowed());
 	}
 
-
 	/**
-	 * @uses    Add wall
+	 * uses to   Add wall
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1462,11 +1521,12 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function add()
+	public function add()
 	{
 		$message = IJReq::getTaskData('message');
 
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($audiofileupload)
 		{
 			$message = $message . $audiofileupload['voicetext'];
@@ -1503,7 +1563,7 @@ class wall
 		CFactory::load('helpers', 'linkgenerator');
 		CFactory::load('libraries', 'notification');
 
-		//@rule: In case someone bypasses the status in the html, we enforce the character limit.
+		// @rule: In case someone bypasses the status in the html, we enforce the character limit.
 		if (JString::strlen($message) > $this->config->get('statusmaxchar'))
 		{
 			$message = JString::substr($message, 0, $this->config->get('statusmaxchar'));
@@ -1511,8 +1571,10 @@ class wall
 
 		$message    = JString::trim($message);
 		$rawMessage = $message;
+
 		// @rule: Autolink hyperlinks
 		$message = CLinkGeneratorHelper::replaceURL($message);
+
 		// @rule: Autolink to users profile when message contains @username
 		$message      = CLinkGeneratorHelper::replaceAliasURL($message);
 		$emailMessage = CLinkGeneratorHelper::replaceAliasURL($rawMessage, true);
@@ -1539,21 +1601,21 @@ class wall
 			}
 		}
 
-		//respect wall setting before adding activity
+		// Respect wall setting before adding activity
 		CFactory::load('helpers', 'friends');
 		CFactory::load('helpers', 'owner');
 		CFactory::load('models', 'status');
 
 		if (!empty($message))
 		{
-			//only update user status if share messgage is on his profile
+			// Only update user status if share messgage is on his profile
 			if (COwnerHelper::isMine($this->IJUserID, $uniqueID))
 			{
-				//save the message
+				// Save the message
 				$status = new CommunityModelStatus;
 				$status->update($this->IJUserID, $rawMessage, $privacy);
 
-				//set user status for current session.
+				// Set user status for current session.
 				$today     = JFactory::getDate();
 				$message2 = (empty($message)) ? ' ' : $message;
 				$this->my->set('_status', $rawMessage);
@@ -1573,7 +1635,7 @@ class wall
 				}
 			}
 
-			//push to activity stream
+			// Push to activity stream
 			$privacyParams     = $this->my->getParams();
 			$act               = new stdClass;
 			$act->cmd          = 'profile.status.update';
@@ -1600,8 +1662,9 @@ class wall
 			$params->set('message', $message);
 
 			CNotificationLibrary::add('profile_status_update', $this->IJUserID, $uniqueID, JText::sprintf('COM_COMMUNITY_FRIEND_WALL_POST', $this->my->getDisplayName()), '', 'wall.post', $params);
-			//Send pushnotification
-			// get user push notification params and user device token and device type
+
+			// Send pushnotification
+			// Get user push notification params and user device token and device type
 			$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
 					WHERE `userid`={$recipient->id}";
@@ -1609,7 +1672,7 @@ class wall
 			$puser    = $this->db->loadObject();
 			$ijparams = new CParameter($puser->jomsocial_params);
 
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail'] = array();
 			$pushOptions           = gzcompress(json_encode($pushOptions));
 
@@ -1622,6 +1685,7 @@ class wall
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($recipient->id);
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1640,8 +1704,8 @@ class wall
 	/**
 	 * this function is used by add function to add comment to wall list
 	 *
-	 * @param  integer  $actid    actid
-	 * @param  string  $comment  comment
+	 * @param   integer  $actid    actid
+	 * @param   string   $comment  comment
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
@@ -1662,7 +1726,7 @@ class wall
 		$act  = JTable::getInstance('Activity', 'CTable');
 		$act->load($actid);
 
-		//who can add comment
+		// Who can add comment
 		$obj = new stdClass;
 
 		if ($act->groupid > 0)
@@ -1670,7 +1734,7 @@ class wall
 			$obj  = JTable::getInstance('Group', 'CTable');
 			$obj->load($act->groupid);
 		}
-		else if ($act->eventid > 0)
+		elseif ($act->eventid > 0)
 		{
 			$obj  = JTable::getInstance('Event', 'CTable');
 			$obj->load($act->eventid);
@@ -1678,7 +1742,6 @@ class wall
 
 		if ($this->my->authorise('community.add', 'activities.comment.' . $act->actor, $obj))
 		{
-
 			$table             = JTable::getInstance('Wall', 'CTable');
 			$table->type      = $act->comment_type;
 			$table->contentid = $act->comment_id;
@@ -1688,8 +1751,8 @@ class wall
 
 			$comment = CWall::formatComment($table);
 
-			//notification for activity comment
-			//case 1: user's activity
+			// Notification for activity comment
+			// Case 1: user's activity
 			if ($act->groupid == 0 && $act->eventid == 0)
 			{
 				CFactory::load('libraries', 'notification');
@@ -1704,7 +1767,7 @@ class wall
 				{
 					CNotificationLibrary::add('profile_activity_add_comment', $this->my->id, $act->actor, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_EMAIL_SUBJECT'), '', 'profile.activitycomment', $params);
 
-					// get user push notification params and user device token and device type
+					// Get user push notification params and user device token and device type
 					$usr     = $this->jomHelper->getUserDetail($this->IJUserID);
 					$match   = array('{actor}', '{stream}');
 					$replace = array($usr->name, JText::_('COM_COMMUNITY_SINGULAR_STREAM'));
@@ -1715,9 +1778,10 @@ class wall
 				}
 				else
 				{
-					//for activity reply action
-					//get relevent users in the activity
+					// For activity reply action
+					// Get relevent users in the activity
 					$users = $wallModel->getAllPostUsers($act->comment_type, $act->id, $act->actor);
+
 					if (!empty($users))
 					{
 						CNotificationLibrary::add('profile_activity_reply_comment', $this->my->id, $users, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_REPLY_EMAIL_SUBJECT'), '', 'profile.activityreply', $params);
@@ -1731,7 +1795,7 @@ class wall
 					}
 				}
 
-				//push notification detail
+				// Push notification detail
 				$html = $act;
 
 				CFactory::load('libraries', 'activities');
@@ -1745,16 +1809,17 @@ class wall
 				$cadmin                = COwnerHelper::isCommunityAdmin($this->IJUserID);
 				$pushcontentdata['id'] = $html->id;
 
-				// add user detail
+				// Add user detail
 				$usr                                            = $this->jomHelper->getUserDetail($html->actor);
 				$pushcontentdata['user_detail']['user_id']      = $usr->id;
 				$pushcontentdata['user_detail']['user_name']    = $usr->name;
 				$pushcontentdata['user_detail']['user_avatar']  = $usr->avatar;
 				$pushcontentdata['user_detail']['user_profile'] = $usr->profile;
 
-				// add content data
+				// Add content data
 				$pushcontentdata['content'] = strip_tags($html->content);
-				//add video detail
+
+				// Add video detail
 				if ($html->app == 'videos')
 				{
 					$pushcontentdata['content_data'] = $videotag;
@@ -1799,6 +1864,7 @@ class wall
 						$content_id = $this->getActivityContentID($html->id);
 						$video       = JTable::getInstance('Video', 'CTable');
 						$video->load($content_id);
+
 						if ($video->id)
 						{
 							if ($video->storage == 's3')
@@ -1847,14 +1913,14 @@ class wall
 								$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
 
-							//likes
+							// Likes
 							$likes                                       = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 							$pushcontentdata['content_data']['likes']    = $likes->likes;
 							$pushcontentdata['content_data']['dislikes'] = $likes->dislikes;
 							$pushcontentdata['content_data']['liked']    = $likes->liked;
 							$pushcontentdata['content_data']['disliked'] = $likes->disliked;
 
-							//comments
+							// Comments
 							$count                                            = $this->jomHelper->getCommentCount($video->id, 'videos');
 							$pushcontentdata['content_data']['commentCount']  = $count;
 							$pushcontentdata['content_data']['deleteAllowed'] = intval(($this->IJUserID == $video->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -1884,6 +1950,7 @@ class wall
 								$rplc                        = array("►", "\"");
 								$pushcontentdata['titletag'] = str_replace($srch, $rplc, strip_tags($titletag));
 							}
+
 							$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						}
 						else
@@ -1898,6 +1965,7 @@ class wall
 						$content_id              = $this->getActivityContentID($html->id);
 						$album                    = JTable::getInstance('Album', 'CTable');
 						$album->load($content_id);
+
 						if ($album->id)
 						{
 							$photoModel = CFactory::getModel('photos');
@@ -1918,25 +1986,27 @@ class wall
 								$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
 
-							//likes
+							// Likes
 							$likes                                       = $this->jomHelper->getLikes('album', $album->id, $this->IJUserID);
 							$pushcontentdata['content_data']['likes']    = $likes->likes;
 							$pushcontentdata['content_data']['dislikes'] = $likes->dislikes;
 							$pushcontentdata['content_data']['liked']    = $likes->liked;
 							$pushcontentdata['content_data']['disliked'] = $likes->disliked;
 
-							//comments
+							// Comments
 							$count                                           = $this->jomHelper->getCommentCount($album->id, 'albums');
 							$pushcontentdata['content_data']['commentCount'] = $count;
 							$pushcontentdata['content_data']['shareLink']    = JURI::base() . "index.php?option=com_community&view=photos&task=album&albumid={$value->id}&userid={$value->creator}";
 
 							$str = preg_match_all('|(#\w+=)(\d+)+|', $html->content, $match);
+
 							if ($str)
 							{
 								foreach ($match[2] as $key => $value)
 								{
 									$photo = $photoModel->getPhoto($value);
 									$p_url = JURI::base();
+
 									if ($photo->storage == 's3')
 									{
 										$s3BucketPath = $this->config->get('storages3bucket');
@@ -1948,23 +2018,25 @@ class wall
 										if (!file_exists(JPATH_SITE . '/' . $photo->image))
 											$photo->image = $photo->original;
 									}
+
 									$pushcontentdata['image_data'][$key]['id']      = $photo->id;
 									$pushcontentdata['image_data'][$key]['caption'] = $photo->caption;
 									$pushcontentdata['image_data'][$key]['thumb']   = $p_url . $photo->thumbnail;
 									$pushcontentdata['image_data'][$key]['url']     = $p_url . $photo->image;
+
 									if (SHARE_PHOTOS == 1)
 									{
 										$pushcontentdata['image_data'][$key]['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$photo->creator}&albumid={$photo->albumid}#photoid={$photo->id}";
 									}
 
-									//likes
+									// Likes
 									$likes                                           = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 									$pushcontentdata['image_data'][$key]['likes']    = $likes->likes;
 									$pushcontentdata['image_data'][$key]['dislikes'] = $likes->dislikes;
 									$pushcontentdata['image_data'][$key]['liked']    = $likes->liked;
 									$pushcontentdata['image_data'][$key]['disliked'] = $likes->disliked;
 
-									//comments
+									// Comments
 									$count                                               = $this->jomHelper->getCommentCount($photo->id, 'photos');
 									$pushcontentdata['image_data'][$key]['commentCount'] = $count;
 
@@ -2009,6 +2081,7 @@ class wall
 								$rplc                                             = array("►", "\"");
 								$pushcontentdata['titletag']                      = str_replace($srch, $rplc, strip_tags($titletag));
 							}
+
 							$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						}
 						else
@@ -2034,6 +2107,7 @@ class wall
 
 						$bulletin  = JTable::getInstance('Bulletin', 'CTable');
 						$bulletin->load($content_id);
+
 						if ($bulletin->id)
 						{
 							$pushcontentdata['content_data']['id']             = $bulletin->id;
@@ -2048,14 +2122,17 @@ class wall
 							$pushcontentdata['content_data']['date']           = CTimeHelper::getFormattedTime($bulletin->date, $format);
 							$params                                            = new CParameter($bulletin->params);
 							$pushcontentdata['content_data']['filePermission'] = $params->get('filepermission-member');
+
 							if (SHARE_GROUP_BULLETIN == 1)
 							{
 								$pushcontentdata['content_data']['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewbulletin&groupid={$result->groupid}&bulletinid={$result->id}";
 							}
+
 							if ($type == 'group')
 							{
 								$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 							}
+
 							$query = "SELECT count(id)
 									FROM #__community_files
 									WHERE `groupid`={$bulletin->groupid}
@@ -2063,7 +2140,7 @@ class wall
 							$this->db->setQuery($query);
 							$pushcontentdata['content_data']['files'] = $this->db->loadResult();
 
-							// group data.
+							// Group data.
 							$this->getGroupData($bulletin->groupid, $pushcontentdata['group_data']);
 							$srch                             = array("&#9658;", "&quot;");
 							$rplc                             = array("►", "\"");
@@ -2110,10 +2187,12 @@ class wall
 							$pushcontentdata['content_data']['topics']         = count($wallContents);
 							$params                                            = new CParameter($discussion->params);
 							$pushcontentdata['content_data']['filePermission'] = $params->get('filepermission-member');
+
 							if (SHARE_GROUP_DISCUSSION == 1)
 							{
 								$pushcontentdata['content_data']['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$discussion->groupid}2&topicid={$group->id}";
 							}
+
 							$query = "SELECT count(id)
 									FROM #__community_files
 									WHERE `groupid`={$discussion->groupid}
@@ -2121,7 +2200,7 @@ class wall
 							$this->db->setQuery($query);
 							$pushcontentdata['content_data']['files'] = $this->db->loadResult();
 
-							// group data.
+							// Group data.
 							$this->getGroupData($discussion->groupid, $pushcontentdata['group_data']);
 							$srch                             = array("&#9658;", "&quot;");
 							$rplc                             = array("►", "\"");
@@ -2146,6 +2225,7 @@ class wall
 						$pushcontentdata['commentAllowed'] = $commentAllowed;
 						$pushcontentdata['likeCount']      = intval($html->likeCount);
 						$pushcontentdata['commentCount']   = intval($html->commentCount);
+
 						if ($type == 'group')
 						{
 							$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
@@ -2154,13 +2234,14 @@ class wall
 						{
 							$pushcontentdata['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
+
 						$group  = JTable::getInstance('Group', 'CTable');
 						$group->load($html->groupid);
 						$pushcontentdata['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $group->isAdmin($this->IJUserID));
 						$pushcontentdata['liketype']      = 'groups.wall';
 						$pushcontentdata['commenttype']   = 'groups.wall';
 
-						// event data
+						// Event data
 						$this->getGroupData($group->id, $pushcontentdata['group_data']);
 						$pushcontentdata['titletag']      = $usr->name . " ► " . $pushcontentdata['group_data']['title'] . "\n" . str_replace("&#9658;", "►", str_replace("&quot;", "\"", (strip_tags($titletag))));
 						$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id, $group));
@@ -2176,7 +2257,7 @@ class wall
 						$pushcontentdata['type']           = 'event';
 						$content_id                        = $this->getActivityContentID($html->id);
 
-						// event data
+						// Event data
 						$this->getEventData($content_id, $pushcontentdata['content_data']);
 						$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 						break;
@@ -2190,6 +2271,7 @@ class wall
 						$pushcontentdata['commentAllowed'] = $commentAllowed;
 						$pushcontentdata['likeCount']      = intval($html->likeCount);
 						$pushcontentdata['commentCount']   = intval($html->commentCount);
+
 						if ($type == 'event')
 						{
 							$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
@@ -2198,13 +2280,14 @@ class wall
 						{
 							$pushcontentdata['liked'] = ($html->userLiked == 1) ? 1 : 0;
 						}
+
 						$event  = JTable::getInstance('Event', 'CTable');
 						$event->load($html->eventid);
 						$pushcontentdata['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $event->isAdmin($this->IJUserID));
 						$pushcontentdata['liketype']      = 'events.wall';
 						$pushcontentdata['commenttype']   = 'events.wall';
 
-						// event data
+						// Event data
 						$this->getEventData($event->id, $pushcontentdata['event_data']);
 						$srch                             = array("&#9658;", "&quot;");
 						$rplc                             = array("►", "\"");
@@ -2226,13 +2309,14 @@ class wall
 						break;
 				}
 
-				// get user push notification params and user device token and device type
+				// Get user push notification params and user device token and device type
 				$query = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 						FROM #__ijoomeradv_users
 						WHERE `userid` IN ({$memberslist})";
 				$this->db->setQuery($query);
 				$puserlist = $this->db->loadObjectList();
-				//change for id based push notification
+
+				// Change for id based push notification
 				$pushOptions                           = array();
 				$pushOptions['detail']['content_data'] = $pushcontentdata;
 				$pushOptions                           = gzcompress(json_encode($pushOptions));
@@ -2242,6 +2326,7 @@ class wall
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -2264,9 +2349,9 @@ class wall
 		return true;
 	}
 
-
 	/**
-	 * @uses    remove wall
+	 * uses to   remove wall
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2279,7 +2364,7 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function remove()
+	public function remove()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$comment  = IJReq::getTaskData('comment', 0, 'bool');
@@ -2323,11 +2408,12 @@ class wall
 			$id = $userID;
 		}
 
-		// to do user premission checking
+		// To do user premission checking
 		$user = CFactory::getUser($this->IJUserID);
 
 		$activity  = JTable::getInstance('Activity', 'CTable');
 		$activity->load($uniqueID);
+
 		if ($activity->allowDelete())
 		{
 			$activity->delete($type);
@@ -2352,6 +2438,7 @@ class wall
 
 		$table  = JTable::getInstance('Wall', 'CTable');
 		$table->load($wallid);
+
 		if ($table->delete())
 		{
 			return true;
@@ -2365,9 +2452,9 @@ class wall
 		}
 	}
 
-
 	/**
-	 * @uses    like wall
+	 * uses to   like wall
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2380,13 +2467,14 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function like()
+	public function like()
 	{
 		$this->jsonarray = array();
 		$wallID          = IJReq::getTaskData('wallID', 0, 'int');
 		$type            = IJReq::getTaskData('type');
 
 		$result = $this->jomHelper->Like($type, $wallID);
+
 		if (!empty($result))
 		{
 			$this->jsonarray         = $result;
@@ -2403,9 +2491,9 @@ class wall
 		}
 	}
 
-
 	/**
-	 * @uses    unlike wall
+	 * uses to    unlike wall
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2418,10 +2506,11 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function unlike()
+	public function unlike()
 	{
 		$wallID = IJReq::getTaskData('wallID', 0, 'int');
 		$type   = IJReq::getTaskData('type');
+
 		if ($this->jomHelper->Unlike($type, $wallID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -2437,9 +2526,9 @@ class wall
 		}
 	}
 
-
 	/**
-	 * @uses    get like user list
+	 * uses to    get like user list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2452,7 +2541,7 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function getLikes()
+	public function getLikes()
 	{
 		$wallID = IJReq::getTaskData('wallID', 0, 'int');
 		$pageNO = IJReq::getTaskData('pageNo', 0, 'int');
@@ -2493,6 +2582,7 @@ class wall
 				{
 					$likes = explode(',', $row->like);
 				}
+
 				if (!empty($likes) > 0)
 				{
 					$this->jsonarray['code']      = 200;
@@ -2506,7 +2596,9 @@ class wall
 
 					return false;
 				}
+
 				$likes = array_slice($likes, $startFrom, $limit);
+
 				if ($row->like)
 				{
 					foreach ($likes as $key => $userlike)
@@ -2523,9 +2615,9 @@ class wall
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    get comment user list
+	 * uses to   get comment user list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2538,7 +2630,7 @@ class wall
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function getComments()
+	public function getComments()
 	{
 		$wallID = IJReq::getTaskData('wallID', 0, 'int');
 		$pageNO = IJReq::getTaskData('pageNO', 0, 'int');
@@ -2590,7 +2682,9 @@ class wall
 
 				return false;
 			}
+
 			$isCommunityAdmin = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
+
 			foreach ($comments as $key => $comment)
 			{
 				$usr = $this->jomHelper->getUserDetail($comment->post_by);
@@ -2617,7 +2711,8 @@ class wall
 	}
 
 	/**
-	 * @uses    report voice comments
+	 * uses to    report voice comments
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2636,10 +2731,10 @@ class wall
 		$key     = end(explode('/', $key));
 		$message = IJReq::getTaskData('message', 'report this.');
 
-		//params object for report content
+		// Params object for report content
 		$params = array();
 
-		//search voice file in community activities
+		// Search voice file in community activities
 		$query = "SELECT id,app,actor
 				FROM #__community_activities
 				WHERE title LIKE '%$key%'
@@ -2657,13 +2752,14 @@ class wall
 		}
 		else
 		{
-			//if not found in activities then search in wall comment
+			// If not found in activities then search in wall comment
 			$query = "SELECT id,type
 					FROM #__community_wall
 					WHERE comment LIKE '%$key%'
 					AND type!='photos'";
 			$this->db->setQuery($query);
 			$plist = $this->db->loadObject();
+
 			if ($plist)
 			{
 				$params['type']            = 'wall';
@@ -2673,12 +2769,13 @@ class wall
 			}
 			else
 			{
-				//search voice file in photo caption
+				// Search voice file in photo caption
 				$query = "SELECT id,albumid
 						FROM #__community_photos
 						WHERE caption LIKE '%$key%'";
 				$this->db->setQuery($query);
 				$plist = $this->db->loadObject();
+
 				if ($plist)
 				{
 					$params['type']               = 'photos';
@@ -2689,13 +2786,13 @@ class wall
 			}
 		}
 
-		//check if voice comment or voice caption not found
+		// Check if voice comment or voice caption not found
 		if (empty($wlist) and empty($plist))
 		{
 			return $this->jsonarray['code'] = 204;
 		}
 
-		//get report table reference
+		// Get report table reference
 		$report             = JTable::getInstance('Report', 'IjoomeradvTable');
 		$report->message    = $message;
 		$report->created_by = JFactory::getUser()->id;
@@ -2703,6 +2800,7 @@ class wall
 		$report->extension  = 'jomsocial';
 		$report->status     = 0;
 		$report->params     = json_encode($params);
+
 		if ($report->store())
 		{
 			$this->jsonarray['code'] = 200;

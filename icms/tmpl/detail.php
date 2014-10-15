@@ -21,6 +21,7 @@ $categories  = $icms_helper->getCategoryList();
 			<td width="50%" valign="top">
 				<?php
 				$i = 0;
+
 				foreach ($this->groups as $group)
 				{
 					if ($i == 3)
@@ -38,7 +39,8 @@ $categories  = $icms_helper->getCategoryList();
 								<tr>
 									<td class="paramlist_key" width="40%">
 											<span class="hasTip"
-											      title="<?php echo JText::_($value->caption . '_LBL'); ?>::<?php echo JText::_($value->description); ?>">
+											      title="<?php echo JText::_($value->caption . '_LBL'); ?>::
+											      <?php echo JText::_($value->description); ?>">
 												<?php echo JText::_($value->caption); ?>
 											</span>
 									</td>
@@ -46,14 +48,18 @@ $categories  = $icms_helper->getCategoryList();
 										<?php echo $value->html; ?>
 									</td>
 								</tr>
-							<?php } ?>
+							<?php
+							}
+							?>
 						</table>
 					</fieldset>
 					<?php
+
 					if ($i == 3)
 					{
 						echo '<td>';
 					}
+
 					$i++;
 				}?>
 			</td>

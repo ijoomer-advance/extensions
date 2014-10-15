@@ -14,9 +14,10 @@
  * @subpackage  jbolo3.1
  * @since       1.0
  */
-class jbolo
+class Jbolo
 {
 	public $classname = "jbolo";
+
 	public $sessionWhiteList = array('ichatmain.polling',
 		'ichatmain.pushChatToNode',
 		'ichatmain.initiateNode',
@@ -28,7 +29,7 @@ class jbolo
 	 *
 	 * @return  void
 	 */
-	function init()
+	public function init()
 	{
 		$lang  = JFactory::getLanguage();
 		$lang->load('com_jbolo');
@@ -40,7 +41,7 @@ class jbolo
 	 *
 	 * @return  array jsonarray
 	 */
-	function getconfig()
+	public function getconfig()
 	{
 		$jsonarray                 = array();
 		$params                    = JComponentHelper::getParams('com_jbolo');
@@ -56,17 +57,18 @@ class jbolo
 	/**
 	 * function for write configuration
 	 *
-	 * @param   array  $d  d
+	 * @param   array  &$d  d
 	 *
 	 * @return  void
 	 */
-	function write_configuration(&$d)
+	public function write_configuration(&$d)
 	{
 		$db    = JFactory::getDbo();
 		$query = 'SELECT *
 				  FROM #__ijoomeradv_jbolo_config';
 		$db->setQuery($query);
 		$my_config_array = $db->loadObjectList();
+
 		foreach ($my_config_array as $ke => $val)
 		{
 			if (isset($d[$val->name]))
@@ -83,13 +85,13 @@ class jbolo
 	/**
 	 * function for prepareHTML
 	 *
-	 * @param   array   &$config  Configuration array
+	 * @param   array  &$config  Configuration array
 	 *
 	 * @return  void
 	 */
-	function prepareHTML(&$config)
+	public function prepareHTML(&$config)
 	{
-		//jbolo related html tags
+		// Jbolo related html tags
 	}
 }
 
@@ -100,7 +102,7 @@ class jbolo
  * @subpackage  jbolo3.1
  * @since       1.0
  */
-class jbolo_menu
+class Jbolo_Menu
 {
 	/**
 	 * function for getRequiredInput
@@ -115,9 +117,9 @@ class jbolo_menu
 	{
 		$menuoptions = json_decode($menuoptions, true);
 		$db          = JFactory::getDbo();
+
 		switch ($extTask)
 		{
-
 		}
 	}
 
@@ -137,9 +139,9 @@ class jbolo_menu
 	{
 		$db      = JFactory::getDBO();
 		$options = null;
+
 		switch ($extTask)
 		{
-
 		}
 
 		if ($options)

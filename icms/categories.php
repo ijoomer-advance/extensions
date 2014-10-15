@@ -16,21 +16,21 @@ defined('_JEXEC') or die;
  * @subpackage  icms
  * @since       1.0
  */
-class categories
+class Categories
 {
-
 	private $db;
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->db  = JFactory::getDBO();
 	}
 
 	/**
-	 * @uses    Category list
+	 * function for Category list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"icms",
@@ -107,8 +107,8 @@ class categories
 	/**
 	 * Function for prepare object with list of articles and categories
 	 *
-	 * @param Array $articles     articles
-	 * @param Array $categories   categories
+	 * @param   Array  $articles    articles
+	 * @param   Array  $categories  categories
 	 *
 	 * @return Array jsonarray
 	 */
@@ -146,12 +146,14 @@ class categories
 			$categoryObj   = new ContentModelCategory;
 			$inc           = 0;
 			$categoryArray = array();
+
 			foreach ($categories as $value)
 			{
 				$subcategory      = $this->getCategories($value->id);
 				$subcategorycount = count($subcategory);
 				$ischild          = false;
 				$ischild          = ($subcategorycount > 0 or $value->numitems > 0) ? true : $this->getChildCount($value->id);
+
 				if ($ischild)
 				{
 					$categoryArray['categories'][$inc]['categoryid']  = $value->id;
@@ -161,9 +163,11 @@ class categories
 					$images = array();
 					preg_match_all('/(src)=("[^"]*")/i', $value->description, $images);
 					$imgpath = str_replace(array('src="', '"'), "", $images[0]);
+
 					if (!empty($imgpath[0]))
 					{
 						$image_properties = parse_url($imgpath[0]);
+
 						if (empty($image_properties['host']))
 						{
 							$imgpath[0] = JUri::base() . $imgpath[0];
@@ -183,17 +187,20 @@ class categories
 					$inc++;
 				}
 			}
+
 			if (!$categoryArray)
 			{
 				$categoryArray['categories'] = array();
 			}
 		}
+
 		if (!isset($categoryArray['categories']) && !isset($articleArray['articles']) or (empty($categoryArray) && empty($articleArray)))
 		{
 			$jsonarray['code'] = 204;
 
 			return $jsonarray;
 		}
+
 		$jsonarray['code']       = 200;
 		$jsonarray['total']      = $totalarticles;
 		$jsonarray['pageLimit']  = ICMS_ARTICLE_LIMIT;
@@ -213,6 +220,7 @@ class categories
 	private function getChildCount($id)
 	{
 		$childcategory = $this->getCategories($id);
+
 		foreach ($childcategory as $value)
 		{
 			if ($value->numitems > 0)

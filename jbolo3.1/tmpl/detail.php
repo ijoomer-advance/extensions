@@ -34,14 +34,16 @@ JHTML::_('behavior.tooltip');
 								?>
 								<tr>
 									<td class="paramlist_key" width="40%">
-											<span class="hasTip"
-											      title="<?php echo $value->caption; ?>::<?php echo $value->description; ?>">
+											<span class="hasTip" title="<?php echo $value->caption; ?>::
+											<?php echo $value->description; ?>">
 												<?php echo $value->caption; ?>
 											</span>
 									</td>
 									<td><?php echo $value->html; ?></td>
 								</tr>
-							<?php } ?>
+							<?php
+							}
+							?>
 						</table>
 					</fieldset>
 					<?php
@@ -49,6 +51,7 @@ JHTML::_('behavior.tooltip');
 					{
 						echo '<td>';
 					}
+
 					$i++;
 				}?>
 			</td>

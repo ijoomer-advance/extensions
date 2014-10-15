@@ -17,21 +17,21 @@ jimport('joomla.application.component.helper');
  * @subpackage  easyblog
  * @since       1.0
  */
-class items
+class Items
 {
-
 	private $db;
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->db = JFactory::getDBO();
 	}
 
 	/**
-	 * @uses    to fetch archive article list
+	 * To fetch archive article list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"icms",
@@ -44,14 +44,14 @@ class items
 	 *
 	 * @return  mixed items and total
 	 */
-
-	function archive()
+	public function archive()
 	{
 		include_once JPATH_SITE . '/components/com_content/models/archive.php';
 		$ContentModelArchive = new ContentModelArchive;
 		$items               = $ContentModelArchive->getItems();
 
 		$total = count($items);
+
 		if ($total <= 0)
 		{
 			$jsonarray['code'] = 204;
@@ -63,7 +63,8 @@ class items
 	}
 
 	/**
-	 * @uses    to fetch archive article list
+	 * To fetch archive article list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"icms",
@@ -76,7 +77,7 @@ class items
 	 *
 	 * @return  mixed items and total
 	 */
-	function featured()
+	public function featured()
 	{
 		JModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 		$model = JModel::getInstance('Featured', 'ContentModel', array('ignore_request' => true));
@@ -87,9 +88,10 @@ class items
 		$model->setState('filter.access', (bool) (!$appParams->get('show_noauth')));
 
 		$user = JFactory::getUser();
+
 		if ((!$user->authorise('core.edit.state', 'com_content')) && (!$user->authorise('core.edit', 'com_content')))
 		{
-			// filter on published for those who do not have edit or edit.state rights.
+			// Filter on published for those who do not have edit or edit.state rights.
 			$model->setState('filter.published', 1);
 		}
 		else
@@ -99,6 +101,7 @@ class items
 
 		$items = $model->getItems();
 		$total = count($items);
+
 		if ($total <= 0)
 		{
 			$jsonarray['code'] = 204;
@@ -110,7 +113,8 @@ class items
 	}
 
 	/**
-	 * @uses    to fetch archive article list
+	 * To fetch archive article list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"icms",
@@ -130,7 +134,8 @@ class items
 		JModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 		$model     = JModel::getInstance('Articles', 'ContentModel', array('ignore_request' => true));
 		$appParams = JComponentHelper::getParams('com_content');
-		//set search type
+
+		// Set search type
 		$appParams->set('filter_field', 'title');
 
 		$model->setState('params', $appParams);
@@ -138,9 +143,10 @@ class items
 		$model->setState('filter.access', (bool) (!$appParams->get('show_noauth')));
 
 		$user = JFactory::getUser();
+
 		if ((!$user->authorise('core.edit.state', 'com_content')) && (!$user->authorise('core.edit', 'com_content')))
 		{
-			// filter on published for those who do not have edit or edit.state rights.
+			// Filter on published for those who do not have edit or edit.state rights.
 			$model->setState('filter.published', 1);
 		}
 		else
@@ -148,7 +154,7 @@ class items
 			$model->setState('filter.published', array(0, 1, 2));
 		}
 
-		//set search keyword
+		// Set search keyword
 		$model->setState('list.filter', $keyword);
 
 		$items = $model->getItems();
@@ -203,6 +209,7 @@ class items
 				if ($articles[$inc]->images)
 				{
 					$articlesimages = json_decode($articles[$inc]->images);
+
 					if ($articlesimages->image_intro)
 					{
 						$jsonarray['articles'][$i]['image'] = $this->formatImageUri($articlesimages->image_intro);
@@ -237,7 +244,8 @@ class items
 	}
 
 	/**
-	 * @uses    to fetch archive article list
+	 * To fetch archive article list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"icms",
@@ -256,7 +264,8 @@ class items
 	}
 
 	/**
-	 * @uses    to fetch archive article list
+	 * To fetch archive article list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"icms",
@@ -277,7 +286,7 @@ class items
 	/**
 	 *  Function for get article detail
 	 *
-	 * @param   integer   $id  article id
+	 * @param   integer  $id  article id
 	 *
 	 * @return  array   $jsonarray
 	 */
@@ -291,6 +300,7 @@ class items
 		{
 			$result = array();
 			preg_match_all('/<img[^>]+>/i', $items->introtext, $result);
+
 			foreach ($result[0] as $key => $value)
 			{
 				$imgpath = array();
@@ -301,6 +311,7 @@ class items
 			}
 
 			preg_match_all('/<img[^>]+>/i', $items->fulltext, $result);
+
 			foreach ($result[0] as $key => $value)
 			{
 				preg_match_all('/src="[^"]+"/', $value, $imgpath);
@@ -308,12 +319,15 @@ class items
 				$imgpath         = $this->formatImageUri($imgpath);
 				$items->fulltext = str_replace($value, '<img src="' . $imgpath . '">', $items->fulltext);
 			}
+
 			$anchors = array();
 			preg_match_all('#<a\s+href=[\'"]([^\'"]+)[\'"]\s*(?:title=[\'"]([^\'"]+)[\'"])?\s*>((?:(?!</a>).)*)</a>#i', $items->introtext, $anchors);
+
 			foreach ($anchors[0] as $key => $value)
 			{
 				$hrefPath = array();
 				preg_match_all('/href="[^"]+"/', $value, $hrefPath);
+
 				if ($hrefPath[0])
 				{
 					$match = array();
@@ -337,6 +351,7 @@ class items
 						$uri    = JURI::getInstance($link);
 						$router = JApplication::getRouter();
 						$result = $router->parse($uri);
+
 						if ($result['option'] == 'com_content')
 						{
 							$view   = $result['view'];
@@ -352,9 +367,11 @@ class items
 			}
 
 			preg_match_all('#<a\s+href=[\'"]([^\'"]+)[\'"]\s*(?:title=[\'"]([^\'"]+)[\'"])?\s*>((?:(?!</a>).)*)</a>#i', $items->fulltext, $anchors);
+
 			foreach ($anchors[0] as $key => $value)
 			{
 				preg_match_all('/href="[^"]+"/', $value, $hrefPath);
+
 				if ($hrefPath[0])
 				{
 					preg_match('/href="(.+)"/', $hrefPath[0][0], $match);
@@ -377,6 +394,7 @@ class items
 						$uri    = JURI::getInstance($link);
 						$router = JApplication::getRouter();
 						$result = $router->parse($uri);
+
 						if ($result['option'] == 'com_content')
 						{
 							$view = $result['view'];
@@ -407,6 +425,7 @@ class items
 			$jsonarray['article']['publish_down']     = $items->publish_down;
 
 			$itemsimages = json_decode($items->images);
+
 			if (isset($itemsimages->image_intro))
 			{
 				$itemsimages->image_intro = $this->formatImageUri($itemsimages->image_intro);
@@ -423,25 +442,28 @@ class items
 			$itemsurls                    = json_decode($items->urls);
 			$jsonarray['article']['urls'] = array();
 			$i                            = 0;
+
 			if (isset($itemsurls->urla) && !empty($itemsurls->urla))
 			{
 				$jsonarray['article']['urls'][$i]['url']     = $itemsurls->urla;
 				$jsonarray['article']['urls'][$i]['urltext'] = $itemsurls->urlatext;
 				$i++;
-
 			}
+
 			if (isset($itemsurls->urlb) && !empty($itemsurls->urlb))
 			{
 				$jsonarray['article']['urls'][$i]['url']     = $itemsurls->urlb;
 				$jsonarray['article']['urls'][$i]['urltext'] = $itemsurls->urlbtext;
 				$i++;
 			}
+
 			if (isset($itemsurls->urlc) && !empty($itemsurls->urlc))
 			{
 				$jsonarray['article']['urls'][$i]['url']     = $itemsurls->urlc;
 				$jsonarray['article']['urls'][$i]['urltext'] = $itemsurls->urlctext;
 				$i++;
 			}
+
 			unset($i);
 			$jsonarray['article']['created']   = $items->created;
 			$jsonarray['article']['author']    = $items->author;
@@ -465,6 +487,7 @@ class items
 	private function formatImageUri($imagepath)
 	{
 		$image_properties = parse_url($imagepath);
+
 		if (empty($image_properties['host']))
 		{
 			$imagepath = JUri::base() . $imagepath;

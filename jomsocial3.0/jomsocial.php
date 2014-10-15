@@ -16,19 +16,18 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial3.0
  * @since       1.0
  */
-
-
-class jomsocial
+class Jomsocial
 {
 	var $classname = 'jomsocial';
 
 	var $sessionWhiteList = array("user.profileTypes");
 
-/**
- * init function
- */
-
-	function init()
+	/**
+	 * init function
+	 *
+	 * @return  void
+	 */
+	public function init()
 	{
 		jimport('joomla.utilities.date');
 		jimport('joomla.html.pagination');
@@ -43,10 +42,11 @@ class jomsocial
 		require_once JPATH_ROOT . '/components/com_community/views/views.php';
 		require_once JPATH_ROOT . '/components/com_community/views//inbox/view.html.php';
 
-		$lang =  JFactory::getLanguage();
+		$lang = JFactory::getLanguage();
 		$lang->load('com_community');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('jomsocial', $plugin_path . '/jomsocial', $lang->getTag(), true);
+
 		if (file_exists(JPATH_COMPONENT_SITE . '/extensions/jomsocial' . '/' . "helper.php"))
 		{
 			require_once JPATH_COMPONENT_SITE . '/extensions/jomsocial' . '/' . "helper.php";
@@ -59,7 +59,7 @@ class jomsocial
 	 * @return json array
 	 */
 
-	function getconfig()
+	public function getconfig()
 	{
 		$this->init();
 		$config                       = CFactory::getConfig();
@@ -72,8 +72,9 @@ class jomsocial
 		$jsonarray['PhotoUploadSize'] = intval($config->get('maxuploadsize'));
 		$jsonarray['isEnableTerms']   = intval($config->get('enableterms'));
 		$jsonarray['termsObject']     = '{"extName":"jomsocial","extView":"user","extTask":"getTermsNCondition"}';
-		//List ijoomeradv jomsocial config in applicationConfig
-		$db    =  JFactory::getDBO();
+
+		// List ijoomeradv jomsocial config in applicationConfig
+		$db    = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_jomsocial_config
 				WHERE name='ENABLE_VOICE'";
@@ -83,6 +84,7 @@ class jomsocial
 
 		return $jsonarray;
 	}
+
 	/**
 	 * write_cofiguration function
 	 *
@@ -92,20 +94,23 @@ class jomsocial
 	 */
 	function write_configuration(&$d)
 	{
-		$db    =  JFactory::getDBO();
+		$db    = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_jomsocial_config";
 		$db->setQuery($query);
 		$config_array = $db->loadObjectList();
+
 		foreach ($config_array as $config)
 		{
 			$config_name = $config->name;
+
 			if (isset($d[$config_name]))
 			{
 				if (is_array($d[$config_name]))
 				{
 					$d[$config_name] = implode(',', $d[$config_name]);
 				}
+
 				$query = "UPDATE #__ijoomeradv_jomsocial_config
 						SET value = '{$d[$config_name]}'
 						WHERE name = '{$config_name}' ";
@@ -117,12 +122,17 @@ class jomsocial
 		return true;
 	}
 
-	/*
-    * Prepares special type of html for jomsocial
-    */
-	function prepareHTML(&$config)
+	/**
+	 * function prepareHTML
+	 *
+	 * @param   [type]  &$config  configuration
+	 *
+	 * @return  void
+	 */
+	public function prepareHTML(&$config)
 	{
-		$db =  JFactory::getDBO();
+		$db = JFactory::getDBO();
+
 		foreach ($config as $key => $value)
 		{
 			$config[$key]->caption     = JText::_($value->caption);
@@ -139,6 +149,7 @@ class jomsocial
 
 					$input = '<select name="' . $value->name . '" id="' . $value->name . '">';
 					$input .= '<option value="">Select Field...</option>';
+
 					if ($fields)
 					{
 						foreach ($fields as $field)
@@ -147,6 +158,7 @@ class jomsocial
 							$input .= '<option value="' . $field->id . '" ' . $selected . '>' . $field->name . '</option>';
 						}
 					}
+
 					$input .= '</select>';
 					$config[$key]->html = $input;
 					break;
@@ -154,5 +166,3 @@ class jomsocial
 		}
 	}
 }
-
-?>

@@ -18,15 +18,18 @@ jimport('joomla.filesystem.folder');
  * @subpackage  k2_2.6.5
  * @since       1.0
  */
-
-class items
+class Items
 {
-
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $jsonarray = array();
+
 	static $catcount;
 
 	/**
@@ -35,13 +38,20 @@ class items
 	function __construct()
 	{
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomer.IJUserID', 0); //get login user id
-		$this->my        = JFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomer.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = JFactory::getUser($this->IJUserID);
 	}
 
 	/**
-	 * @uses    This function is used to get all items,subcategories and all details of selected fieldvalue in category view.
+	 * uses    This function is used to get all items,subcategories and all details of selected fieldvalue in category view.
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"k2",
@@ -52,8 +62,9 @@ class items
 	 *            "pageNO":"pageNO"
 	 *            }
 	 *    }
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function items()
+	public function items()
 	{
 		$categoryIDs           = IJReq::getTaskData('catId');
 		$childCatItems         = IJReq::getTaskData('itemsChildCat');
@@ -84,25 +95,30 @@ class items
 
 		$itemArray               = array();
 		$countselectedcategories = count($categoryIDs);
+
 		if (!$pageLimit)
 		{
 			$pageLimit = 10;
 		}
+
 		$itemLimit = ($countselectedcategories == 1) ? $pageLimit : $itemsPerCategoryLimit;
+
 		if (!$itemLimit)
 		{
 			$itemLimit = 10;
 		}
+
 		$startFrom  = ($pageNO == 0 || $pageNO == 1) ? 0 : $itemLimit * ($pageNO - 1);
 		$startLimit = ($pageNO == 0 || $pageNO == 1) ? 0 : $pageLimit * ($pageNO - 1);
 
 		foreach ($categoryIDs as $catID)
 		{
-			//start-To show subcategories if in menu-items,only one category selected
+			// Start-To show subcategories if in menu-items,only one category selected
 			if ($countselectedcategories == 1)
 			{
 				$catdata = $this->getCategorySubcat($catID, $clear = false);
 			}
+
 			if (isset($catdata))
 			{
 				foreach ($catdata as $keyy => $valuee)
@@ -121,7 +137,8 @@ class items
 				$array_unique = array_unique($array_merge);
 				$implode      = implode(",", $array_unique);
 			}
-			else if (!$childCatItems && $countselectedcategories == 1)
+
+			elseif (!$childCatItems && $countselectedcategories == 1)
 			{
 				$categories   = $this->getCategoryChildren($catID, '');
 				$array_merge  = array_merge($categoryIDs, $categories);
@@ -133,7 +150,6 @@ class items
 				$array_unique = $categoryIDs;
 				$implode      = implode(",", $array_unique);
 			}
-
 		}
 
 		if ($ordering == 'best')
@@ -153,29 +169,33 @@ class items
 			    		FROM #__k2_items as i
 			    		WHERE i.id>0
 			    		AND i.published=1";
-
 		}
 
 		$query .= " AND (";
 		$counter = 0;
+
 		foreach ($array_unique as $catUnique)
 		{
 			if ($counter <> 0)
 			{
 				$query .= " OR ";
 			}
+
 			$query .= " i.id IN
 						(SELECT * FROM (SELECT i.id
 										FROM #__k2_items as i
 										WHERE i.catid =$catUnique
 										ORDER BY $orderby";
+
 			if ($countselectedcategories > 1 && $itemLimit)
 			{
 				$query .= " LIMIT 0, $itemLimit";
 			}
+
 			$query .= " ) AS alias) ";
 			$counter++;
 		}
+
 		$query .= ")";
 		$query .= " ORDER BY $orderby";
 		$queryLimit = $query;
@@ -215,6 +235,7 @@ class items
 				$fullpath  = JPATH_SITE . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
 				$jpg_files = JFolder::files($fullpath, '');
 				$fullpath1 = JURI::base() . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
+
 				if ($jpg_files)
 				{
 					foreach ($jpg_files as $key1 => $file1)
@@ -253,6 +274,7 @@ class items
 				$itemArray['items'][$key]['imageExtraLarge'] = '';
 				$itemArray['items'][$key]['imageExtraSmall'] = '';
 			}
+
 			$extra_fields = json_decode($value->extra_fields, true);
 
 			if ($extra_fields != "")
@@ -266,6 +288,7 @@ class items
 					$exttype                      = $this->db->loadResult();
 					$extra_fields[$exkey]['type'] = $exttype;
 				}
+
 				foreach ($extra_fields as $k1 => $v1)
 				{
 					if (is_array($v1['value']))
@@ -277,6 +300,7 @@ class items
 						$extVal     = $this->db->loadResult();
 						$jsonextVal = json_decode($extVal, true);
 						unset($extra_fields[$k1]['value']);
+
 						foreach ($jsonextVal as $jsK => $jsV)
 						{
 							if (in_array($jsV['value'], $v1['value']))
@@ -285,13 +309,14 @@ class items
 							}
 						}
 					}
-					else if ($v1['type'] == 'image')
+					elseif ($v1['type'] == 'image')
 					{
 						if ($ext = pathinfo($v1['value'], PATHINFO_EXTENSION))
 						{
 							$extra_fields[$k1]['value'] = JURI::root() . $v1['value'];
 						}
 					}
+
 					$ext_query = "SELECT ext.name
 					    			  FROM #__k2_extra_fields as ext
 					    			  WHERE ext.id={$v1['id']}";
@@ -300,6 +325,7 @@ class items
 					$extra_fields[$k1]['name'] = $extname;
 				}
 			}
+
 			$itemArray['items'][$key]['extraFields'] = (isset($extra_fields) && !empty($extra_fields)) ? $extra_fields : "";
 			$itemArray['items'][$key]['publishUp']   = $value->publish_up;
 			$itemArray['items'][$key]['createdBy']   = $value->created_by;
@@ -310,7 +336,7 @@ class items
 			$created_by_name                           = $this->db->loadResult();
 			$itemArray['items'][$key]['createdByName'] = $created_by_name;
 			require_once JPATH_SITE . '/components/com_k2/models/item.php';
-			$K2ModelItem = new K2ModelItem();
+			$K2ModelItem = new K2ModelItem;
 
 			$itemArray['items'][$key]['tags']        = (count($K2ModelItem->getItemTags($value->id)) > 0) ? $K2ModelItem->getItemTags($value->id) : '';
 			$itemArray['items'][$key]['ratings']     = (count($K2ModelItem->getRating($value->id)) > 0) ? $K2ModelItem->getRating($value->id) : '';
@@ -324,6 +350,7 @@ class items
 		$jsonarray          = array();
 		$jsonarray['code']  = ($countitems > 0) ? 200 : 204;
 		$jsonarray['total'] = $countitems;
+
 		if ($countselectedcategories == 1)
 		{
 			$jsonarray['pageLimit'] = $itemLimit;
@@ -332,6 +359,7 @@ class items
 		{
 			$jsonarray['pageLimit'] = ($itemLimit) ? $pageLimit : $countitems;
 		}
+
 		$jsonarray['pageLayout']     = $pageLayout ? $pageLayout : '';
 		$jsonarray['leadLimit']      = $leadLimit;
 		$jsonarray['mainCategories'] = (($pageNO == 0 || $pageNO == 1) && $categoryIDs != "") ? $this->getMainCategories($categoryIDs) : "";
@@ -359,6 +387,7 @@ class items
    				AND trash=0";
 		$db->setQuery($query);
 		$Allcats = $db->loadObjectList();
+
 		foreach ($Allcats as $key => $value)
 		{
 			$jsonarray[$key]['id']          = $value->id;
@@ -371,9 +400,9 @@ class items
 		return $jsonarray;
 	}
 
-
 	/**
-	 * @uses    This function is used to get itemdetail based on item selected for itemView.
+	 * uses    This function is used to get itemdetail based on item selected for itemView.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -383,8 +412,9 @@ class items
 	 *                "menuId":"menuId",
 	 *                }
 	 *    }
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function ItemDetail()
+	public function ItemDetail()
 	{
 		$itemID = IJReq::getTaskData('itemID', 1, 'int');
 		$query  = "SELECT i.*
@@ -396,6 +426,7 @@ class items
 		$this->db->setQuery($query);
 		$rows  = $this->db->loadObjectList();
 		$count = count($rows);
+
 		if ($count <= 0)
 		{
 			IJReq::setResponseCode(204);
@@ -414,10 +445,12 @@ class items
 			$video                                 = $value->video;
 			$ex_video                              = explode("}", $video);
 			$finalvideo                            = str_replace("{", ".", $ex_video[0]);
+
 			if (isset($ex_video[1]))
 			{
 				$final_video = explode("{", $ex_video[1]);
 			}
+
 			$itemArray['items'][$key]['video'] = ($finalvideo != "" && $final_video != "") ? JURI::base() . '/media/k2/videos/' . $final_video[0] . $finalvideo : "";
 			$gallery                           = $value->gallery;
 			$ex_gallery                        = explode("}", $gallery);
@@ -425,11 +458,13 @@ class items
 			$final_gallery                     = explode("{", $ex_gallery[1]);
 			$path                              = JPATH_SITE . '/media/k2/galleries/' . $final_gallery[0];
 			$folders                           = JFolder::folders($path, $filter = '.');
+
 			foreach ($folders as $key2 => $value2)
 			{
 				$fullpath  = JPATH_SITE . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
 				$jpg_files = JFolder::files($fullpath, '');
 				$fullpath1 = JURI::base() . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
+
 				if ($jpg_files)
 				{
 					foreach ($jpg_files as $key1 => $file1)
@@ -475,6 +510,7 @@ class items
 					$exttype                      = $this->db->loadResult();
 					$extra_fields[$exkey]['type'] = $exttype;
 				}
+
 				foreach ($extra_fields as $k1 => $v1)
 				{
 					if (is_array($v1['value']))
@@ -486,6 +522,7 @@ class items
 						$extVal     = $this->db->loadResult();
 						$jsonextVal = json_decode($extVal, true);
 						unset($extra_fields[$k1]['value']);
+
 						foreach ($jsonextVal as $jsK => $jsV)
 						{
 							if (in_array($jsV['value'], $v1['value']))
@@ -494,13 +531,14 @@ class items
 							}
 						}
 					}
-					else if ($v1['type'] == 'image')
+					elseif ($v1['type'] == 'image')
 					{
 						if ($ext = pathinfo($v1['value'], PATHINFO_EXTENSION))
 						{
 							$extra_fields[$k1]['value'] = JURI::root() . $v1['value'];
 						}
 					}
+
 					$ext_query = "SELECT ext.name
 					    			  FROM #__k2_extra_fields as ext
 					    			  WHERE ext.id={$v1['id']}";
@@ -520,7 +558,7 @@ class items
 			$created_by_name                           = $this->db->loadResult();
 			$itemArray['items'][$key]['createdByName'] = $created_by_name;
 			require_once JPATH_SITE . '/components/com_k2/models/item.php';
-			$K2ModelItem                             = new K2ModelItem();
+			$K2ModelItem                             = new K2ModelItem;
 			$itemArray['items'][$key]['tags']        = (count($K2ModelItem->getItemTags($value->id)) > 0) ? $K2ModelItem->getItemTags($value->id) : '';
 			$itemArray['items'][$key]['ratings']     = (count($K2ModelItem->getRating($value->id)) > 0) ? $K2ModelItem->getRating($value->id) : '';
 			$itemArray['items'][$key]['comments']    = (count($K2ModelItem->getItemComments($value->id, "", "", true)) > 0) ? $K2ModelItem->getItemComments($value->id, "", "", true) : '';
@@ -529,15 +567,16 @@ class items
 			$share_link                              = JURI::root() . "index.php?option=com_k2&view=item&id={$value->id}:{$value->alias}&Itemid=487";
 			$itemArray['items'][$key]['shareLink']   = $share_link;
 		}
+
 		$jsonarray['code']  = 200;
 		$jsonarray['items'] = $itemArray['items'];
 
 		return $jsonarray;
 	}
 
-
 	/**
-	 * @uses    This function is used to get  items based on selected tag and selected categories.
+	 * uses    This function is used to get  items based on selected tag and selected categories.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -548,14 +587,16 @@ class items
 	 *                 }
 	 *
 	 *    }
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function TagRelatedItems()
+	public function TagRelatedItems()
 	{
 		$tagname      = IJReq::getTaskData('tag');
 		$catid        = IJReq::getTaskData('catId');
 		$pageNO       = IJReq::getTaskData('pageNO');
 		$pageLimit    = IJReq::getTaskData('pageLimit');
 		$itemordering = IJReq::getTaskData('itemorder');
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$startFrom = 0;
@@ -564,6 +605,7 @@ class items
 		{
 			$startFrom = $pageLimit * ($pageNO - 1);
 		}
+
 		$query = "SELECT tr.itemID
    	  				FROM #__k2_tags AS t
 		 			LEFT JOIN #__k2_tags_xref AS tr
@@ -602,6 +644,7 @@ class items
 		$query .= " ORDER BY " . $orderby;
 		$this->db->setQuery($query);
 		$countitems = $this->db->loadResult();
+
 		if ($itemordering == 'best')
 		{
 			$query = "SELECT i.* , (r.rating_sum/r.rating_count) AS rating FROM #__k2_items as i ";
@@ -617,13 +660,14 @@ class items
 		   			AND i.published=1
 		   			AND i.catid IN (" . $implodeCAT . ")
 		   			AND i.id IN (" . $implodeTagitem . ")";
-
 		}
+
 		$query .= " ORDER BY " . $orderby;
 		$query .= " LIMIT $startFrom, " . $pageLimit . "";
 		$this->db->setQuery($query);
 		$rowss     = $this->db->loadObjectList();
 		$countRows = count($rowss);
+
 		if ($countRows <= 0)
 		{
 			IJReq::setResponseCode(204);
@@ -632,6 +676,7 @@ class items
 		}
 
 		$itemArray = array();
+
 		foreach ($rowss as $key => $value)
 		{
 			$itemArray['items'][$key]['id']        = $value->id;
@@ -643,10 +688,12 @@ class items
 			$video                                 = $value->video;
 			$ex_video                              = explode("}", $video);
 			$finalvideo                            = str_replace("{", ".", $ex_video[0]);
+
 			if (isset($ex_video[1]))
 			{
 				$final_video = explode("{", $ex_video[1]);
 			}
+
 			$itemArray['items'][$key]['video'] = ($finalvideo != "" && $final_video != "") ? JURI::base() . '/media/k2/videos/' . $final_video[0] . $finalvideo : "";
 			$gallery                           = $value->gallery;
 			$ex_gallery                        = explode("}", $gallery);
@@ -660,6 +707,7 @@ class items
 				$fullpath  = JPATH_SITE . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
 				$jpg_files = JFolder::files($fullpath, '');
 				$fullpath1 = JURI::base() . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
+
 				if ($jpg_files)
 				{
 					foreach ($jpg_files as $key1 => $file1)
@@ -700,6 +748,7 @@ class items
 			}
 
 			$extra_fields = json_decode($value->extra_fields, true);
+
 			if ($extra_fields != "")
 			{
 				foreach ($extra_fields as $exkey => $exvalue)
@@ -711,6 +760,7 @@ class items
 					$exttype                      = $this->db->loadResult();
 					$extra_fields[$exkey]['type'] = $exttype;
 				}
+
 				foreach ($extra_fields as $k1 => $v1)
 				{
 					if (is_array($v1['value']))
@@ -722,6 +772,7 @@ class items
 						$extVal     = $this->db->loadResult();
 						$jsonextVal = json_decode($extVal, true);
 						unset($extra_fields[$k1]['value']);
+
 						foreach ($jsonextVal as $jsK => $jsV)
 						{
 							if (in_array($jsV['value'], $v1['value']))
@@ -730,13 +781,14 @@ class items
 							}
 						}
 					}
-					else if ($v1['type'] == 'image')
+					elseif ($v1['type'] == 'image')
 					{
 						if ($ext = pathinfo($v1['value'], PATHINFO_EXTENSION))
 						{
 							$extra_fields[$k1]['value'] = JURI::root() . $v1['value'];
 						}
 					}
+
 					$ext_query = "SELECT ext.name
 					    			  FROM #__k2_extra_fields as ext
 					    			  WHERE ext.id={$v1['id']}";
@@ -745,6 +797,7 @@ class items
 					$extra_fields[$k1]['name'] = $extname;
 				}
 			}
+
 			$itemArray['items'][$key]['extraFields'] = (isset($extra_fields) && !empty($extra_fields)) ? $extra_fields : "";
 			$itemArray['items'][$key]['publishUp']   = $value->publish_up;
 			$itemArray['items'][$key]['createdBy']   = $value->created_by;
@@ -755,7 +808,7 @@ class items
 			$created_by_name                           = $this->db->loadResult();
 			$itemArray['items'][$key]['createdByName'] = $created_by_name;
 			require_once JPATH_SITE . '/components/com_k2/models/item.php';
-			$K2ModelItem                             = new K2ModelItem();
+			$K2ModelItem                             = new K2ModelItem;
 			$itemArray['items'][$key]['tags']        = (count($K2ModelItem->getItemTags($value->id)) > 0) ? $K2ModelItem->getItemTags($value->id) : '';
 			$itemArray['items'][$key]['ratings']     = (count($K2ModelItem->getRating($value->id)) > 0) ? $K2ModelItem->getRating($value->id) : '';
 			$itemArray['items'][$key]['comments']    = (count($K2ModelItem->getItemComments($value->id, "", "", true)) > 0) ? $K2ModelItem->getItemComments($value->id, "", "", true) : '';
@@ -764,6 +817,7 @@ class items
 			$share_link                              = JURI::root() . "index.php?option=com_k2&view=item&id={$value->id}:{$value->alias}&Itemid=487";
 			$itemArray['items'][$key]['shareLink']   = $share_link;
 		}
+
 		$jsonarray              = array();
 		$jsonarray['code']      = 200;
 		$jsonarray['pageLimit'] = $pageLimit;
@@ -771,11 +825,11 @@ class items
 		$jsonarray['items']     = $itemArray['items'];
 
 		return $jsonarray;
-
 	}
 
 	/**
-	 * @uses    This function is used to get  items based on selected user and selected categories.
+	 * uses    This function is used to get  items based on selected user and selected categories.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -786,14 +840,16 @@ class items
 	 *                 }
 	 *
 	 *    }
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function Userpage()
+	public function Userpage()
 	{
 		$userID    = IJReq::getTaskData('userID');
 		$catID     = IJReq::getTaskData('catId');
 		$ordering  = IJReq::getTaskData('ordering');
 		$pageNO    = IJReq::getTaskData('pageNO');
 		$pageLimit = IJReq::getTaskData('pageLimit');
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$startFrom = 0;
@@ -802,6 +858,7 @@ class items
 		{
 			$startFrom = $pageLimit * ($pageNO - 1);
 		}
+
 		$implodeCAT = implode(",", $catID);
 
 		$orders  = array(
@@ -848,19 +905,22 @@ class items
 		   			AND i.catid IN (" . $implodeCAT . ")
 		   			AND i.created_by='" . $userID . "'
 		   			AND i.created_by_alias=''";
-
 		}
+
 		$query .= " ORDER BY " . $orderby;
 		$query .= " LIMIT $startFrom, " . $pageLimit . "";
 		$this->db->setQuery($query);
 		$rowss = $this->db->loadObjectList();
+
 		if ($countRows <= 0)
 		{
 			IJReq::setResponseCode(204);
 
 			return false;
 		}
+
 		$itemArray = array();
+
 		foreach ($rowss as $key => $value)
 		{
 			$itemArray['items'][$key]['id']        = $value->id;
@@ -872,10 +932,12 @@ class items
 			$video                                 = $value->video;
 			$ex_video                              = explode("}", $video);
 			$finalvideo                            = str_replace("{", ".", $ex_video[0]);
+
 			if (isset($ex_video[1]))
 			{
 				$final_video = explode("{", $ex_video[1]);
 			}
+
 			$itemArray['items'][$key]['video'] = ($finalvideo != "" && $final_video != "") ? JURI::base() . '/media/k2/videos/' . $final_video[0] . $finalvideo : "";
 			$gallery                           = $value->gallery;
 			$ex_gallery                        = explode("}", $gallery);
@@ -889,6 +951,7 @@ class items
 				$fullpath  = JPATH_SITE . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
 				$jpg_files = JFolder::files($fullpath, '');
 				$fullpath1 = JURI::base() . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
+
 				if ($jpg_files)
 				{
 					foreach ($jpg_files as $key1 => $file1)
@@ -929,6 +992,7 @@ class items
 			}
 
 			$extra_fields = json_decode($value->extra_fields, true);
+
 			if ($extra_fields != "")
 			{
 				foreach ($extra_fields as $exkey => $exvalue)
@@ -940,6 +1004,7 @@ class items
 					$exttype                      = $this->db->loadResult();
 					$extra_fields[$exkey]['type'] = $exttype;
 				}
+
 				foreach ($extra_fields as $k1 => $v1)
 				{
 					if (is_array($v1['value']))
@@ -951,6 +1016,7 @@ class items
 						$extVal     = $this->db->loadResult();
 						$jsonextVal = json_decode($extVal, true);
 						unset($extra_fields[$k1]['value']);
+
 						foreach ($jsonextVal as $jsK => $jsV)
 						{
 							if (in_array($jsV['value'], $v1['value']))
@@ -959,13 +1025,14 @@ class items
 							}
 						}
 					}
-					else if ($v1['type'] == 'image')
+					elseif ($v1['type'] == 'image')
 					{
 						if ($ext = pathinfo($v1['value'], PATHINFO_EXTENSION))
 						{
 							$extra_fields[$k1]['value'] = JURI::root() . $v1['value'];
 						}
 					}
+
 					$ext_query = "SELECT ext.name
 					    			  FROM #__k2_extra_fields as ext
 					    			  WHERE ext.id={$v1['id']}";
@@ -974,6 +1041,7 @@ class items
 					$extra_fields[$k1]['name'] = $extname;
 				}
 			}
+
 			$itemArray['items'][$key]['extraFields'] = (isset($extra_fields) && !empty($extra_fields)) ? $extra_fields : "";
 			$itemArray['items'][$key]['publishUp']   = $value->publish_up;
 			$itemArray['items'][$key]['createdBy']   = $value->created_by;
@@ -984,7 +1052,7 @@ class items
 			$created_by_name                           = $this->db->loadResult();
 			$itemArray['items'][$key]['createdByName'] = $created_by_name;
 			require_once JPATH_SITE . '/components/com_k2/models/item.php';
-			$K2ModelItem                             = new K2ModelItem();
+			$K2ModelItem                             = new K2ModelItem;
 			$itemArray['items'][$key]['tags']        = (count($K2ModelItem->getItemTags($value->id)) > 0) ? $K2ModelItem->getItemTags($value->id) : '';
 			$itemArray['items'][$key]['ratings']     = (count($K2ModelItem->getRating($value->id)) > 0) ? $K2ModelItem->getRating($value->id) : '';
 			$itemArray['items'][$key]['comments']    = (count($K2ModelItem->getItemComments($value->id, "", "", true)) > 0) ? $K2ModelItem->getItemComments($value->id, "", "", true) : '';
@@ -993,6 +1061,7 @@ class items
 			$share_link                              = JURI::root() . "index.php?option=com_k2&view=item&id={$value->id}:{$value->alias}&Itemid=487";
 			$itemArray['items'][$key]['shareLink']   = $share_link;
 		}
+
 		$jsonarray              = array();
 		$jsonarray['code']      = 200;
 		$jsonarray['total']     = $countRows;
@@ -1003,7 +1072,8 @@ class items
 	}
 
 	/**
-	 * @uses    This function is used to get latest items based on categories and users.
+	 * uses    This function is used to get latest items based on categories and users.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -1014,15 +1084,16 @@ class items
 	 *                 }
 	 *
 	 *    }
-	 * */
-
-	function LatestItems()
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
+	public function LatestItems()
 	{
 		$source      = IJReq::getTaskData('source');
 		$userIDs     = IJReq::getTaskData('userIDs');
 		$categoryIDs = IJReq::getTaskData('catId');
 		$pageNO      = IJReq::getTaskData('pageNO');
 		$pageLimit   = IJReq::getTaskData('pageLimit');
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$startFrom = 0;
@@ -1031,12 +1102,13 @@ class items
 		{
 			$startFrom = $pageLimit * ($pageNO - 1);
 		}
+
 		$nullDate = $this->db->getNullDate();
 		$jnow     = JFactory::getDate();
 		$now      = K2_JVERSION == '15' ? $jnow->toMySQL() : $jnow->toSql();
+
 		if ($source == 'Categories')
 		{
-
 			$query = " SELECT i.*, CASE WHEN i.modified = 0 THEN i.created ELSE i.modified END as lastChanged,
 					    	c.name as categoryname,c.id as categoryid, c.alias as categoryalias, c.params as categoryparams
 					    	FROM #__k2_items as i RIGHT JOIN #__k2_categories AS c ON c.id = i.catid
@@ -1045,12 +1117,14 @@ class items
 					    	AND ( i.publish_up =  " . $this->db->Quote($nullDate) . " OR i.publish_up <= " . $this->db->Quote($now) . " )
 					    	AND ( i.publish_down = " . $this->db->Quote($nullDate) . " OR i.publish_down >= " . $this->db->Quote($now) . " ) ";
 			$cnt   = 1;
+
 			foreach ($categoryIDs as $categoryids)
 			{
 				if ($cnt == 1)
 				{
 					$query .= " AND ( ";
 				}
+
 				if (count($categoryIDs) == $cnt)
 				{
 					$categories = $this->getCategoryTree($categoryids);
@@ -1064,8 +1138,10 @@ class items
 					$sql        = @implode(',', $categories);
 					$query .= " c.id IN (" . $sql . ") OR ";
 				}
+
 				$cnt++;
 			}
+
 			$query .= " ORDER BY i.created DESC ";
 			$queryLimit = $query;
 			$query .= " LIMIT $startFrom, " . $pageLimit . "";
@@ -1073,7 +1149,6 @@ class items
 			$rows = $this->db->loadObjectList();
 			$this->db->setQuery($queryLimit);
 			$count = count($this->db->loadObjectList());
-
 		}
 		else
 		{
@@ -1093,12 +1168,14 @@ class items
 			$this->db->setQuery($queryLimit);
 			$count = count($this->db->loadObjectList());
 		}
+
 		if ($count <= 0)
 		{
 			IJReq::setResponseCode(204);
 
 			return false;
 		}
+
 		foreach ($rows as $key => $value)
 		{
 			$itemArray['items'][$key]['id']        = $value->id;
@@ -1110,10 +1187,12 @@ class items
 			$video                                 = $value->video;
 			$ex_video                              = explode("}", $video);
 			$finalvideo                            = str_replace("{", ".", $ex_video[0]);
+
 			if (isset($ex_video[1]))
 			{
 				$final_video = explode("{", $ex_video[1]);
 			}
+
 			$itemArray['items'][$key]['video'] = ($finalvideo != "" && $final_video != "") ? JURI::base() . '/media/k2/videos/' . $final_video[0] . $finalvideo : "";
 			$gallery                           = $value->gallery;
 			$ex_gallery                        = explode("}", $gallery);
@@ -1127,6 +1206,7 @@ class items
 				$fullpath  = JPATH_SITE . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
 				$jpg_files = JFolder::files($fullpath, '');
 				$fullpath1 = JURI::base() . '/media/k2/galleries/' . $final_gallery[0] . '/' . $value2;
+
 				if ($jpg_files)
 				{
 					foreach ($jpg_files as $key1 => $file1)
@@ -1167,6 +1247,7 @@ class items
 			}
 
 			$extra_fields = json_decode($value->extra_fields, true);
+
 			if ($extra_fields != "")
 			{
 				foreach ($extra_fields as $exkey => $exvalue)
@@ -1178,6 +1259,7 @@ class items
 					$exttype                      = $this->db->loadResult();
 					$extra_fields[$exkey]['type'] = $exttype;
 				}
+
 				foreach ($extra_fields as $k1 => $v1)
 				{
 					if (is_array($v1['value']))
@@ -1189,6 +1271,7 @@ class items
 						$extVal     = $this->db->loadResult();
 						$jsonextVal = json_decode($extVal, true);
 						unset($extra_fields[$k1]['value']);
+
 						foreach ($jsonextVal as $jsK => $jsV)
 						{
 							if (in_array($jsV['value'], $v1['value']))
@@ -1197,13 +1280,14 @@ class items
 							}
 						}
 					}
-					else if ($v1['type'] == 'image')
+					elseif ($v1['type'] == 'image')
 					{
 						if ($ext = pathinfo($v1['value'], PATHINFO_EXTENSION))
 						{
 							$extra_fields[$k1]['value'] = JURI::root() . $v1['value'];
 						}
 					}
+
 					$ext_query = "SELECT ext.name
 					    			  FROM #__k2_extra_fields as ext
 					    			  WHERE ext.id={$v1['id']}";
@@ -1212,6 +1296,7 @@ class items
 					$extra_fields[$k1]['name'] = $extname;
 				}
 			}
+
 			$itemArray['items'][$key]['extraFields'] = (isset($extra_fields) && !empty($extra_fields)) ? $extra_fields : "";
 			$itemArray['items'][$key]['publishUp']   = $value->publish_up;
 			$itemArray['items'][$key]['createdBy']   = $value->created_by;
@@ -1222,7 +1307,7 @@ class items
 			$created_by_name                           = $this->db->loadResult();
 			$itemArray['items'][$key]['createdByName'] = $created_by_name;
 			require_once JPATH_SITE . '/components/com_k2/models/item.php';
-			$K2ModelItem                             = new K2ModelItem();
+			$K2ModelItem                             = new K2ModelItem;
 			$itemArray['items'][$key]['tags']        = (count($K2ModelItem->getItemTags($value->id)) > 0) ? $K2ModelItem->getItemTags($value->id) : '';
 			$itemArray['items'][$key]['ratings']     = (count($K2ModelItem->getRating($value->id)) > 0) ? $K2ModelItem->getRating($value->id) : '';
 			$itemArray['items'][$key]['comments']    = (count($K2ModelItem->getItemComments($value->id, "", "", true)) > 0) ? $K2ModelItem->getItemComments($value->id, "", "", true) : '';
@@ -1231,6 +1316,7 @@ class items
 			$share_link                              = JURI::root() . "index.php?option=com_k2&view=item&id={$value->id}:{$value->alias}&Itemid=487";
 			$itemArray['items'][$key]['shareLink']   = $share_link;
 		}
+
 		$jsonarray              = array();
 		$jsonarray['code']      = 200;
 		$jsonarray['total']     = $count;
@@ -1240,30 +1326,22 @@ class items
 		return $jsonarray;
 	}
 
-
 	/**
-	 * @uses    This function is used to get rating based on particular item.
-	 * @example the json string will be like, :
-	 * {
-	 *        "extName":"k2",
-	 *        "extView":"items",
-	 *        "extTask":"rating",
-	 *        "taskData":{
-	 *                "itemID":"itemID",
-	 *                 }
+	 * function rating
 	 *
-	 *    }
-	 * */
-
-	function rating($itemID)
+	 * @param   integer  $itemID  itemID
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
+	public function rating($itemID)
 	{
-
 		$query = "SELECT r.*
    	  			FROM #__k2_rating AS r
 		 		WHERE r.itemID ={$itemID}";
 		$this->db->setQuery($query);
 		$rows      = $this->db->loadObjectList();
 		$jsonarray = array();
+
 		foreach ($rows as $row)
 		{
 			$jsonarray['rating']['rating_sum']   = $row->rating_sum;
@@ -1275,20 +1353,13 @@ class items
 	}
 
 	/**
-	 * @uses    This function is used to get comments based on particular item.
-	 * @example the json string will be like, :
-	 * {
-	 *        "extName":"k2",
-	 *        "extView":"items",
-	 *        "extTask":"comments",
-	 *        "taskData":{
-	 *                "itemID":"itemID",
-	 *                 }
+	 * function for comments
 	 *
-	 *    }
-	 * */
-
-	function comments($itemID)
+	 * @param   integer  $itemID  itemID
+	 *
+	 * @return  array JsonArray
+	 */
+	public function comments($itemID)
 	{
 		$query = "SELECT c.*
     			FROM #__k2_comments AS c
@@ -1297,6 +1368,7 @@ class items
 		$this->db->setQuery($query);
 		$rows      = $this->db->loadObjectList();
 		$jsonarray = array();
+
 		foreach ($rows as $key => $row)
 		{
 			$jsonarray[$key]['comment']['userID']       = $row->userID;
@@ -1311,20 +1383,13 @@ class items
 	}
 
 	/**
-	 * @uses    This function is used to get attachments based on particular item.
-	 * @example the json string will be like, :
-	 * {
-	 *        "extName":"k2",
-	 *        "extView":"items",
-	 *        "extTask":"attachments",
-	 *        "taskData":{
-	 *                "itemID":"itemID",
-	 *                 }
+	 * function attachments
 	 *
-	 * }
-	 * */
-
-	function attachments($itemID)
+	 * @param   integer  $itemID  itemID
+	 *
+	 * @return  array  jsonarray
+	 */
+	public function attachments($itemID)
 	{
 		$query = "SELECT at.*
     			FROM #__k2_attachments AS at
@@ -1333,6 +1398,7 @@ class items
 		$this->db->setQuery($query);
 		$rows      = $this->db->loadObjectList();
 		$jsonarray = array();
+
 		foreach ($rows as $key => $row)
 		{
 			$jsonarray[$key]['attachment']['filename']       = JURI::base() . '/media/k2/attachments/' . $row->filename;
@@ -1341,11 +1407,11 @@ class items
 		}
 
 		return $jsonarray;
-
 	}
 
 	/**
-	 * @uses    This function is used to insert rating in database of particular item.
+	 * uses    This function is used to insert rating in database of particular item.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -1356,11 +1422,10 @@ class items
 	 *                "itemID":"68"
 	 *                }
 	 * }
-	 * */
-
-	function addrating()
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
+	public function addrating()
 	{
-
 		$rate   = IJReq::getTaskData('userRating', 0, '', 'int');
 		$itemID = IJReq::getTaskData('itemId', 1, 'int');
 		$userIP = $_SERVER["REMOTE_ADDR"];
@@ -1418,13 +1483,12 @@ class items
 					IJReq::setResponseMessage("You Have Already Rated This Item");
 				}
 			}
-
 		}
-
 	}
 
 	/**
-	 * @uses    This function is used to make a form for comment.
+	 * uses    This function is used to make a form for comment.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -1433,11 +1497,10 @@ class items
 	 *        "taskData":{
 	 *                }
 	 * }
-	 * */
-
-	function commentform()
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
+	public function commentform()
 	{
-
 		$jsonarray         = array();
 		$jsonarray['code'] = "200";
 
@@ -1466,11 +1529,11 @@ class items
 		$jsonarray['field'][3]['fieldcaption']  = "commentURL";
 
 		return $jsonarray;
-
 	}
 
 	/**
-	 * @uses    This function is used to insert comment-detail of particular item in database.
+	 * uses    This function is used to insert comment-detail of particular item in database.
+	 *
 	 * @example the json string will be like, :
 	 * {
 	 *        "extName":"k2",
@@ -1484,22 +1547,21 @@ class items
 	 *                "commentURL":"www.yahoo.com"
 	 *                }
 	 * }
-	 * */
-
-	function addcomment()
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
+	public function addcomment()
 	{
-
 		$itemID       = IJReq::getTaskData('itemId', 1, 'int');
 		$uname        = IJReq::getTaskData('userName', 1, 'char');
 		$commentText  = IJReq::getTaskData('commentText', 1, 'char');
 		$commentEmail = IJReq::getTaskData('commentEmail', 1, 'char');
 		$commentURL   = IJReq::getTaskData('commentURL', 1, 'char');
 
-
 		$parameters = JComponentHelper::getParams('com_k2');
 		$published  = $parameters->get('commentsPublishing');
 
 		$db = JFactory::getDBO();
+
 		if ($published == 1)
 		{
 			$query = "INSERT INTO #__k2_comments
@@ -1518,20 +1580,24 @@ class items
 			$db->query();
 			$lastID = $db->insertid();
 		}
+
 		$params   = K2HelperUtilities::getParams('com_k2');
 		$order    = $params->get('commentsOrdering', 'DESC');
 		$ordering = ($order == 'DESC') ? 'DESC' : 'ASC';
 		$db       = JFactory::getDBO();
 		$query    = "SELECT * FROM #__k2_comments WHERE id=" . (int) $lastID;
+
 		if ($published)
 		{
 			$query .= " AND published=1 ";
 		}
+
 		$query .= " ORDER BY commentDate {$ordering}";
 		$db->setQuery($query, $limitstart, $limit);
 		$comments   = $db->loadObject();
 		$book       = new stdClass;
 		$book->code = '200';
+
 		if ($published)
 		{
 			$book->message = 'Successfull Comment Submitted and Published';
@@ -1540,6 +1606,7 @@ class items
 		{
 			$book->message = 'Successfull Comment Submitted but UnPublished';
 		}
+
 		$book->id           = $comments->id;
 		$book->itemID       = $comments->itemID;
 		$book->userID       = $comments->userID;
@@ -1551,25 +1618,17 @@ class items
 		$book->published    = $comments->published;
 
 		return $book;
-
 	}
 
 	/**
-	 * @uses    This function is used to get extrafield group of particular item.
-	 * @example the json string will be like, :
-	 * {
-	 *        "extName":"k2",
-	 *        "extView":"items",
-	 *        "extTask":"getExtraField",
-	 *        "taskData":{
-	 *                "catID":"67"
-	 *                }
-	 * }
-	 * */
-
-	function getExtraFieldGroup($itemID)
+	 * function getExtraFieldGroup
+	 *
+	 * @param   integer  $itemID  itemid
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
+	public function getExtraFieldGroup($itemID)
 	{
-
 		$query1 = "SELECT catid
 				FROM `#__k2_items`
 				WHERE `id` ={$itemID}";
@@ -1582,18 +1641,19 @@ class items
 		$this->db->setQuery($query);
 		$rows  = $this->db->loadObjectList();
 		$total = count($rows);
+
 		if ($total <= 0)
 		{
 			IJReq::setResponseCode(204);
 
 			return false;
 		}
+
 		foreach ($rows as $value)
 		{
 			$jsonarray['extrafieldgroup']['group_id']   = $value->id;
 			$jsonarray['extrafieldgroup']['group_name'] = $value->name;
 			$jsonarray['extrafieldgroup']['field']      = $this->getExtraField($value->id);
-
 		}
 
 		return $jsonarray;
@@ -1606,7 +1666,7 @@ class items
 	 *
 	 * @return  array          jsonarray
 	 */
-	function getExtraField($group)
+	public function getExtraField($group)
 	{
 		$query = "SELECT  ex.*
     			FROM  #__k2_extra_fields as ex
@@ -1614,6 +1674,7 @@ class items
 		$this->db->setQuery($query);
 		$rows  = $this->db->loadObjectList();
 		$total = count($rows);
+
 		if ($total <= 0)
 		{
 			IJReq::setResponseCode(204);
@@ -1641,41 +1702,49 @@ class items
 	 *
 	 * @return  [type]               categories
 	 */
-	function getCategoryTree($categories)
+	public function getCategoryTree($categories)
 	{
 		$mainframe = JFactory::getApplication();
 		$db        = JFactory::getDBO();
 		$user      = JFactory::getUser();
 		$aid       = (int) $user->get('aid');
+
 		if (!is_array($categories))
 		{
 			$categories = (array) $categories;
 		}
+
 		JArrayHelper::toInteger($categories);
 		$categories = array_unique($categories);
 		sort($categories);
 		$key      = implode('|', $categories);
 		$clientID = $mainframe->getClientId();
 		static $K2CategoryTreeInstances = array();
+
 		if (isset($K2CategoryTreeInstances[$clientID]) && array_key_exists($key, $K2CategoryTreeInstances[$clientID]))
 		{
 			return $K2CategoryTreeInstances[$clientID][$key];
 		}
+
 		$array = $categories;
+
 		while (count($array))
 		{
 			$query = "SELECT id
 						FROM #__k2_categories
 						WHERE parent IN (" . implode(',', $array) . ")
 						AND id NOT IN (" . implode(',', $array) . ") ";
+
 			if ($mainframe->isSite())
 			{
 				$query .= "
 								AND published=1
 								AND trash=0";
+
 				if (K2_JVERSION != '15')
 				{
 					$query .= " AND access IN(" . implode(',', $user->getAuthorisedViewLevels()) . ")";
+
 					if ($mainframe->getLanguageFilter())
 					{
 						$query .= " AND language IN(" . $db->Quote(JFactory::getLanguage()->getTag()) . ", " . $db->Quote('*') . ")";
@@ -1686,10 +1755,12 @@ class items
 					$query .= " AND access<={$aid}";
 				}
 			}
+
 			$db->setQuery($query);
 			$array      = K2_JVERSION == '30' ? $db->loadColumn() : $db->loadResultArray();
 			$categories = array_merge($categories, $array);
 		}
+
 		JArrayHelper::toInteger($categories);
 		$categories                               = array_unique($categories);
 		$K2CategoryTreeInstances[$clientID][$key] = $categories;
@@ -1706,25 +1777,29 @@ class items
 	 *
 	 * @return  [type]                     mitems
 	 */
-	function categoriesTree($row = null, $hideTrashed = false, $hideUnpublished = true)
+	public function categoriesTree($row = null, $hideTrashed = false, $hideUnpublished = true)
 	{
 		$db = JFactory::getDBO();
+
 		if (isset($row->id))
 		{
-			$idCheck = ' AND id != ' . ( int ) $row->id;
+			$idCheck = ' AND id != ' . (int) $row->id;
 		}
 		else
 		{
 			$idCheck = null;
 		}
+
 		if (!isset($row->parent))
 		{
 			if (is_null($row))
 			{
 				$row = new stdClass;
 			}
+
 			$row->parent = 0;
 		}
+
 		$query = "SELECT m.* FROM #__k2_categories m WHERE id > 0 {$idCheck}";
 
 		if ($hideUnpublished)
@@ -1741,6 +1816,7 @@ class items
 		$db->setQuery($query);
 		$mitems   = $db->loadObjectList();
 		$children = array();
+
 		if ($mitems)
 		{
 			foreach ($mitems as $v)
@@ -1750,14 +1826,17 @@ class items
 					$v->title     = $v->name;
 					$v->parent_id = $v->parent;
 				}
+
 				$pt   = $v->parent;
 				$list = @$children[$pt] ? $children[$pt] : array();
 				array_push($list, $v);
 				$children[$pt] = $list;
 			}
 		}
+
 		$list   = JHTML::_('menu.treerecurse', 0, '', array(), $children, 9999, 0, 0);
 		$mitems = array();
+
 		foreach ($list as $item)
 		{
 			$item->treename = JString::str_ireplace('&#160;', '- ', $item->treename);
@@ -1776,12 +1855,12 @@ class items
 	/**
 	 * getCategoryChildren function
 	 *
-	 * @param   integer   $catid  category id
-	 * @param   boolean   $clear  clear
+	 * @param   integer  $catid  category id
+	 * @param   boolean  $clear  clear
 	 *
 	 * @return  array
 	 */
-	function getCategoryChildren($catid, $clear = false)
+	public function getCategoryChildren($catid, $clear = false)
 	{
 		static $array = array();
 		if ($clear)
@@ -1793,9 +1872,11 @@ class items
 		$query = "SELECT * FROM #__k2_categories WHERE parent={$catid} AND published=1 AND trash=0 ORDER BY ordering ";
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
+
 		foreach ($rows as $row)
 		{
 			array_push($array, $row->id);
+
 			if ($this->hasChildren($row->id))
 			{
 				$this->getCategoryChildren($row->id);
@@ -1808,12 +1889,12 @@ class items
 	/**
 	 * getCategorySubcat function
 	 *
-	 * @param   integer   $catid  category id
-	 * @param   boolean   $clear  clear
+	 * @param   integer  $catid  category id
+	 * @param   boolean  $clear  clear
 	 *
 	 * @return  array
 	 */
-	function getCategorySubcat($catid, $clear = false)
+	public function getCategorySubcat($catid, $clear = false)
 	{
 		static $array = array();
 		if ($clear)
@@ -1825,9 +1906,11 @@ class items
 		$query = "SELECT * FROM #__k2_categories WHERE parent={$catid} AND published=1 AND trash=0 ORDER BY ordering ";
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
+
 		foreach ($rows as $row)
 		{
 			array_push($array, $row);
+
 			if ($this->hasChildren($row->id))
 			{
 				$this->getCategorySubcat($row->id);
@@ -1840,11 +1923,11 @@ class items
 	/**
 	 * hasChildren function
 	 *
-	 * @param   integer   $id  id
+	 * @param   integer  $id  id
 	 *
 	 * @return  boolean
 	 */
-	function hasChildren($id)
+	public function hasChildren($id)
 	{
 		$user  = JFactory::getUser();
 		$aid   = (int) $user->get('aid');
@@ -1853,6 +1936,7 @@ class items
 		$query = "SELECT * FROM #__k2_categories WHERE parent={$id} AND published=1 AND trash=0 ";
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
+
 		if (count($rows))
 		{
 			return true;
@@ -1862,5 +1946,4 @@ class items
 			return false;
 		}
 	}
-
 }

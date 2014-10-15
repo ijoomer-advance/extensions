@@ -17,7 +17,7 @@ defined('_JEXEC') or die;
  * @since       1.0
  */
 
-class user
+class User
 {
 	private $jomHelper;
 
@@ -38,67 +38,54 @@ class user
 	/**
 	 * construct function
 	 */
-
-	function __construct()
+	public function __construct()
 	{
 		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
 		}
 	}
 
-
 	/**
-	 * To get the user profile.
+	 * profile function
 	 *
-	 * @param   (int) userID is optional if not passed then logged in user id will be used.
-	 *
-	 * @example the json string will be like, :
-	 *
-	 *    {
-	 *        "extName":"jomsocial",
-	 *        "extView":"user",
-	 *        "extTask":"profile",
-	 *        "taskData":{
-	 *            "userID":"userID" // optional: visited user id
-	 *        }
-	 *    }
-	 *
-	 * @access  public=0, site-member=20, friend=30, only-me=40
-	 * @access  profileLikes = Profile Like
-	 * @access  privacyProfileView = profile view
-	 * @access  privacyFriendsView = friends view
-	 * @access  privacyPhotoView = photo view
-	 * @access  privacyVideoView = video view
-	 * @access  privacyGroupsView = group view
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function profile()
+	public function profile()
 	{
 		$userID = IJReq::getTaskData('userID', $this->IJUserID, 'int');
 		$user   = CFactory::getUser($userID);
 
 		CFactory::load('helpers', 'friends');
+
 		// Set privacy level
 		$access_limit = $this->jomHelper->getUserAccess($user->id, $this->IJUserID);
 
 		if ($user->getParams()->get('privacyProfileView') > $access_limit)
 		{
-			IJReq::setResponse(706); // set error code to restricted access
+			// Set error code to restricted access
+			IJReq::setResponse(706);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
 		}
 
-		// add count to visited user profile.
+		// Add count to visited user profile.
 		$this->profileViewCount($userID);
 
 		$this->jomHelper         = new jomHelper;
@@ -107,13 +94,15 @@ class user
 		$usr                              = $this->jomHelper->getUserDetail($userID);
 		$this->jsonarray['user_name']     = $usr->name;
 		$this->jsonarray['viewcount']     = $usr->view;
-		$this->jsonarray['isfriend']      = intval(CFriendsHelper::isConnected($this->IJUserID, $user->id));//intval($user->isFriendWith($this->IJUserID));
+		$this->jsonarray['isfriend']      = intval(CFriendsHelper::isConnected($this->IJUserID, $user->id));
 		$this->jsonarray['isFriendReqBy'] = 0;
+
 		if ($user->getParams()->get('profileVideo'))
 		{
 			$video = JTable::getInstance('Video', 'CTable');
 			$video->load($user->getParams()->get('profileVideo'));
 			$this->jsonarray['profile_video']['title'] = $video->title;
+
 			if ($video->type == 'file')
 			{
 				$this->jsonarray['profile_video']['url'] = JURI::base() . $video->path;
@@ -124,8 +113,9 @@ class user
 			}
 		}
 
-		$friendModel =  CFactory::getModel('friends');
+		$friendModel = CFactory::getModel('friends');
 		$pendingFren = $friendModel->getPending($this->IJUserID);
+
 		foreach ($pendingFren as $pfriend)
 		{
 			if ($user->id == $pfriend->id)
@@ -136,6 +126,7 @@ class user
 
 		$this->jsonarray['isFriendReqTo'] = 0;
 		$pendingFren                      = $friendModel->getPending($user->id);
+
 		foreach ($pendingFren as $pfriend)
 		{
 			if ($this->IJUserID == $pfriend->id)
@@ -170,11 +161,11 @@ class user
 		}
 		else
 		{
-			//set default profile coverpic.
+			// Set default profile coverpic.
 			$this->jsonarray['coverpic'] = JURI::base() . "components/com_community/templates/default/images/cover/undefined-default.png";
 		}
 
-		// get total group
+		// Get total group
 		if ($user->getParams()->get('privacyGroupsView') <= $access_limit)
 		{
 			$groupsModel                   = CFactory::getModel('groups');
@@ -182,14 +173,14 @@ class user
 			$this->jsonarray['totalgroup'] = $totalgroups;
 		}
 
-		// get total friend
+		// Get total friend
 		if ($user->getParams()->get('privacyFriendsView') <= $access_limit)
 		{
 			$totalfriends                    = $user->getFriendCount();
 			$this->jsonarray['totalfriends'] = $totalfriends;
 		}
 
-		// get total photos
+		// Get total photos
 		if ($user->getParams()->get('privacyPhotoView') <= $access_limit)
 		{
 			$photosModel                    = CFactory::getModel('photos');
@@ -197,7 +188,7 @@ class user
 			$this->jsonarray['totalphotos'] = $totalphotos;
 		}
 
-		// get total videos
+		// Get total videos
 		if ($user->getParams()->get('privacyVideoView') <= $access_limit)
 		{
 			$videosModel                    = CFactory::getModel('videos');
@@ -207,7 +198,6 @@ class user
 
 		return $this->jsonarray;
 	}
-
 
 	/**
 	 * profileViewCount funtion
@@ -232,9 +222,9 @@ class user
 		return true;
 	}
 
-
 	/**
-	 * @uses    to fetch user details for a notification user
+	 * uses    to fetch user details for a notification user
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -248,14 +238,14 @@ class user
 	 * avatar image will be post to "image" variable
 	 *
 	 * status maessage update is removed form update profile. Status message can be added from addWall function from wall.php
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function updateProfile()
+	public function updateProfile()
 	{
 		$name = IJReq::getTaskData('name', '');
 		$file = JRequest::getVar('image', '', 'FILES', 'array');
 
-		// check if avatar is uploaded to change.
+		// Check if avatar is uploaded to change.
 		if (isset($file['tmp_name']) && $file['tmp_name'] != '')
 		{
 			CFactory::setActiveProfile();
@@ -295,14 +285,16 @@ class user
 				// @todo: configurable width?
 				$imageMaxWidth = 160;
 				$profileType   = $this->my->getProfileType();
-				$fileName      = JApplication::getHash($file['tmp_name'] . time()); // Get a hash for the file name.
+
+				// Get a hash for the file name.
+				$fileName      = JApplication::getHash($file['tmp_name'] . time());
 				$hashFileName  = JString::substr($fileName, 0, 24);
-				$multiprofile  =  JTable::getInstance('MultiProfile', 'CTable');
+				$multiprofile  = JTable::getInstance('MultiProfile', 'CTable');
 				$multiprofile->load($profileType);
 
 				$useWatermark = $profileType != COMMUNITY_DEFAULT_PROFILE && $this->config->get('profile_multiprofile') && !empty($multiprofile->watermark) ? true : false;
-				//@todo: configurable path for avatar storage?
 
+				// @todo: configurable path for avatar storage?
 				$storage = JPATH_ROOT . '/' . $this->config->getString('imagefolder') '/avatar';
 				$storageImage     = $storage . '/' . $hashFileName . CImageHelper::getExtension($file['type']);
 				$storageThumbnail = $storage '/thumb_' . $hashFileName . CImageHelper::getExtension($file['type']);
@@ -331,7 +323,7 @@ class user
 				if ($useWatermark)
 				{
 					// @rule: Before adding the watermark, we should copy the user's original image so that when the admin tries to reset the avatar,
-					// it will be able to grab the original picture.
+					// It will be able to grab the original picture.
 					JFile::copy($storageImage, JPATH_ROOT . '/images/watermarks/original' . '/' . md5($this->my->id . '_avatar') . CImageHelper::getExtension($file['type']));
 					JFile::copy($storageThumbnail, JPATH_ROOT . '/images/watermarks/original' . '/' . md5($this->my->id . '_thumb') . CImageHelper::getExtension($file['type']));
 
@@ -350,7 +342,7 @@ class user
 					// The original image file will be removed from the system once it generates a new watermark image.
 					CImageHelper::addWatermark($storageImage, $watermarkImage, 'image/jpg', $watermarkPath, $avatarPosition->x, $avatarPosition->y);
 
-					//Thumbnail Properties
+					// Thumbnail Properties
 					$thumbPosition = CImageHelper::getPositions($multiprofile->watermark_location, $thumbWidth, $thumbHeight, $watermarkWidth, $watermarkHeight);
 
 					// The original thumbnail file will be removed from the system once it generates a new watermark image.
@@ -370,7 +362,7 @@ class user
 				// @rule: once user changes their profile picture, storage method should always be file.
 				$this->my->set('_storage', 'file');
 
-				//add user points
+				// Add user points
 				CFactory::load('libraries', 'userpoints');
 				CFactory::load('libraries', 'activities');
 
@@ -402,22 +394,21 @@ class user
 			$image = '';
 		}
 
-		// update status here..
+		// Update status here..
 		if ($message != '')
 		{
-
 			$filter  = JFilterInput::getInstance();
 			$message = $filter->clean($message, 'string');
 			$cache   = CFactory::getFastCache();
 			$cache->clean(array('activities'));
 
-			//@rule: In case someone bypasses the status in the html, we enforce the character limit.
+			// @rule: In case someone bypasses the status in the html, we enforce the character limit.
 			if (JString::strlen($message) > $this->config->get('statusmaxchar'))
 			{
 				$message = JString::substr($message, 0, $this->config->get('statusmaxchar'));
 			}
 
-			//trim it here so that it wun go into activities stream.
+			// Trim it here so that it wun go into activities stream.
 			$message = JString::trim($message);
 			CFactory::load('models', 'status');
 
@@ -445,8 +436,9 @@ class user
 			$this->update($this->my->id, $message);
 
 			jimport('joomla.utilities.date');
-			//set user status for current session.
-			$today =  JFactory::getDate();
+
+			// Set user status for current session.
+			$today = JFactory::getDate();
 
 			$this->my->set('_status', $message);
 			$this->my->set('_posted_on', $today->toSql());
@@ -461,8 +453,10 @@ class user
 				$act->actor  = $this->my->id;
 				$act->target = $this->my->id;
 				CFactory::load('helpers', 'linkgenerator');
+
 				// @rule: Autolink hyperlinks
 				$message = CLinkGeneratorHelper::replaceURL($message);
+
 				// @rule: Autolink to users profile when message contains @username
 				$message = CLinkGeneratorHelper::replaceAliasURL($message);
 				CFactory::load('libraries', 'activities');
@@ -479,12 +473,14 @@ class user
 				$act->like_type    = 'profile.status';
 
 				CActivityStream::add($act);
-				CFactory::load('libraries', 'userpoints'); // add user points
+
+				// Add user points
+				CFactory::load('libraries', 'userpoints');
 				CUserPoints::assignPoint('profile.status.update');
 			}
 		}
 
-		// check if name passed to update
+		// Check if name passed to update
 		if (isset($name) && !empty($name))
 		{
 			$query = "UPDATE `#__users`
@@ -513,16 +509,22 @@ class user
 
 		require_once COMMUNITY_COM_PATH . '/libraries/apps.php';
 
-		$appsLib =  CAppPlugins::getInstance();
+		$appsLib = CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$args   = array();
-		$args[] = $my->id;            // userid
-		$args[] = $my->getStatus();    // old status
-		$args[] = $status;            // new status
+
+		// Userid
+		$args[] = $my->id;
+
+		// Old status
+		$args[] = $my->getStatus();
+
+		// New status
+		$args[] = $status;
 		$appsLib->triggerEvent('onProfileStatusUpdate', $args);
 
-		$today           =  JFactory::getDate();
+		$today           = JFactory::getDate();
 		$data            = new stdClass;
 		$data->userid    = $id;
 		$data->status    = $status;
@@ -533,9 +535,9 @@ class user
 		return true;
 	}
 
-
 	/**
-	 * @uses    to add like to the user profile
+	 * uses    to add like to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -545,12 +547,13 @@ class user
 	 *            "userID":"userID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function like()
+	public function like()
 	{
 		$userID = IJReq::getTaskData('userID', 0, 'int');
 		$userID = ($userID) ? $userID : $this->my->id;
+
 		if ($this->jsonarray = $this->jomHelper->Like('profile', $userID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -567,7 +570,8 @@ class user
 	}
 
 	/**
-	 * @uses    to add dislike to the user profile
+	 * uses    to add dislike to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -577,12 +581,13 @@ class user
 	 *            "userID":"userID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function dislike()
+	public function dislike()
 	{
 		$userID = IJReq::getTaskData('userID', 0, 'int');
 		$userID = ($userID) ? $userID : $this->my->id;
+
 		if ($this->jomHelper->Dislike('profile', $userID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -598,9 +603,9 @@ class user
 		}
 	}
 
-
 	/**
-	 * @uses    to unlike like/dislike value to the user profile
+	 * uses    to unlike like/dislike value to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -610,12 +615,13 @@ class user
 	 *            "userID":"userID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function unlike()
+	public function unlike()
 	{
 		$userID = IJReq::getTaskData('userID', 0, 'int');
 		$userID = ($userID) ? $userID : $this->my->id;
+
 		if ($this->jomHelper->Unlike('profile', $userID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -632,7 +638,8 @@ class user
 	}
 
 	/**
-	 * @uses    to get/set the user detail
+	 * uses    to get/set the user detail
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -643,9 +650,9 @@ class user
 	 *            "form":"0/1" (0=to post form, 1=to get form)
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function userDetail()
+	public function userDetail()
 	{
 		if (IJReq::getTaskData('form', 0, 'int') === 1)
 		{
@@ -676,6 +683,7 @@ class user
 		$fields_ids = $this->db->loadColumn();
 
 		$fields_cond = '';
+
 		if (count($fields_ids) > 0)
 		{
 			$fields_cond = "AND `id` IN('" . implode("','", $fields_ids) . "') ";
@@ -692,6 +700,7 @@ class user
 		$fields                  = $this->db->loadObjectList();
 		$inc                     = -1;
 		$this->jsonarray['code'] = 200;
+
 		foreach ($fields as $field)
 		{
 			if ($field->type == 'group')
@@ -724,9 +733,11 @@ class user
 					1 => array('value' => 20, 'caption' => 'Site Members'),
 					2 => array('value' => 30, 'caption' => 'Friend'),
 					3 => array('value' => 40, 'caption' => 'Only Me'));
+
 				if ($field->type == 'birthdate')
 				{
 					$field->type = 'date';
+
 					if (isset($field_value->value))
 					{
 						$tm                                                                = explode(' ', $field_value->value);
@@ -742,6 +753,7 @@ class user
 				{
 					$this->jsonarray['fields']['group'][$inc]['field'][$incj]['value'] = (isset($field_value->value)) ? $field_value->value : '';
 				}
+
 				$this->jsonarray['fields']['group'][$inc]['field'][$incj]['required'] = $field->required;
 
 				if ($field->type == 'checkbox' || $field->type == 'list')
@@ -765,16 +777,19 @@ class user
 				}
 
 				$this->jsonarray['fields']['group'][$inc]['field'][$incj]['type'] = $field->type;
+
 				if (isset($field->options) && !empty($field->options))
 				{
 					$option = explode("\n", $field->options);
 					$i      = 0;
+
 					foreach ($option as $val)
 					{
 						$this->jsonarray['fields']['group'][$inc]['field'][$incj]['options'][$i]['value'] = JText::_($val);
 						$i++;
 					}
 				}
+
 				$incj++;
 			}
 		}
@@ -791,13 +806,15 @@ class user
 	}
 
 	/**
-	 * @uses to set the user detail
+	 * uses to set the user detail
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
 	private function setUserDetail()
 	{
 		$fields = IJReq::getTaskData('formData');
 		$flag   = true;
+
 		foreach ($fields as $key => $fvalue)
 		{
 			$fid = str_replace("f", "", $key);
@@ -810,7 +827,6 @@ class user
 
 			if (!$isNew)
 			{
-
 				$fvalue[0] = addslashes($fvalue[0]);
 				$query     = " UPDATE #__community_fields_values
 						SET `value`='$fvalue[0]', `access`=$fvalue[1]
@@ -824,6 +840,7 @@ class user
 			}
 
 			$this->db->setQuery($query);
+
 			if (!$this->db->query())
 			{
 				IJReq::setResponse(500);
@@ -838,18 +855,18 @@ class user
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get notification
+	 * uses    to get notification
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
 	 *        "extView":"friend",
 	 *        "extTask":"notification"
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function notification()
+	public function notification()
 	{
 		if (!COwnerHelper::isRegisteredUser())
 		{
@@ -870,7 +887,7 @@ class user
 		$notiTotal = 0;
 		$ind       = 0;
 
-		// getting unread messsages
+		// Getting unread messsages
 		$query = "SELECT b.`id`, b.`from`, b.`parent`, b.`from_name`, b.`posted_on`, b.`subject`,b.`body`
 				FROM #__community_msg_recepient as a, #__community_msg as b
 				WHERE a.`to` = {$this->IJUserID}
@@ -904,10 +921,11 @@ class user
 			$ind++;
 		}
 
-		// getting friend request
+		// Getting friend request
 		$ind         = 0;
 		$friendModel = CFactory::getModel('friends');
 		$pendingFren = $friendModel->getPending($this->IJUserID);
+
 		if (!empty($pendingFren))
 		{
 			foreach ($pendingFren as $key => $pendingFrnd)
@@ -931,6 +949,7 @@ class user
 		}
 
 		$ind = 0;
+
 		if ($this->config->get('user_avatar_storage') == 'file')
 		{
 			$p_url = JURI::base();
@@ -944,9 +963,10 @@ class user
 				$p_url = JURI::base();
 		}
 
-		//getting pending event request
+		// Getting pending event request
 		$pendingEvent = $eventModel->getPending($this->IJUserID);
-		$event        =  JTable::getInstance('Event', 'CTable');
+		$event        = JTable::getInstance('Event', 'CTable');
+
 		if (is_array($pendingEvent))
 		{
 			foreach ($pendingEvent as $value)
@@ -983,9 +1003,10 @@ class user
 				$p_url = JURI::base();
 		}
 
-		//getting pending group request
+		// Getting pending group request
 		$pendingGroup = $groupModel->getGroupInvites($this->IJUserID);
-		$group        =  JTable::getInstance('Group', 'CTable');
+		$group        = JTable::getInstance('Group', 'CTable');
+
 		if (is_array($pendingGroup))
 		{
 			foreach ($pendingGroup as $value)
@@ -1004,15 +1025,17 @@ class user
 			}
 		}
 
-		//geting pending private group join request
-		//Find Users Groups Admin
+		// Geting pending private group join request
+		// Find Users Groups Admin
 		$allGroups = $groupModel->getAdminGroups($this->IJUserID, COMMUNITY_PRIVATE_GROUP);
+
 		if (is_array($allGroups))
 		{
 			foreach ($allGroups as $value)
 			{
 				$group->load($value->id);
 				$members = $groupModel->getMembers($group->id, 0, false);
+
 				if (!empty($members))
 				{
 					foreach ($members as $member)
@@ -1025,7 +1048,6 @@ class user
 						$this->jsonarray['notifications']['global'][$ind]['walls']       = intval($group->wallcount);
 						$this->jsonarray['notifications']['global'][$ind]['discussions'] = intval($group->discusscount);
 						$this->jsonarray['notifications']['global'][$ind]['type']        = 'groups';
-						//$this->jsonarray['notifications']['global'][$ind]['notif_title']	= 'You are invited to join '.$group->name.' group.';
 						$this->jsonarray['notifications']['global'][$ind]['notif_title'] = $member->name . ' has requested to join ' . $group->name . ' group.';
 						$ind++;
 					}
@@ -1033,16 +1055,15 @@ class user
 			}
 		}
 
-		//non require action notification
+		// Non require action notification
 		CFactory::load('helpers', 'content');
 		$notifCount        = 50;
 		$notificationModel = CFactory::getModel('notification');
-		$myParams          =  $this->my->getParams();
-		//	$count=$notificationModel->getNotificationCount($this->IJUserID, '0',$myParams->get('lastnotificationlist',''));
+		$myParams          = $this->my->getParams();
 		$notifications = $notificationModel->getNotification($this->IJUserID, '0', $notifCount, $myParams->get('lastnotificationlist', ''));
-		$photos        =  JTable::getInstance('Photo', 'CTable');
-		$videos        =  JTable::getInstance('Video', 'CTable');
-		$message       =  JTable::getInstance('Message', 'CTable');
+		$photos        = JTable::getInstance('Photo', 'CTable');
+		$videos        = JTable::getInstance('Video', 'CTable');
+		$message       = JTable::getInstance('Message', 'CTable');
 
 		foreach ($notifications as $key => $value)
 		{
@@ -1059,6 +1080,7 @@ class user
 
 					$video_file = $videos->path;
 					$p_url      = JURI::root();
+
 					if ($videos->type == 'file')
 					{
 						$ext = JFile::getExt($videos->path);
@@ -1078,6 +1100,7 @@ class user
 								if (!empty ($s3BucketPath))
 									$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 							}
+
 							$video_file = $p_url . $vname . ".mp4";
 						}
 					}
@@ -1098,14 +1121,14 @@ class user
 					$this->jsonarray['notifications']['global'][$ind]['user_avatar']  = $usr->avatar;
 					$this->jsonarray['notifications']['global'][$ind]['user_profile'] = $usr->profile;
 
-					//likes
+					// Likes
 					$likes                                                        = $this->jomHelper->getLikes('videos', $videos->id, $this->IJUserID);
 					$this->jsonarray['notifications']['global'][$ind]['likes']    = $likes->likes;
 					$this->jsonarray['notifications']['global'][$ind]['dislikes'] = $likes->dislikes;
 					$this->jsonarray['notifications']['global'][$ind]['liked']    = $likes->liked;
 					$this->jsonarray['notifications']['global'][$ind]['disliked'] = $likes->disliked;
 
-					//comments
+					// Comments
 					$count                                                             = $this->jomHelper->getCommentCount($videos->id, 'videos');
 					$this->jsonarray['notifications']['global'][$ind]['commentCount']  = $count;
 					$this->jsonarray['notifications']['global'][$ind]['deleteAllowed'] = intval(($this->IJUserID == $video->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -1143,6 +1166,7 @@ class user
 					$this->jsonarray['notifications']['global'][$ind]['caption'] = $photos->caption;
 
 					$p_url = JURI::base();
+
 					if ($photo->storage == 's3')
 					{
 						$s3BucketPath = $this->config->get('storages3bucket');
@@ -1154,21 +1178,23 @@ class user
 						if (!file_exists(JPATH_SITE . '/' . $photos->image))
 							$photos->image = $photos->original;
 					}
+
 					$this->jsonarray['notifications']['global'][$ind]['thumb'] = $p_url . $photos->thumbnail;
 					$this->jsonarray['notifications']['global'][$ind]['url']   = $p_url . $photos->image;
+
 					if (SHARE_PHOTOS == 1)
 					{
 						$this->jsonarray['notifications']['global'][$ind]['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$photos->creator}&albumid={$albumid}#photoid={$photoid}";
 					}
 
-					//likes
+					// Likes
 					$likes                                                        = $this->jomHelper->getLikes('photo', $photoid, $this->IJUserID);
 					$this->jsonarray['notifications']['global'][$ind]['likes']    = $likes->likes;
 					$this->jsonarray['notifications']['global'][$ind]['dislikes'] = $likes->dislikes;
 					$this->jsonarray['notifications']['global'][$ind]['liked']    = $likes->liked;
 					$this->jsonarray['notifications']['global'][$ind]['disliked'] = $likes->disliked;
 
-					//comments
+					// Comments
 					$count                                                            = $this->jomHelper->getCommentCount($photoid, 'photos');
 					$this->jsonarray['notifications']['global'][$ind]['commentCount'] = $count;
 
@@ -1202,7 +1228,7 @@ class user
 					$this->jsonarray['notifications']['global'][$ind]['user_profile'] = $usr->profile;
 					$ind++;
 					break;
-				//
+
 				case "notif_inbox_create_message":
 					$usr                                                             = $this->jomHelper->getUserDetail($value->actor);
 					$search                                                          = array('{actor}', '{msg}');
@@ -1277,7 +1303,6 @@ class user
 					break;
 				default:
 					$params = new CParameter($value->params);
-					//print_r($params);
 					$srch                                                             = array('{actor}', '{photo}', '{album}', '{video}');
 					$rplc                                                             = array($usr->name, $params->get('photo'), $params->get('album'), $params->get('video'));
 					$usr                                                              = $this->jomHelper->getUserDetail($value->actor);
@@ -1292,17 +1317,18 @@ class user
 			}
 		}
 
-		//update the last notification viewing to user params
-		$date =  JFactory::getDate();
+		// Update the last notification viewing to user params
+		$date = JFactory::getDate();
 		$myParams->set('lastnotificationlist', $date->toSql());
 		$this->my->save('params');
 
-		//update notification counter
+		// Update notification counter
 		return $this->jsonarray;
 	}
 
 	/**
-	 * @uses    function to get activities
+	 * uses    function to get activities
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1313,9 +1339,9 @@ class user
 	 *            "form":"0/1"(0=form post, 1=get the form)
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function preferences()
+	public function preferences()
 	{
 		if (IJReq::getTaskData('form', 0, 'int'))
 		{
@@ -1335,7 +1361,7 @@ class user
 	private function getPreferences()
 	{
 		CFactory::setActiveProfile();
-		$params =  $this->my->getParams();
+		$params = $this->my->getParams();
 
 		$query = "SELECT `jomsocial_params`
 				FROM #__ijoomeradv_users
@@ -1378,6 +1404,7 @@ class user
 
 		$i                                           = 0;
 		$this->jsonarray['fields'][$i]['group_name'] = "Preferences";
+
 		foreach ($general as $key => $value)
 		{
 			$this->jsonarray['fields'][$i]['field'][] = $value;
@@ -1385,28 +1412,28 @@ class user
 
 		$privacy = array(
 			array('title'   => JText::_('COM_COMMUNITY_PRIVACY_FRIENDS'),
-			      'name'    => 'privacyFriendsView',
-			      'type'    => 'select',
-			      'value'   => $params->get('privacyFriendsView'),
-			      'options' => $privacyLevel1
+					'name'    => 'privacyFriendsView',
+					'type'    => 'select',
+					'value'   => $params->get('privacyFriendsView'),
+					'options' => $privacyLevel1
 			),
 			array('title'   => JText::_('COM_COMMUNITY_PRIVACY_PHOTOS_FIELD'),
-			      'name'    => 'privacyPhotoView',
-			      'type'    => 'select',
-			      'value'   => $params->get('privacyPhotoView'),
-			      'options' => $privacyLevel1
+					'name'    => 'privacyPhotoView',
+					'type'    => 'select',
+					'value'   => $params->get('privacyPhotoView'),
+					'options' => $privacyLevel1
 			),
 			array('title'   => JText::_('COM_COMMUNITY_PRIVACY_VIDEOS_FIELD'),
-			      'name'    => 'privacyVideoView',
-			      'type'    => 'select',
-			      'value'   => $params->get('privacyVideoView'),
-			      'options' => $privacyLevel1
+					'name'    => 'privacyVideoView',
+					'type'    => 'select',
+					'value'   => $params->get('privacyVideoView'),
+					'options' => $privacyLevel1
 			),
 			array('title'   => JText::_('COM_COMMUNITY_PRIVACY_GROUPS_FIELD'),
-			      'name'    => 'privacyGroupsView',
-			      'type'    => 'select',
-			      'value'   => $params->get('privacyGroupsView'),
-			      'options' => $privacyLevel1
+					'name'    => 'privacyGroupsView',
+					'type'    => 'select',
+					'value'   => $params->get('privacyGroupsView'),
+					'options' => $privacyLevel1
 			)
 		);
 
@@ -1417,253 +1444,253 @@ class user
 
 		$notification = array(
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONGROUP_PROFILE'),
-			      'name'    => null,
-			      'type'    => 'label',
-			      'value'   => null,
-			      'options' => null
+					'name'    => null,
+					'type'    => 'label',
+					'value'   => null,
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PROFILE_ACTIVITYCOMMENT'),
-			      'name'    => array("etype_profile_activity_add_comment", "notif_profile_activity_add_comment", "pushnotif_profile_activity_add_comment"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_profile_activity_add_comment'), $params->get('notif_profile_activity_add_comment'), $ijparams->get('pushnotif_profile_activity_add_comment')),
-			      'options' => null
+					'name'    => array("etype_profile_activity_add_comment", "notif_profile_activity_add_comment", "pushnotif_profile_activity_add_comment"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_profile_activity_add_comment'), $params->get('notif_profile_activity_add_comment'), $ijparams->get('pushnotif_profile_activity_add_comment')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PROFILE_ACTIVITYREPLY'),
-			      'name'    => array("etype_profile_activity_reply_comment", "notif_profile_activity_reply_comment", "pushnotif_profile_activity_reply_comment"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_profile_activity_reply_comment'), $params->get('notif_profile_activity_reply_comment'), $ijparams->get('pushnotif_profile_activity_reply_comment')),
-			      'options' => null
+					'name'    => array("etype_profile_activity_reply_comment", "notif_profile_activity_reply_comment", "pushnotif_profile_activity_reply_comment"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_profile_activity_reply_comment'), $params->get('notif_profile_activity_reply_comment'), $ijparams->get('pushnotif_profile_activity_reply_comment')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PROFILE_STATUSUPDATE'),
-			      'name'    => array("etype_profile_status_update", "notif_profile_status_update", "pushnotif_profile_status_update"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_profile_status_update'), $params->get('notif_profile_status_update'), $ijparams->get('pushnotif_profile_status_update')),
-			      'options' => null
+					'name'    => array("etype_profile_status_update", "notif_profile_status_update", "pushnotif_profile_status_update"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_profile_status_update'), $params->get('notif_profile_status_update'), $ijparams->get('pushnotif_profile_status_update')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PROFILE_LIKE'),
-			      'name'    => array("etype_profile_like", "notif_profile_like", "pushnotif_profile_like"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_profile_like'), $params->get('notif_profile_like'), $ijparams->get('pushnotif_profile_like')),
-			      'options' => null
+					'name'    => array("etype_profile_like", "notif_profile_like", "pushnotif_profile_like"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_profile_like'), $params->get('notif_profile_like'), $ijparams->get('pushnotif_profile_like')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PROFILE_STREAM_LIKE'),
-			      'name'    => array("etype_profile_stream_like", "notif_profile_stream_like", "pushnotif_profile_stream_like"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_profile_stream_like'), $params->get('notif_profile_stream_like'), $ijparams->get('pushnotif_profile_stream_like')),
-			      'options' => null
+					'name'    => array("etype_profile_stream_like", "notif_profile_stream_like", "pushnotif_profile_stream_like"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_profile_stream_like'), $params->get('notif_profile_stream_like'), $ijparams->get('pushnotif_profile_stream_like')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_FRIENDS_INVITE'),
-			      'name'    => array("etype_friends_request_connection", "notif_friends_request_connection", "pushnotif_friends_request_connection"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_friends_request_connection'), $params->get('notif_friends_request_connection'), $ijparams->get('pushnotif_friends_request_connection')),
-			      'options' => null
+					'name'    => array("etype_friends_request_connection", "notif_friends_request_connection", "pushnotif_friends_request_connection"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_friends_request_connection'), $params->get('notif_friends_request_connection'), $ijparams->get('pushnotif_friends_request_connection')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_FRIENDS_CONNECTION'),
-			      'name'    => array("etype_friends_create_connection", "notif_friends_create_connection", "pushnotif_friends_create_connection"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_friends_create_connection'), $params->get('notif_friends_create_connection'), $ijparams->get('pushnotif_friends_create_connection')),
-			      'options' => null
+					'name'    => array("etype_friends_create_connection", "notif_friends_create_connection", "pushnotif_friends_create_connection"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_friends_create_connection'), $params->get('notif_friends_create_connection'), $ijparams->get('pushnotif_friends_create_connection')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_OTHERS_INBOXMSG'),
-			      'name'    => array("etype_inbox_create_message", "notif_inbox_create_message", "pushnotif_inbox_create_message"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_inbox_create_message'), $params->get('notif_inbox_create_message'), $ijparams->get('pushnotif_inbox_create_message')),
-			      'options' => null
+					'name'    => array("etype_inbox_create_message", "notif_inbox_create_message", "pushnotif_inbox_create_message"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_inbox_create_message'), $params->get('notif_inbox_create_message'), $ijparams->get('pushnotif_inbox_create_message')),
+					'options' => null
 			),
 
-
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONGROUP_GROUPS'),
-			      'name'    => null,
-			      'type'    => 'label',
-			      'value'   => null,
-			      'options' => null
+					'name'    => null,
+					'type'    => 'label',
+					'value'   => null,
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_INVITE'),
-			      'name'    => array("etype_groups_invite", "notif_groups_invite", "pushnotif_groups_invite"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_invite'), $params->get('notif_groups_invite'), $ijparams->get('pushnotif_groups_invite')),
-			      'options' => null
+					'name'    => array("etype_groups_invite", "notif_groups_invite", "pushnotif_groups_invite"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_invite'), $params->get('notif_groups_invite'), $ijparams->get('pushnotif_groups_invite')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_DISCUSSIONREPLY'),
-			      'name'    => array("etype_groups_discussion_reply", "notif_groups_discussion_reply", "pushnotif_groups_discussion_reply"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_discussion_reply'), $params->get('notif_groups_discussion_reply'), $ijparams->get('pushnotif_groups_discussion_reply')),
-			      'options' => null
+					'name'    => array("etype_groups_discussion_reply", "notif_groups_discussion_reply", "pushnotif_groups_discussion_reply"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_discussion_reply'), $params->get('notif_groups_discussion_reply'), $ijparams->get('pushnotif_groups_discussion_reply')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_WALLUPDATE'),
-			      'name'    => array("etype_groups_wall_create", "notif_groups_wall_create", "pushnotif_groups_wall_create"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_wall_create'), $params->get('notif_groups_wall_create'), $ijparams->get('pushnotif_groups_wall_create')),
-			      'options' => null
+					'name'    => array("etype_groups_wall_create", "notif_groups_wall_create", "pushnotif_groups_wall_create"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_wall_create'), $params->get('notif_groups_wall_create'), $ijparams->get('pushnotif_groups_wall_create')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWDISCUSSION'),
-			      'name'    => array("etype_groups_create_discussion", "notif_groups_create_discussion", "pushnotif_groups_create_discussion"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_create_discussion'), $params->get('notif_groups_create_discussion'), $ijparams->get('pushnotif_groups_create_discussion')),
-			      'options' => null
+					'name'    => array("etype_groups_create_discussion", "notif_groups_create_discussion", "pushnotif_groups_create_discussion"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_create_discussion'), $params->get('notif_groups_create_discussion'), $ijparams->get('pushnotif_groups_create_discussion')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWBULLETIN'),
-			      'name'    => array("etype_groups_create_news", "notif_groups_create_news", "pushnotif_groups_create_news"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_create_news'), $params->get('notif_groups_create_news'), $ijparams->get('pushnotif_groups_create_news')),
-			      'options' => null
+					'name'    => array("etype_groups_create_news", "notif_groups_create_news", "pushnotif_groups_create_news"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_create_news'), $params->get('notif_groups_create_news'), $ijparams->get('pushnotif_groups_create_news')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWALBUM'),
-			      'name'    => array("etype_groups_create_album", "notif_groups_create_album", "pushnotif_groups_create_album"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_create_news'), $params->get('notif_groups_create_album'), $ijparams->get('pushnotif_groups_create_album')),
-			      'options' => null
+					'name'    => array("etype_groups_create_album", "notif_groups_create_album", "pushnotif_groups_create_album"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_create_news'), $params->get('notif_groups_create_album'), $ijparams->get('pushnotif_groups_create_album')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWVIDEO'),
-			      'name'    => array("etype_groups_create_video", "notif_groups_create_video", "pushnotif_groups_create_video"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_create_video'), $params->get('notif_groups_create_video'), $ijparams->get('pushnotif_groups_create_video')),
-			      'options' => null
+					'name'    => array("etype_groups_create_video", "notif_groups_create_video", "pushnotif_groups_create_video"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_create_video'), $params->get('notif_groups_create_video'), $ijparams->get('pushnotif_groups_create_video')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWEVENT'),
-			      'name'    => array("etype_groups_create_event", "notif_groups_create_event", "pushnotif_groups_create_event"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_create_event'), $params->get('notif_groups_create_event'), $ijparams->get('pushnotif_groups_create_event')),
-			      'options' => null
+					'name'    => array("etype_groups_create_event", "notif_groups_create_event", "pushnotif_groups_create_event"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_create_event'), $params->get('notif_groups_create_event'), $ijparams->get('pushnotif_groups_create_event')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_MASSEMAIL'),
-			      'name'    => array("etype_groups_sendmail", "notif_groups_sendmail", "pushnotif_groups_sendmail"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_sendmail'), $params->get('notif_groups_sendmail'), $ijparams->get('pushnotif_groups_sendmail')),
-			      'options' => null
+					'name'    => array("etype_groups_sendmail", "notif_groups_sendmail", "pushnotif_groups_sendmail"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_sendmail'), $params->get('notif_groups_sendmail'), $ijparams->get('pushnotif_groups_sendmail')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWMEMBER'),
-			      'name'    => array("etype_groups_member_approved", "notif_groups_member_approved", "pushnotif_groups_member_approved"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_member_approved'), $params->get('notif_groups_member_approved'), $ijparams->get('pushnotif_groups_member_approved')),
-			      'options' => null
+					'name'    => array("etype_groups_member_approved", "notif_groups_member_approved", "pushnotif_groups_member_approved"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_member_approved'), $params->get('notif_groups_member_approved'), $ijparams->get('pushnotif_groups_member_approved')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_NEWMEMBER_REQUEST'),
-			      'name'    => array("etype_groups_member_join", "notif_groups_member_join", "pushnotif_groups_member_join"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_member_join'), $params->get('notif_groups_member_join'), $ijparams->get('pushnotif_groups_member_join')),
-			      'options' => null
+					'name'    => array("etype_groups_member_join", "notif_groups_member_join", "pushnotif_groups_member_join"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_member_join'), $params->get('notif_groups_member_join'), $ijparams->get('pushnotif_groups_member_join')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_CREATION_APPROVED'),
-			      'name'    => array("etype_groups_notify_creator", "notif_groups_notify_creator", "pushnotif_groups_notify_creator"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_notify_creator'), $params->get('notif_groups_notify_creator'), $ijparams->get('pushnotif_groups_notify_creator')),
-			      'options' => null
+					'name'    => array("etype_groups_notify_creator", "notif_groups_notify_creator", "pushnotif_groups_notify_creator"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_notify_creator'), $params->get('notif_groups_notify_creator'), $ijparams->get('pushnotif_groups_notify_creator')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_GROUPS_DISCUSSION_NEWFILE'),
-			      'name'    => array("etype_groups_discussion_newfile", "notif_groups_discussion_newfile", "pushnotif_groups_discussion_newfile"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_groups_discussion_newfile'), $params->get('notif_groups_discussion_newfile'), $ijparams->get('pushnotif_groups_discussion_newfile')),
-			      'options' => null
+					'name'    => array("etype_groups_discussion_newfile", "notif_groups_discussion_newfile", "pushnotif_groups_discussion_newfile"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_groups_discussion_newfile'), $params->get('notif_groups_discussion_newfile'), $ijparams->get('pushnotif_groups_discussion_newfile')),
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONGROUP_EVENTS'),
-			      'name'    => null,
-			      'type'    => 'label',
-			      'value'   => null,
-			      'options' => null
+					'name'    => null,
+					'type'    => 'label',
+					'value'   => null,
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_EVENTS_INVITATION'),
-			      'name'    => array("etype_events_invite", "notif_events_invite", "pushnotif_events_invite"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_events_invite'), $params->get('notif_events_invite'), $ijparams->get('pushnotif_events_invite')),
-			      'options' => null
+					'name'    => array("etype_events_invite", "notif_events_invite", "pushnotif_events_invite"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_events_invite'), $params->get('notif_events_invite'), $ijparams->get('pushnotif_events_invite')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_EVENTS_INVITATION_APPROVED'),
-			      'name'    => array("etype_events_invitation_approved", "notif_events_invitation_approved", "pushnotif_events_invitation_approved"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_events_invitation_approved'), $params->get('notif_events_invitation_approved'), $ijparams->get('pushnotif_events_invitation_approved')),
-			      'options' => null
+					'name'    => array("etype_events_invitation_approved", "notif_events_invitation_approved", "pushnotif_events_invitation_approved"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_events_invitation_approved'), $params->get('notif_events_invitation_approved'), $ijparams->get('pushnotif_events_invitation_approved')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_EVENTS_MASSEMAIL'),
-			      'name'    => array("etype_events_sendmail", "notif_events_sendmail", "pushnotif_events_sendmail"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_events_sendmail'), $params->get('notif_events_sendmail'), $ijparams->get('pushnotif_events_sendmail')),
-			      'options' => null
+					'name'    => array("etype_events_sendmail", "notif_events_sendmail", "pushnotif_events_sendmail"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_events_sendmail'), $params->get('notif_events_sendmail'), $ijparams->get('pushnotif_events_sendmail')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_EVENTS_CREATION_APPROVED'),
-			      'name'    => array("etype_event_notify_creator", "notif_event_notify_creator", "pushnotif_event_notify_creator"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_events_sendmail'), $params->get('notif_events_sendmail'), $ijparams->get('pushnotif_event_notify_creator')),
-			      'options' => null
+					'name'    => array("etype_event_notify_creator", "notif_event_notify_creator", "pushnotif_event_notify_creator"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_events_sendmail'), $params->get('notif_events_sendmail'), $ijparams->get('pushnotif_event_notify_creator')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_EVENTS_JOIN_REQUEST'),
-			      'name'    => array("etype_event_join_request", "notif_event_join_request", "pushnotif_event_join_request"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_event_join_request'), $params->get('notif_event_join_request'), $ijparams->get('pushnotif_event_join_request')),
-			      'options' => null
+					'name'    => array("etype_event_join_request", "notif_event_join_request", "pushnotif_event_join_request"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_event_join_request'), $params->get('notif_event_join_request'), $ijparams->get('pushnotif_event_join_request')),
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONGROUP_VIDEOS'),
-			      'name'    => null,
-			      'type'    => 'label',
-			      'value'   => null,
-			      'options' => null
+					'name'    => null,
+					'type'    => 'label',
+					'value'   => null,
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_VIDEOS_WALLCOMMENT'),
-			      'name'    => array("etype_videos_submit_wall", "notif_videos_submit_wall", "pushnotif_videos_submit_wall"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_videos_submit_wall'), $params->get('notif_videos_submit_wall'), $ijparams->get('pushnotif_videos_submit_wall')),
-			      'options' => null
+					'name'    => array("etype_videos_submit_wall", "notif_videos_submit_wall", "pushnotif_videos_submit_wall"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_videos_submit_wall'), $params->get('notif_videos_submit_wall'), $ijparams->get('pushnotif_videos_submit_wall')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_VIDEOS_WALLCOMMENT_REPLY'),
-			      'name'    => array("etype_videos_reply_wall", "notif_videos_reply_wall", "pushnotif_videos_reply_wall"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_videos_reply_wall'), $params->get('notif_videos_reply_wall'), $ijparams->get('pushnotif_videos_reply_wall')),
-			      'options' => null
+					'name'    => array("etype_videos_reply_wall", "notif_videos_reply_wall", "pushnotif_videos_reply_wall"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_videos_reply_wall'), $params->get('notif_videos_reply_wall'), $ijparams->get('pushnotif_videos_reply_wall')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_VIDEOS_TAG'),
-			      'name'    => array("etype_videos_tagging", "notif_videos_tagging", "pushnotif_videos_tagging"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_videos_tagging'), $params->get('notif_videos_tagging'), $ijparams->get('pushnotif_videos_tagging')),
-			      'options' => null
+					'name'    => array("etype_videos_tagging", "notif_videos_tagging", "pushnotif_videos_tagging"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_videos_tagging'), $params->get('notif_videos_tagging'), $ijparams->get('pushnotif_videos_tagging')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_VIDEO_LIKE'),
-			      'name'    => array("etype_videos_like", "notif_videos_like", "pushnotif_videos_like"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_videos_like'), $params->get('notif_videos_like'), $ijparams->get('pushnotif_videos_like')),
-			      'options' => null
+					'name'    => array("etype_videos_like", "notif_videos_like", "pushnotif_videos_like"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_videos_like'), $params->get('notif_videos_like'), $ijparams->get('pushnotif_videos_like')),
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONGROUP_PHOTOS'),
-			      'name'    => null,
-			      'type'    => 'label',
-			      'value'   => null,
-			      'options' => null
+					'name'    => null,
+					'type'    => 'label',
+					'value'   => null,
+					'options' => null
 			),
 
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PHOTOS_WALLCOMMENT'),
-			      'name'    => array("etype_photos_submit_wall", "notif_photos_submit_wall", "pushnotif_photos_submit_wall"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_photos_submit_wall'), $params->get('notif_photos_submit_wall'), $ijparams->get('pushnotif_photos_submit_wall')),
-			      'options' => null
+					'name'    => array("etype_photos_submit_wall", "notif_photos_submit_wall", "pushnotif_photos_submit_wall"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_photos_submit_wall'), $params->get('notif_photos_submit_wall'), $ijparams->get('pushnotif_photos_submit_wall')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PHOTOS_WALLCOMMENT_REPLY'),
-			      'name'    => array("etype_photos_reply_wall", "notif_photos_reply_wall", "pushnotif_photos_reply_wall"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_photos_reply_wall'), $params->get('notif_photos_reply_wall'), $ijparams->get('pushnotif_photos_reply_wall')),
-			      'options' => null
+					'name'    => array("etype_photos_reply_wall", "notif_photos_reply_wall", "pushnotif_photos_reply_wall"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_photos_reply_wall'), $params->get('notif_photos_reply_wall'), $ijparams->get('pushnotif_photos_reply_wall')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PHOTOS_TAG'),
-			      'name'    => array("etype_photos_tagging", "notif_photos_tagging", "pushnotif_photos_tagging"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_photos_tagging'), $params->get('notif_photos_tagging'), $ijparams->get('pushnotif_photos_tagging')),
-			      'options' => null
+					'name'    => array("etype_photos_tagging", "notif_photos_tagging", "pushnotif_photos_tagging"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_photos_tagging'), $params->get('notif_photos_tagging'), $ijparams->get('pushnotif_photos_tagging')),
+					'options' => null
 			),
 			array('title'   => JText::_('COM_COMMUNITY_NOTIFICATIONTYPE_PHOTOS_LIKE'),
-			      'name'    => array("etype_photos_like", "notif_photos_like", "pushnotif_photos_like"),
-			      'type'    => array("checkbox", "checkbox", "checkbox"),
-			      'value'   => array($params->get('etype_photos_like'), $params->get('notif_photos_like'), $ijparams->get('pushnotif_photos_like')),
-			      'options' => null
+					'name'    => array("etype_photos_like", "notif_photos_like", "pushnotif_photos_like"),
+					'type'    => array("checkbox", "checkbox", "checkbox"),
+					'value'   => array($params->get('etype_photos_like'), $params->get('notif_photos_like'), $ijparams->get('pushnotif_photos_like')),
+					'options' => null
 			)
 		);
 
 		$i++;
 		$this->jsonarray['fields'][$i]['group_name'] = "Notification";
+
 		foreach ($notification as $key => $value)
 		{
 			$this->jsonarray['fields'][$i]['field'][] = $value;
@@ -1673,13 +1700,14 @@ class user
 	}
 
 	/**
-	 * @uses to set the user privacy settings
+	 * uses to set the user privacy settings
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
 	private function setPreferences()
 	{
 		$formData = IJReq::getTaskData('formData');
-		$params   =  $this->my->getParams();
+		$params   = $this->my->getParams();
 
 		foreach ($formData as $key => $value)
 		{
@@ -1693,7 +1721,7 @@ class user
 			}
 		}
 
-		//save params
+		// Save params
 		$this->my->save('params');
 
 		$push = json_encode($push);
@@ -1702,6 +1730,7 @@ class user
 				SET `jomsocial_params`='{$push}'
 				WHERE `userid`={$this->IJUserID}";
 		$this->db->setQuery($query);
+
 		if ($this->db->Query())
 		{
 			$this->jsonarray['code'] = 200;
@@ -1755,6 +1784,7 @@ class user
 
 		return $lapse;
 	}
+
 	/**
 	 * getDate funtion
 	 *
@@ -1766,13 +1796,14 @@ class user
 	private function getDate($str = '', $off = 0)
 	{
 		$extraOffset = $this->config->get('daylightsavingoffset');
-		//convert to utc time first.
+
+		// Convert to utc time first.
 		$utc_date = new CDate($str);
 		$date     = new CDate($utc_date->toUnix() + $off * 3600);
 
 		$cMy = CFactory::getUser();
 
-		//J1.6 returns timezone as string, not integer offset.
+		// J1.6 returns timezone as string, not integer offset.
 		if (method_exists('JDate', 'getOffsetFromGMT'))
 		{
 			$systemOffset = new CDate('now', $this->mainframe->getCfg('offset'));
@@ -1794,6 +1825,7 @@ class user
 				$pos = JString::strpos($this->my->params, 'timezone');
 
 				$offset = $systemOffset + $extraOffset;
+
 				if ($pos === false)
 				{
 					$offset = $systemOffset + $extraOffset;
@@ -1811,6 +1843,7 @@ class user
 					else
 						$offset = $offset + $cOffset;
 				}
+
 				$date->setOffset($offset);
 			}
 			else
@@ -1821,7 +1854,8 @@ class user
 	}
 
 	/**
-	 * @uses    function to get activities
+	 * uses    function to get activities
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1830,9 +1864,9 @@ class user
 	 *        "taskData":{
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function profileTypes()
+	public function profileTypes()
 	{
 		$profiles = array();
 		$multi    = $this->config->get('profile_multiprofile');
@@ -1848,6 +1882,7 @@ class user
 
 		$this->jsonarray['code'] = 200;
 		$inc                     = 0;
+
 		if (count($profiles) > 0)
 		{
 			foreach ($profiles as $profile)
@@ -1868,18 +1903,18 @@ class user
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    function to get terms and condition value
+	 * uses    function to get terms and condition value
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
 	 *        "extView":"user",
 	 *        "extTask":"getTermsNCondition"
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function getTermsNCondition()
+	public function getTermsNCondition()
 	{
 		$jsonarray['code']            = 200;
 		$jsonarray['termsNcondition'] = $this->config->get('registrationTerms');
@@ -1887,9 +1922,9 @@ class user
 		return $jsonarray;
 	}
 
-
 	/**
-	 * @uses    function to get advance search
+	 * uses    function to get advance search
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1909,9 +1944,9 @@ class user
 	 *            ]
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function advanceSearch()
+	public function advanceSearch()
 	{
 		$form = IJReq::getTaskData('form', 0, 'int');
 
@@ -1923,29 +1958,29 @@ class user
 			return false;
 		}
 
-		// if form=1 passed then return advance search form
+		// If form=1 passed then return advance search form
 		if ($form)
 		{
-			// condition criteria for text, textarea, time, lablel
+			// Condition criteria for text, textarea, time, lablel
 			$textcondition = array(
 				array("name" => "Contains", "value" => "contain", "range" => 0, "valuetype" => "text"),
 				array("name" => "Equal", "value" => "equal", "range" => 0, "valuetype" => "text"),
 				array("name" => "Not Equal", "value" => "notequal", "range" => 0, "valuetype" => "text")
 			);
 
-			// condition criteria for select, selectlist, multiselect, radio
+			// Condition criteria for select, selectlist, multiselect, radio
 			$selectcondition = array(
 				array("name" => "Equal", "value" => "equal", "range" => 0, "valuetype" => "select"),
 				array("name" => "Not Equal", "value" => "notequal", "range" => 0, "valuetype" => "select")
 			);
 
-			// condition criteria for checkbox
+			// Condition criteria for checkbox
 			$checkboxcondition = array(
 				array("name" => "Equal", "value" => "equal", "range" => 0, "valuetype" => "checkbox"),
 				array("name" => "Not Equal", "value" => "notequal", "range" => 0, "valuetype" => "checkbox")
 			);
 
-			// condition criteria for date
+			// Condition criteria for date
 			$datecondition = array(
 				array("name" => "Between", "value" => "between", "range" => 1, "valuetype" => "text"),
 				array("name" => "Equal", "value" => "equal", "range" => 0, "valuetype" => "text"),
@@ -1969,6 +2004,7 @@ class user
 				{
 					$options        = explode("\n", $value->options);
 					$value->options = array();
+
 					foreach ($options as $k => $option)
 					{
 						$value->options[] = array(
@@ -1977,6 +2013,7 @@ class user
 						);
 					}
 				}
+
 				switch ($value->type)
 				{
 					case 'group':
@@ -1997,6 +2034,7 @@ class user
 						{
 							$value->type = 'select';
 						}
+
 						$value->condition = $selectcondition;
 						break;
 
@@ -2015,6 +2053,7 @@ class user
 						$value->condition = $textcondition;
 				}
 			}
+
 			$this->jsonarray['code']   = 200;
 			$this->jsonarray['fields'] = $result;
 
@@ -2076,7 +2115,7 @@ class user
 			return $this->jsonarray;
 		}
 
-		//if form=0 passed then process posted data.
+		// If form=0 passed then process posted data.
 		$formData   = IJReq::getTaskData('formData');
 		$pageNO     = IJReq::getTaskData('pageNO', 0, 'int');
 		$operator   = IJReq::getTaskData('operator', 'and');
@@ -2096,7 +2135,7 @@ class user
 
 		$query = $searchModel->_buildCustomQuery($formData, $operator, $avatarOnly);
 
-		//lets try temporary table here
+		// Lets try temporary table here
 		$tmptablename = 'tmpadv';
 		$drop         = 'DROP TEMPORARY TABLE IF EXISTS ' . $tmptablename;
 		$this->db->setQuery($drop);
@@ -2107,7 +2146,7 @@ class user
 		$this->db->query();
 		$total = $this->db->getAffectedRows();
 
-		//setting pagination object.
+		// Setting pagination object.
 		$this->_pagination = new JPagination($total, $limitstart, $limit);
 
 		$query = 'SELECT * FROM ' . $tmptablename;
@@ -2118,7 +2157,7 @@ class user
 			$query .= $searchModel->_getSort($sorting);
 		}
 
-		// execution of master query
+		// Execution of master query
 		$query .= ' LIMIT ' . $startFrom . ',' . $limit;
 
 		$this->db->setQuery($query);
@@ -2164,6 +2203,7 @@ class user
 			{
 				$firstRecord  = $this->jsonarray['member'][$i];
 				$secondRecord = $this->jsonarray['member'][$j];
+
 				if ($firstRecord['online'] < $secondRecord['online'])
 				{
 					$this->jsonarray['member'][$i] = $secondRecord;
