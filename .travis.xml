@@ -15,7 +15,7 @@
 			<arg line="-w" />
 			<arg value="--report=full"/>
 			<arg value="--extensions=php"/>
-			<arg value="--standard=${basedir}/.travis/phpcs/joomla/ruleset.xml"/>
+			<arg value="--standard=${basedir}/.travis/phpcs/joomla/coding-standards/ruleset.xml"/>
 			<arg value="--ignore=${phpcs-ignore}"/>
 			<arg path="${basedir}"/>
 		</exec>
