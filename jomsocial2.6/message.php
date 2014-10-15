@@ -18,39 +18,53 @@ require_once JPATH_ROOT . '/components/com_community/models/models.php';
  * @subpackage  jomsocial2.6
  * @since       1.0
  */
-class message
+class Message
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
 		}
 	}
 
-
 	/**
-	 * @uses    get user and subject vise messages
+	 * used to  get user and subject vise messages
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -62,7 +76,7 @@ class message
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function conversation()
+	public function conversation()
 	{
 		$pageNO = IJReq::getTaskData('pageNO', 0, 'int');
 		$limit  = PAGE_MESSAGE_LIMIT;
@@ -147,9 +161,9 @@ class message
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get message detail as conversation
+	 * used to get message detail as conversation
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -163,7 +177,7 @@ class message
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function detail()
+	public function detail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
@@ -259,6 +273,7 @@ class message
 		$this->db->Query();
 
 		$notification = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
@@ -267,9 +282,9 @@ class message
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get message detail as conversation
+	 * used to get message detail as conversation
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -282,7 +297,7 @@ class message
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function remove()
+	public function remove()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$full     = IJReq::getTaskData('full', 0, 'bool');
@@ -326,6 +341,7 @@ class message
 					}
 				}
 			}
+
 			$this->jsonarray['code'] = 200;
 
 			return $this->jsonarray;
@@ -348,9 +364,9 @@ class message
 		}
 	}
 
-
 	/**
-	 * @uses    to get message detail as conversation
+	 * used  to get message detail as conversation
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -365,11 +381,12 @@ class message
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function write()
+	public function write()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($this->IJUserID == 0)
 		{
 			IJReq::setResponse(704);
@@ -377,14 +394,15 @@ class message
 
 			return false;
 		}
+
 		CFactory::setActiveProfile();
 
-		// write message
+		// Write message
 		if (!$uniqueID)
 		{
 			$inputFilter = CFactory::getInputFilter(true);
 
-			$data          = new stdClass ();
+			$data          = new stdClass;
 			$data->to      = $msgData['friends'] = explode(',', IJReq::getTaskData('userID'));
 			$data->subject = $msgData['subject'] = IJReq::getTaskData('subject', '');
 			$data->subject = $inputFilter->clean($data->subject);
@@ -401,10 +419,10 @@ class message
 			$data->body = $msgData['body'] = IJReq::getTaskData('body', '') . $voicedata;
 			$data->body = $inputFilter->clean($data->body);
 			$data->sent = 0;
-			$model       =CFactory::getModel('user');
+			$model      = CFactory::getModel('user');
 			$actualTo   = array();
 
-			// are we saving ??
+			// Are we saving ??
 			CFactory::load('libraries', 'apps');
 			$appsLib      = CAppPlugins::getInstance();
 			$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-inbox-write'));
@@ -453,6 +471,7 @@ class message
 				}
 
 				$tempUser = array();
+
 				foreach ($actualTo as $recepientId)
 				{
 					// Get name for error message show
@@ -468,7 +487,7 @@ class message
 						return false;
 					}
 
-					// restrict user to send message to themselve
+					// Restrict user to send message to themselve
 					if ($this->my->id == $recepientId)
 					{
 						IJReq::setResponse(706, JText::_('COM_COMMUNITY_INBOX_MESSAGE_CANNOT_SEND_TO_SELF'));
@@ -476,8 +495,8 @@ class message
 
 						return false;
 					}
-
-					$tempUser[] = array('rid' => $recepientId, 'avatar' => $thumb, 'name' => $name); //since 2.4, to keep track previous 'to' info
+					// Since 2.4, to keep track previous 'to' info
+					$tempUser[] = array('rid' => $recepientId, 'avatar' => $thumb, 'name' => $name);
 				}
 
 				$data->toUsersInfo = $tempUser;
@@ -498,18 +517,18 @@ class message
 					return false;
 				}
 
-				$model  =CFactory::getModel('inbox');
+				$model  = CFactory::getModel('inbox');
 
 				$msgData ['to']     = $actualTo;
 				$msgData ['action'] = 'doSubmit';
-				//$msgData ['submitBtn'] = 'Send message';
 
 				$msgid      = $model->send($msgData);
 				$data->sent = 1;
 
-				//add user points
+				// Add user points
 				CFactory::load('libraries', 'userpoints');
 				CUserPoints::assignPoint('inbox.message.send');
+
 				// Add notification
 				CFactory::load('libraries', 'notification');
 
@@ -520,7 +539,7 @@ class message
 				$params->set('msg_url', 'index.php?option=com_community&view=inbox&task=read&msgid=' . $msgid);
 				$params->set('msg', JText::_('COM_COMMUNITY_PRIVATE_MESSAGE'));
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                           = array();
 				$pushOptions['detail']['content_data'] = $pushcontentdata;
 				$pushOptions                           = gzcompress(json_encode($pushOptions));
@@ -530,6 +549,7 @@ class message
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -543,6 +563,7 @@ class message
 
 				return $this->jsonarray;
 			}
+
 			IJReq::setResponse(500);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
@@ -550,7 +571,7 @@ class message
 		}
 
 		/*
-		 * reply message
+		 * Reply message
 		 */
 		$filter   = JFilterInput::getInstance();
 		$uniqueID = $filter->clean($uniqueID, 'int');
@@ -563,10 +584,11 @@ class message
 		{
 			$voicedata = '';
 		}
+
 		$body = IJReq::getTaskData('body', '') . $voicedata;
 		$body = $filter->clean($body, 'string');
 
-		$model             =CFactory::getModel('inbox');
+		$model            = CFactory::getModel('inbox');
 		$message          = $model->getMessage($uniqueID);
 		$messageRecepient = $model->getParticipantsID($uniqueID, $this->IJUserID);
 
@@ -608,7 +630,7 @@ class message
 			return false;
 		}
 
-		// make sure we can only reply to message that belogn to current user
+		// Make sure we can only reply to message that belogn to current user
 		if (!$model->canReply($this->IJUserID, $uniqueID))
 		{
 			IJReq::setResponse(706, JText::_('COM_COMMUNITY_PERMISSION_DENIED_WARNING'));
@@ -617,9 +639,10 @@ class message
 			return false;
 		}
 
-		$date  = JFactory::getDate(); //get the time without any offset!
+		// Get the time without any offset!
+		$date  = JFactory::getDate();
 
-		$obj            = new stdClass ();
+		$obj            = new stdClass;
 		$obj->id        = null;
 		$obj->from      = $this->IJUserID;
 		$obj->posted_on = $date->toMySQL();
@@ -629,7 +652,7 @@ class message
 
 		$model->sendReply($obj, $uniqueID);
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('inbox.message.reply');
 
@@ -648,7 +671,7 @@ class message
 
 			CNotificationLibrary::add('inbox_create_message', $this->IJUserID, $row, JText::sprintf('COM_COMMUNITY_SENT_YOU_MESSAGE'), '', 'inbox.sent', $params);
 
-			// get user push notification params and user device token and device type
+			// Get user push notification params and user device token and device type
 			$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
 					WHERE `userid`={$row}";
@@ -657,7 +680,7 @@ class message
 			$ijparams = new CParameter($puser->jomsocial_params);
 		}
 
-		//change for id based push notification
+		// Change for id based push notification
 		$memberslist                           = implode(',', $messageRecepient);
 		$pushOptions                           = array();
 		$pushOptions['detail']['content_data'] = $pushcontentdata;
@@ -673,6 +696,7 @@ class message
 		$obj->detail  = $pushOptions;
 		$obj->tocount = count($messageRecepient);
 		$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 		if ($obj->id)
 		{
 			$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -682,7 +706,7 @@ class message
 			$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_inbox_create_message';
 		}
 
-		// onMessageDisplay Event trigger
+		// OnMessageDisplay Event trigger
 		$appsLib  = CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 		$args   = array();
@@ -697,7 +721,7 @@ class message
 	/**
 	 * function isSpam
 	 *
-	 * @param   string   $user  user
+	 * @param   string  $user  user
 	 * @param   mixed   $data  data
 	 *
 	 * @return boolean true on success or false on failure

@@ -16,9 +16,7 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial3.0
  * @since       1.0
  */
-
-
-class friend
+class Friend
 {
 	private $jomHelper;
 
@@ -39,17 +37,23 @@ class friend
 	/**
 	 * construct function
 	 */
-
-	function __construct()
+	public function __construct()
 	{
 		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
@@ -57,7 +61,8 @@ class friend
 	}
 
 	/**
-	 * @uses    to fetch all the member
+	 * uses    to fetch all the member
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -67,11 +72,12 @@ class friend
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function members()
+	public function members()
 	{
 		$pageNO = IJReq::getTaskData('pageNO', 0, 'int');
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$startFrom = 0;
@@ -86,6 +92,7 @@ class friend
 		$searchModel->setState('limitstart', $startFrom);
 
 		$results = $searchModel->getPeople($sorted = 'latest', $filter = 'all');
+
 		if (count($results) <= 0)
 		{
 			IJReq::setResponse(204);
@@ -118,6 +125,7 @@ class friend
 			{
 				$firstRecord  = $this->jsonarray['member'][$i];
 				$secondRecord = $this->jsonarray['member'][$j];
+
 				if ($firstRecord['online'] < $secondRecord['online'])
 				{
 					$this->jsonarray['member'][$i] = $secondRecord;
@@ -130,7 +138,8 @@ class friend
 	}
 
 	/**
-	 * @uses    to fetch all the friends
+	 * uses    to fetch all the friends
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -141,9 +150,9 @@ class friend
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function friends()
+	public function friends()
 	{
 		$pageNO = IJReq::getTaskData('pageNO', 0, 'int');
 		$userID = IJReq::getTaskData('userID', $this->IJUserID, 'int');
@@ -211,6 +220,7 @@ class friend
 			{
 				$firstRecord  = $this->jsonarray['member'][$i];
 				$secondRecord = $this->jsonarray['member'][$j];
+
 				if ($firstRecord['online'] < $secondRecord['online'])
 				{
 					$this->jsonarray['member'][$i] = $secondRecord;
@@ -223,7 +233,8 @@ class friend
 	}
 
 	/**
-	 * @uses    to add a friend
+	 * uses    to add a friend
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -234,9 +245,9 @@ class friend
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function addFriend()
+	public function addFriend()
 	{
 		if ($this->IJUserID == 0)
 		{
@@ -246,9 +257,14 @@ class friend
 			return false;
 		}
 
-		$model    = CFactory::getModel('friends'); // get friend model
-		$memberID = IJReq::getTaskData('memberID', 0, 'int'); // get friend id for friend request
-		$message  = IJReq::getTaskData('message'); // get message to sed it to user
+		// Get friend model
+		$model    = CFactory::getModel('friends');
+
+		// Get friend id for friend request
+		$memberID = IJReq::getTaskData('memberID', 0, 'int');
+
+		// Get message to sed it to user
+		$message  = IJReq::getTaskData('message');
 
 		if (!$memberID)
 		{
@@ -257,15 +273,17 @@ class friend
 
 			return false;
 		}
-		// set message if message is empty.
+
+		// Set message if message is empty.
 		if ($message == '')
 		{
 			$message = JText::sprintf('COM_IJOOMERADV_JOM_PUSH_FRIEND_REQUEST');
 		}
-		$model->addFriend($memberID, $this->IJUserID, $message); // add friend function call
 
+		// Add friend function call
+		$model->addFriend($memberID, $this->IJUserID, $message);
 
-		//trigger for onFriendRequest
+		// Trigger for onFriendRequest
 		$eventObject                 = new stdClass;
 		$eventObject->profileOwnerId = $my->id;
 		$eventObject->friendId       = $memberID;
@@ -274,7 +292,7 @@ class friend
 		$model->updateFriendCount($this->IJUserID);
 		$model->updateFriendCount($memberID);
 
-		// get user push notification params
+		// Get user push notification params
 		$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 				FROM #__ijoomeradv_users
 				WHERE `userid`={$memberID}";
@@ -282,7 +300,7 @@ class friend
 		$puser    = $this->db->loadObject();
 		$ijparams = new CParameter($puser->jomsocial_params);
 
-		//change for id based push notification
+		// Change for id based push notification
 		$pushOptions                                 = array();
 		$pushOptions['detail']['content_data']['id'] = $this->IJUserID;
 		$pushOptions                                 = gzcompress(json_encode($pushOptions));
@@ -293,6 +311,7 @@ class friend
 		$obj->detail  = $pushOptions;
 		$obj->tocount = 1;
 		$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 		if ($obj->id)
 		{
 			$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -316,7 +335,6 @@ class friend
 	 *
 	 * @return boolean retuns value
 	 */
-
 	private function triggerFriendEvents($eventName, &$args, $target = null)
 	{
 		require_once JPATH_SITE . '/components/com_community/libraries/apps.php';
@@ -334,9 +352,9 @@ class friend
 		return true;
 	}
 
-
 	/**
-	 * @uses    to add a friend
+	 * uses    to add a friend
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -346,11 +364,12 @@ class friend
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function removeFriend()
+	public function removeFriend()
 	{
 		$memberID = IJReq::getTaskData('memberID', 0, 'int');
+
 		if (!$memberID)
 		{
 			IJReq::setResponse(400);
@@ -358,6 +377,7 @@ class friend
 
 			return false;
 		}
+
 		if ($this->IJUserID == 0)
 		{
 			IJReq::setResponse(401);
@@ -425,9 +445,9 @@ class friend
 		return true;
 	}
 
-
 	/**
-	 * @uses    to approve friend request
+	 * uses    to approve friend request
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -437,9 +457,9 @@ class friend
 	 *            "connectionID":"connectionID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function approveRequest()
+	public function approveRequest()
 	{
 		$connectionId = IJReq::getTaskData('connectionID');
 		$friendsModel = CFactory::getModel('friends');
@@ -447,13 +467,14 @@ class friend
 		if ($friendsModel->isMyRequest($connectionId, $this->IJUserID))
 		{
 			$connected = $friendsModel->approveRequest($connectionId);
+
 			if ($connected)
 			{
 				$act          = new stdClass;
 				$act->cmd     = 'friends.request.approve';
 				$act->actor   = $connected[0];
 				$act->target  = $connected[1];
-				$act->title   = '';//JText::_('COM_COMMUNITY_ACTIVITY_FRIENDS_NOW');
+				$act->title   = '';
 				$act->content = '';
 				$act->app     = 'friends.connect';
 				$act->cid     = 0;
@@ -461,7 +482,7 @@ class friend
 				CFactory::load('libraries', 'activities');
 				CActivityStream::add($act);
 
-				//add user points - give points to both party
+				// Add user points - give points to both party
 				CFactory::load('libraries', 'userpoints');
 				CUserPoints::assignPoint('friends.request.approve');
 
@@ -470,7 +491,7 @@ class friend
 				$friendUrl = CRoute::_('index.php?option=com_community&view=profile&userid=' . $friendId);
 				CUserPoints::assignPoint('friends.request.approve', $friendId);
 
-				// need to both user's friend list
+				// Need to both user's friend list
 				$friendsModel->updateFriendCount($this->IJUserID);
 				$friendsModel->updateFriendCount($friendId);
 
@@ -480,7 +501,7 @@ class friend
 				$params->set('url', 'index.php?option=com_community&view=profile&userid=' . $this->IJUserID);
 				CNotificationLibrary::add('etype_friends_create_connection', $this->IJUserID, $friend->id, JText::sprintf('COM_COMMUNITY_FRIEND_REQUEST_APPROVED', $this->my->getDisplayName()), '', 'friends.approve', $params);
 
-				// get user push notification params and user device token and device type
+				// Get user push notification params and user device token and device type
 				$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 						FROM #__ijoomeradv_users
 						WHERE `userid`={$friendId}";
@@ -488,7 +509,7 @@ class friend
 				$puser    = $this->db->loadObject();
 				$ijparams = new CParameter($puser->jomsocial_params);
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions['detail'] = array();
 				$pushOptions           = gzcompress(json_encode($pushOptions));
 
@@ -498,6 +519,7 @@ class friend
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -507,7 +529,7 @@ class friend
 					$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_friends_request_connection';
 				}
 
-				//trigger for onFriendApprove
+				// Trigger for onFriendApprove
 				require_once JPATH_ROOT . '/components/com_community/controllers/controller.php';
 				require_once JPATH_ROOT . '/components/com_community/controllers/friends.php';
 				$eventObject                 = new stdClass;
@@ -517,6 +539,7 @@ class friend
 				unset($eventObject);
 			}
 		}
+
 		$this->jsonarray['code'] = 200;
 		$this->jsonarray['notification']['friendNotification'] -= 1;
 
@@ -524,7 +547,8 @@ class friend
 	}
 
 	/**
-	 * @uses    to reject friend request
+	 * uses    to reject friend request
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -534,9 +558,9 @@ class friend
 	 *            "connectionID":"connectionID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function rejectRequest()
+	public function rejectRequest()
 	{
 		$requestId    = IJReq::getTaskData('connectionID');
 		$friendsModel = CFactory::getModel('friends');
@@ -544,9 +568,10 @@ class friend
 		if ($friendsModel->isMyRequest($requestId, $this->IJUserID))
 		{
 			$pendingInfo = $friendsModel->getPendingUserId($requestId);
+
 			if ($friendsModel->rejectRequest($requestId))
 			{
-				//trigger for onFriendReject
+				// Trigger for onFriendReject
 				require_once JPATH_ROOT . '/components/com_community/controllers/friends.php';
 				$eventObject                 = new stdClass;
 				$eventObject->profileOwnerId = $this->IJUserID;
@@ -555,6 +580,7 @@ class friend
 				unset($eventObject);
 			}
 		}
+
 		$this->jsonarray['code'] = 200;
 		$this->jsonarray['notification']['friendNotification'] -= 1;
 
@@ -562,7 +588,8 @@ class friend
 	}
 
 	/**
-	 * @uses    to search friend/member
+	 * uses    to search friend/member
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -573,12 +600,13 @@ class friend
 	 *            "pageNO":"pageno"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function search()
+	public function search()
 	{
 		$qstring = IJReq::getTaskData('query', '');
 		$pageNO  = IJReq::getTaskData('pageNO', 0, 'int');
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$startFrom = 0;
@@ -594,8 +622,9 @@ class friend
 			'/^([.0-9a-z_-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,4})$/i' :
 			'/^([*+!.&#$Š\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,4})$/i';
 
-		// build where condition
+		// Build where condition
 		$filterField = array();
+
 		if (isset($qstring))
 		{
 			switch ($this->config->get('displayname'))
@@ -607,6 +636,7 @@ class friend
 					$field = 'username';
 					break;
 			}
+
 			$filter[] = "(UCASE(`{$field}`) like UCASE({$this->db->Quote("%{$qstring}%")}))";
 		}
 
@@ -617,6 +647,7 @@ class friend
 		if (count($filter) > 0 || count($filterField > 0))
 		{
 			$basicResult = null;
+
 			if (!empty($filter) && count($filter) > 0)
 			{
 				$query = "SELECT distinct b.`id`
@@ -627,6 +658,7 @@ class friend
 					$query .= "	INNER JOIN #__community_users AS c ON b.`id`=c.`userid`
 								AND c.`thumb` != {$this->db->Quote('components/com_community/assets/default_thumb.jpg')}";
 				}
+
 				$query .= " WHERE b.block = 0 AND " . implode(' AND ', $filter);
 				$queryCnt = "SELECT COUNT(1)
 							FROM ({$query}) AS z";
@@ -636,6 +668,7 @@ class friend
 				$query .= " LIMIT {$startFrom}," . PAGE_MEMBER_LIMIT;
 				$this->db->setQuery($query);
 				$finalResult = $this->db->loadColumn();
+
 				if ($this->db->getErrorNum())
 				{
 					IJReq::setResponse(500);
@@ -662,6 +695,7 @@ class friend
 			$id    = implode(",", $finalResult);
 			$where = array("`id` IN (" . $id . ")");
 			$datas = $this->getFiltered($where);
+
 			if (!$datas)
 			{
 				IJReq::setResponse(204);
@@ -691,6 +725,7 @@ class friend
 				{
 					$firstRecord  = $this->jsonarray['member'][$i];
 					$secondRecord = $this->jsonarray['member'][$j];
+
 					if ($firstRecord['online'] < $secondRecord['online'])
 					{
 						$this->jsonarray['member'][$i] = $secondRecord;
@@ -702,7 +737,6 @@ class friend
 			return $this->jsonarray;
 		}
 	}
-
 
 	/**
 	 * getFiltered function
@@ -731,13 +765,16 @@ class friend
 				WHERE " . implode(' AND ', $wheres) . "
 				ORDER BY {$field} ASC";
 		$this->db->setQuery($query);
+
 		if ($this->db->getErrorNum())
 		{
-			IJReq::setResponse(500); //set the error code and return false
+			// Set the error code and return false
+			IJReq::setResponse(500);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
 		}
+
 		$result = $this->db->loadObjectList();
 
 		return $result;

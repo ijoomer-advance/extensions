@@ -17,7 +17,6 @@ jimport('joomla.version');
  * @subpackage  jomsocial3.0_v1.5
  * @since       1.0
  */
-
 class event
 {
 	private $jomHelper;

@@ -8,8 +8,8 @@
  */
 
 defined('_JEXEC') or die;
-JHTML::_('behavior.tooltip');
 
+JHTML::_('behavior.tooltip');
 ?>
 <form action="<?php echo JRoute::_($this->request_url) ?>" method="post" name="adminForm" id="adminForm">
 	<table width="100%">
@@ -29,6 +29,7 @@ JHTML::_('behavior.tooltip');
 						<legend><?php echo JText::_('COM_IJOOMERADV_JOM_' . strtoupper($group) . '_CONFIG') ?></legend>
 						<table style="text-align: left;" class="paramlist admintable">
 							<?php
+
 							foreach ($this->{$group . 'Config'} as $key => $value)
 							{
 								?>
@@ -47,6 +48,7 @@ JHTML::_('behavior.tooltip');
 						</table>
 					</fieldset>
 					<?php
+
 					if ($i == 3)
 					{
 						echo '<td>';

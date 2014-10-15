@@ -16,9 +16,10 @@ defined('_JEXEC') or die;
  * @subpackage  icms
  * @since       1.0
  */
-class icms
+class Icms
 {
 	public $classname = "icms";
+
 	public $sessionWhiteList = array('articles.archive', 'articles.featured', 'articles.singleArticle', 'articles.articleDetail', 'categories.allCategories', 'categories.singleCategory', 'categories.category', 'categories.categoryBlog');
 
 	/**
@@ -26,7 +27,7 @@ class icms
 	 *
 	 * @return  void
 	 */
-	function init()
+	public function init()
 	{
 		include_once JPATH_SITE . '/components/com_content/models/category.php';
 		include_once JPATH_SITE . '/components/com_content/models/archive.php';
@@ -45,13 +46,14 @@ class icms
 	 *
 	 * @return  void
 	 */
-	function write_configuration(&$d)
+	public function write_configuration(&$d)
 	{
 		$db    = JFactory::getDbo();
 		$query = 'SELECT *
 				  FROM #__ijoomeradv_icms_config';
 		$db->setQuery($query);
 		$my_config_array = $db->loadObjectList();
+
 		foreach ($my_config_array as $ke => $val)
 		{
 			if (isset($d[$val->name]))
@@ -70,7 +72,7 @@ class icms
 	 *
 	 * @return  array  jsonarray
 	 */
-	function getconfig()
+	public function getconfig()
 	{
 		$jsonarray = array();
 
@@ -80,13 +82,13 @@ class icms
 	/**
 	 * function for Prepare custom html for ICMS
 	 *
-	 * @param   array   &$Config  Configuration array
+	 * @param   array  &$Config  Configuration array
 	 *
 	 * @return  void
 	 */
-	function prepareHTML(&$Config)
+	public function prepareHTML(&$Config)
 	{
-		//TODO : Prepare custom html for ICMS
+		// TODO : Prepare custom html for ICMS
 	}
 }
 
@@ -97,7 +99,7 @@ class icms
  * @subpackage  icms
  * @since       1.0
  */
-class icms_menu
+class Icms_Menu
 {
 	/**
 	 * function for get Required Input
@@ -111,6 +113,7 @@ class icms_menu
 	public function getRequiredInput($extension, $extView, $menuoptions)
 	{
 		$menuoptions = json_decode($menuoptions, true);
+
 		switch ($extView)
 		{
 			case 'categoryBlog':
@@ -130,16 +133,20 @@ class icms_menu
 							</label>';
 
 				$html .= '<select name="jform[request][id]" id="jform_request_id">';
+
 				foreach ($items as $key1 => $value1)
 				{
 					$selected = ($selvalue == $value1->id) ? 'selected' : '';
 					$level    = '';
+
 					for ($i = 1; $i < $value1->level; $i++)
 					{
 						$level .= '-';
 					}
+
 					$html .= '<option value="' . $value1->id . '" ' . $selected . '>' . $level . $value1->title . '</option>';
 				}
+
 				$html .= '</select>';
 				$html .= '</fieldset>';
 
@@ -163,16 +170,20 @@ class icms_menu
 							</label>';
 
 				$html .= '<select name="jform[request][id]" id="jform_request_id">';
+
 				foreach ($items as $key1 => $value1)
 				{
 					$selected = ($selvalue == $value1->id) ? 'selected' : '';
 					$level    = '';
+
 					for ($i = 1; $i < $value1->level; $i++)
 					{
 						$level .= '-';
 					}
+
 					$html .= '<option value="' . $value1->id . '" ' . $selected . '>' . $level . $value1->title . '</option>';
 				}
+
 				$html .= '</select>';
 				$html .= '</fieldset>';
 
@@ -187,6 +198,7 @@ class icms_menu
 				$db->setQuery($sql);
 				$result = $db->loadResult();
 				$title  = ($result) ? $result : 'COM_IJOOMERADV_ICMS_CHANGE_ARTICLE';
+
 				// Load the modal behavior script.
 				JHtml::_('behavior.modal', 'a.modal');
 
@@ -200,6 +212,7 @@ class icms_menu
 
 				// Add the script to the document head.
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
+
 				// Setup variables for display.
 				$html = array();
 				$link = 'index.php?option=com_content&amp;view=articles&amp;layout=modal&amp;tmpl=component&amp;function=jSelectArticle_jform_request_id';
@@ -231,13 +244,15 @@ class icms_menu
 	 * @param   string  $extTask      extension task
 	 * @param   [type]  $remoteTask   remote task
 	 * @param   [type]  $menuoptions  menu option
-	 * @param   mixed  $data         mixed data
+	 * @param   mixed   $data         mixed data
+	 *
 	 * @return  void
 	 */
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
 		$db      = JFactory::getDBO();
 		$options = null;
+
 		switch ($extTask)
 		{
 			case 'categoryBlog':

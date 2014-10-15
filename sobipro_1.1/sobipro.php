@@ -85,7 +85,7 @@ class sobipro
 	 *
 	 * @return  void
 	 */
-	function prepareHTML(&$config)
+	public function prepareHTML(&$config)
 	{
 		$db =  JFactory::getDBO();
 		foreach ($config as $key => $value)

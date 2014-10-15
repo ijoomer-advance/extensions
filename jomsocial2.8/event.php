@@ -17,30 +17,44 @@ jimport('joomla.version');
  * @subpackage  jomsocial2.8
  * @since       1.0
  */
-class event
+class Event
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset($notification['notification']))
 		{
 			$this->jsonarray['notification'] = $notification['notification'];
@@ -48,7 +62,8 @@ class event
 	}
 
 	/**
-	 * @uses    to fetch all categories
+	 * used   to fetch all categories
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -57,10 +72,11 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function categories()
+	public function categories()
 	{
 		$now = new JDate;
-		//Display Category List
+
+		// Display Category List
 		$query = "SELECT *
 				FROM #__community_events_category
 				WHERE parent=0";
@@ -70,6 +86,7 @@ class event
 		if (count($categories) > 0)
 		{
 			$this->jsonarray['code'] = 200;
+
 			foreach ($categories as $key => $value)
 			{
 				$query = 'SELECT count(*)
@@ -91,12 +108,12 @@ class event
 				$this->jsonarray['categories'][$key]['description'] = $value->description;
 				$this->jsonarray['categories'][$key]['categories']  = $subcategories;
 				$this->jsonarray['categories'][$key]['events']      = $events;
+
 				if ($value->parent == 0)
 				{
 					$res = $this->subCategories($value->id);
 					if ($res)
 						$this->jsonarray['categories'][$key]['subcategory'] = $res;
-
 				}
 			}
 		}
@@ -150,6 +167,7 @@ class event
 			$jsonarray[$key]['description'] = $value->description;
 			$jsonarray[$key]['categories']  = $subcategories;
 			$jsonarray[$key]['events']      = $events;
+
 			if ($parent != 0)
 			{
 				$res                            = $this->subCategories($value->id);
@@ -160,9 +178,9 @@ class event
 		return $jsonarray;
 	}
 
-
 	/**
-	 * @uses    to fetch all categories
+	 * used to fetch all categories
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -183,7 +201,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function events()
+	public function events()
 	{
 		$type             = IJReq::getTaskData('type', 'all');
 		$sorting          = IJReq::getTaskData('sorting', 'latest');
@@ -203,6 +221,7 @@ class event
 
 			case 'group' :
 				$contentID = IJReq::getTaskData('groupID', 0, 'int');
+
 				if (!$contentID)
 				{
 					IJReq::setResponse(400);
@@ -212,9 +231,11 @@ class event
 				}
 				break;
 
-			case 'my' : //myevents view
+			// Myevents view
+			case 'my' :
 				$type   = 'all';
 				$userID = $this->my->id;
+
 				if (!$userID)
 				{
 					IJReq::setResponse(704);
@@ -224,8 +245,10 @@ class event
 				}
 				break;
 
-			case 'pending' : //pending invitations view
+			// Pending invitations view
+			case 'pending' :
 				$type = 'all';
+
 				if (!$this->IJUserID)
 				{
 					IJReq::setResponse(704);
@@ -233,18 +256,21 @@ class event
 
 					return false;
 				}
+
+				// Past events view
 				$userID  = $this->my->id;
 				$pending = 0;
 				break;
 
-			case 'past' : //Past events view
+			case 'past' :
 				$contentID        = IJReq::getTaskData('groupID', 0, 'int');
 				$type             = ($contentID) ? 'group' : 'all';
 				$hideOldEvent     = false;
 				$showOnlyOldEvent = true;
 				break;
 
-			case 'search' : //search
+			// Search
+			case 'search' :
 				$type                     = 'all';
 				$categoryID               = IJReq::getTaskData('categoryID', null, 'int');
 				$search                   = IJReq::getTaskData('query', null);
@@ -336,9 +362,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get event details
+	 * used to get event details
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -350,7 +376,7 @@ class event
 	 *    }
 	 * @return array  jsonarray
 	 */
-	function search_field()
+	public function search_field()
 	{
 		require_once JPATH_ROOT . '/components/com_community/helpers/category.php';
 		$halper_category_obj = new CCategoryHelper;
@@ -360,7 +386,6 @@ class event
 
 		$eventsModel  = CFactory::getModel('events');
 
-
 		$sql = "SELECT * FROM #__community_events_category";
 		$this->db->setQuery($sql);
 		$cats = $this->db->loadObjectList();
@@ -368,14 +393,15 @@ class event
 		$catlist = $halper_category_obj->getCategories($cats);
 
 		$typelist = array("search"    => array("text", "Search"),
-		                  "catid"     => array("select", "Category"),
-		                  "startdate" => array("datetime", "Start time"),
-		                  "enddate"   => array("datetime", "End time"),
-		                  "location"  => array("text", "Location"),
-		                  "radius"    => array("select", "Radius")
+							"catid"     => array("select", "Category"),
+							"startdate" => array("datetime", "Start time"),
+							"enddate"   => array("datetime", "End time"),
+							"location"  => array("text", "Location"),
+							"radius"    => array("select", "Radius")
 		);
 
 		$i = 0;
+
 		foreach ($typelist as $key => $value)
 		{
 			if ($key == "catid")
@@ -384,13 +410,14 @@ class event
 				$this->jsonarray["fields"][$i]["field"]["name"]    = $key;
 				$this->jsonarray["fields"][$i]["field"]["type"]    = $value[0];
 				$this->jsonarray["fields"][$i]["field"]["caption"] = $value[1];
+
 				foreach ($catlist as $kt => $vt)
 				{
 					$this->jsonarray["fields"][$i]["field"]["options"][$kt]["value"] = $vt["id"];
 					$this->jsonarray["fields"][$i]["field"]["options"][$kt]["name"]  = $vt["name"];
 				}
 			}
-			else if ($key == 'radius')
+			elseif ($key == 'radius')
 			{
 				$this->jsonarray["fields"][$i]["field"]["id"]                    = $i;
 				$this->jsonarray["fields"][$i]["field"]["name"]                  = $key;
@@ -412,15 +439,16 @@ class event
 				$this->jsonarray["fields"][$i]["field"]["type"]    = $value[0];
 				$this->jsonarray["fields"][$i]["field"]["caption"] = $value[1];
 			}
+
 			$i++;
 		}
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to get event details
+	 * used to get event details
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -432,7 +460,7 @@ class event
 	 *    }
 	 * @return array  jsonarray
 	 */
-	function detail()
+	public function detail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', null, 'int');
 		$event     = JTable::getInstance('Event', 'CTable');
@@ -450,18 +478,26 @@ class event
 		$userStatus = $this->db->loadResult();
 
 		$category  = JTable::getInstance('EventCategory', 'CTable');
-		$category->load($event->catid); // load categories from categoryid
+
+		// Load categories from categoryid
+		$category->load($event->catid);
 
 		$this->jsonarray['event']['category']         = $category->name;
 		$this->jsonarray['event']['summary']          = strip_tags($event->summary);
 		$this->jsonarray['event']['description']      = strip_tags($event->description);
-		$user                                         = $this->jomHelper->getUserDetail($event->creator); // get user detail
+
+		// Get user detail
+		$user                                         = $this->jomHelper->getUserDetail($event->creator);
 		$this->jsonarray['event']['user_id']          = $user->id;
 		$this->jsonarray['event']['user_name']        = $user->name;
 		$this->jsonarray['event']['lat']              = $event->latitude;
 		$this->jsonarray['event']['long']             = $event->longitude;
-		$this->jsonarray['event']['isOpen']           = intval(!$event->permission); // 0-private, 1-open
-		$this->jsonarray['event']['allowInvite']      = intval($event->allowinvite && $userStatus); // 0- guest can not invite their friends, 1- guest can invite their friends
+
+		// 0-private, 1-open
+		$this->jsonarray['event']['isOpen']           = intval(!$event->permission);
+
+		// 0- guest can not invite their friends, 1- guest can invite their friends
+		$this->jsonarray['event']['allowInvite']      = intval($event->allowinvite && $userStatus);
 		$this->jsonarray['event']['isCommunityAdmin'] = intval($isCommunityAdmin);
 		$this->jsonarray['event']['isMap']            = intval($this->config->get('eventshowmap'));
 		$query                                        = "SELECT *
@@ -472,17 +508,20 @@ class event
 		$this->db->setQuery($query);
 		$isInvited = $this->db->loadObject();
 
-		$this->jsonarray['event']['isInvitation'] = intval(!empty($isInvited)); // if user is invited to join event.
+		// If user is invited to join event.
+		$this->jsonarray['event']['isInvitation'] = intval(!empty($isInvited));
+
 		if (!empty($isInvited))
 		{
 			$usr           = $this->jomHelper->getUserDetail($isInvited->invited_by);
 			$invitemessage = $usr->name . " invited you to join this event.";
 
-			// check how many friends are the member of this group
+			// Check how many friends are the member of this group
 			$friendsModel  = CFactory::getModel('friends');
 			$frids        = $friendsModel->getFriendIds($this->IJUserID);
 
 			$frdcount = 0;
+
 			foreach ($frids as $member)
 			{
 				if ($event->isMember($member))
@@ -495,9 +534,11 @@ class event
 			{
 				$invitemessage .= " \n" . $frdcount . " of your friends are the members of this event.";
 			}
+
 			$this->jsonarray['event']['invitationMessage'] = $invitemessage;
 			$this->jsonarray['event']['invitationicon']    = JURI::root() . 'components/com_community/templates/default/images/action/icon-invite-32.png';
 		}
+
 		$query = "SELECT count(id)
 				FROM #__community_activities
 				WHERE eventid = '{$uniqueID}'
@@ -505,9 +546,10 @@ class event
 		$this->db->setQuery($query);
 		$wallcount                            = $this->db->loadResult();
 		$this->jsonarray['event']['comments'] = intval($wallcount);
+
 		if ($event->ticket > 0)
 		{
-			$avail                                       = $event->ticket - $event->confirmedcount;//echo $avail;exit;
+			$avail                                       = $event->ticket - $event->confirmedcount;
 			$this->jsonarray['event']["total_seats"]     = intval($event->ticket);
 			$this->jsonarray['event']["available_seats"] = intval($avail);
 		}
@@ -517,9 +559,10 @@ class event
 			$this->jsonarray['event']['available_seats'] = "";
 		}
 
-		$this->jsonarray['event']['myStatus'] = intval($userStatus); // [Join / Invite]: 0 - [pending approval/pending invite], 1 - [approved/confirmed], 2 - [rejected/declined], 3 - [maybe/maybe], 4 - [blocked/blocked]
+		// [Join / Invite]: 0 - [pending approval/pending invite], 1 - [approved/confirmed], 2 - [rejected/declined], 3 - [maybe/maybe], 4 - [blocked/blocked]
+		$this->jsonarray['event']['myStatus'] = intval($userStatus);
 
-		//likes
+		// Likes
 		$likes                                = $this->jomHelper->getLikes('events', $uniqueID, $this->IJUserID);
 		$this->jsonarray['event']['likes']    = $likes->likes;
 		$this->jsonarray['event']['dislikes'] = $likes->dislikes;
@@ -543,9 +586,15 @@ class event
 
 		// Permissions and privacies
 		CFactory::load('helpers', 'owner');
-		$isEventGuest = $event->isMember($this->my->id); // is user member/guest?
-		$isMine       = ($this->my->id == $event->creator); // is user event creator?
-		$isAdmin      = $event->isAdmin($this->my->id); // is user event admin?
+
+		// Is user member/guest?
+		$isEventGuest = $event->isMember($this->my->id);
+
+		// Is user event creator?
+		$isMine       = ($this->my->id == $event->creator);
+
+		// Is user event admin?
+		$isAdmin      = $event->isAdmin($this->my->id);
 
 		// Get Event Admins
 		$eventAdmins = $event->getAdmins();
@@ -557,8 +606,11 @@ class event
 			$eventAdmins[$i] = CFactory::getUser($row->id);
 		}
 
-		$waitingApproval                               = $event->isPendingApproval($this->my->id); // is pending approved for user?
-		$this->jsonarray['event']['isWaitingApproval'] = intval($waitingApproval); // is member already requested to join and waiting for aproval?
+		// Is pending approved for user?
+		$waitingApproval                               = $event->isPendingApproval($this->my->id);
+
+		// Is member already requested to join and waiting for aproval?
+		$this->jsonarray['event']['isWaitingApproval'] = intval($waitingApproval);
 
 		if ($isMine || $isCommunityAdmin || $isAdmin)
 		{
@@ -568,21 +620,23 @@ class event
 					AND eventid={$event->id}";
 			$this->db->setQuery($query);
 			$memberWaiting                             = $this->db->loadResult();
-			$this->jsonarray['event']['memberWaiting'] = intval($memberWaiting); // waiting member counts who requested to join private events and is required admin approval.
+
+			// Waiting member counts who requested to join private events and is required admin approval.
+			$this->jsonarray['event']['memberWaiting'] = intval($memberWaiting);
 		}
 
 		$waitingRespond = false;
 
 		// Is this event is a past event?
 		$now = new JDate;
-		//if joomla 1.5 enable this
+
+		// If joomla 1.5 enable this
 		$isPastEvent = ($event->getEndDate(false)->toMySQL() < $now->toMySQL(true)) ? true : false;
 
 		$myStatus = $event->getUserStatus($this->my->id);
 
 		if ($myStatus != COMMUNITY_EVENT_STATUS_BLOCKED)
 		{
-
 			if ($isMine || $isCommunityAdmin || $isAdmin)
 			{
 				$this->jsonarray['event']['menu']['editAvatar'] = 1;
@@ -636,9 +690,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to fetch event users
+	 *used to fetch event users
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -652,7 +706,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function members()
+	public function members()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
@@ -731,7 +785,8 @@ class event
 
 		foreach ($results as $key => $value)
 		{
-			$user = $this->jomHelper->getUserDetail($value->memberid); // get user detail
+			// Get user detail
+			$user = $this->jomHelper->getUserDetail($value->memberid);
 
 			$this->jsonarray['members'][$key]['user_id']      = $user->id;
 			$this->jsonarray['members'][$key]['user_name']    = $user->name;
@@ -742,6 +797,7 @@ class event
 			$this->jsonarray['members'][$key]['user_profile'] = $user->profile;
 
 			$isAdmin = 0;
+
 			if ($value->status == 1)
 			{
 				$isAdmin = intval($event->isAdmin($user->id) or COwnerHelper::isCommunityAdmin($user->id));
@@ -761,9 +817,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to send mail to all participent
+	 * used to send mail to all participent
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -777,7 +833,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function removeMember()
+	public function removeMember()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
@@ -786,6 +842,7 @@ class event
 		if ($block == 1)
 		{
 			$this->jsonarray = $this->blockMember();
+
 			if (!$this->jsonarray)
 			{
 				return false;
@@ -798,9 +855,9 @@ class event
 		$event  = JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
-		// Site admin can remove guest
-		// Event creator can remove guest
-		// The guest himself can remove himself
+		/* Site admin can remove guest
+		 Event creator can remove guest
+		 The guest himself can remove himself*/
 		if ($event->isAdmin($this->my->id) || COwnerHelper::isCommunityAdmin($this->my->id) || $this->my->id == $userID)
 		{
 			// Delete guest from event
@@ -863,9 +920,9 @@ class event
 		}
 	}
 
-
 	/**
-	 * @uses    to send mail to all participent
+	 * used  to send mail to all participent
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -878,7 +935,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function unblockMember()
+	public function unblockMember()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
@@ -923,9 +980,9 @@ class event
 		}
 	}
 
-
 	/**
-	 * @uses    to send mail to all participent
+	 * used to send mail to all participent
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -939,7 +996,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function sendmail()
+	public function sendmail()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$title    = IJReq::getTaskData('title');
@@ -1001,10 +1058,12 @@ class event
 		foreach ($members as $member)
 		{
 			$user = CFactory::getUser($member->id);
+
 			// Do not sent email notification to self
 			if ($this->my->id != $user->id)
 			{
-				$total += 1;
+				// $total += 1;
+				$total++;
 				$emails [] = $user->id;
 			}
 		}
@@ -1014,8 +1073,9 @@ class event
 		$params->set('title', $title);
 		$params->set('message', $message);
 		CNotificationLibrary::add('etype_events_sendmail', $this->my->id, $emails, JText::sprintf('COM_COMMUNITY_EVENT_SENDMAIL_SUBJECT', $event->title), '', 'events.sendmail', $params);
-		//Send push notification
-		// get user push notification params and user device token and device type
+
+		// Send push notification
+		// Get user push notification params and user device token and device type
 		$memberslist = implode(',', $emails);
 		$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 				FROM #__ijoomeradv_users
@@ -1023,7 +1083,7 @@ class event
 		$this->db->setQuery($query);
 		$puserlist = $this->db->loadObjectList();
 
-		//change for id based push notification
+		// Change for id based push notification
 		$pushOptions['detail'] = array();
 		$pushOptions           = gzcompress(json_encode($pushOptions));
 
@@ -1035,6 +1095,7 @@ class event
 		$obj->detail  = $pushOptions;
 		$obj->tocount = count($puserlist);
 		$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 		if ($obj->id)
 		{
 			$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1043,14 +1104,15 @@ class event
 			$this->jsonarray['pushNotificationData']['type']       = 'eventmail';
 			$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_events_sendmail';
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to request invitation for private event
+	 * used to request invitation for private event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1062,7 +1124,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function requestInvite()
+	public function requestInvite()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
@@ -1099,10 +1161,14 @@ class event
 
 			CFactory::load('helpers', 'owner');
 
-			//@todo: need to set the privileges
+			// @todo: need to set the privileges
 			$date                      = JFactory::getDate();
-			$eventMembers->status     = COMMUNITY_EVENT_STATUS_REQUESTINVITE; // for now just set it to approve for the demo purpose
-			$eventMembers->permission = '3'; //always a member
+
+			// For now just set it to approve for the demo purpose
+			$eventMembers->status     = COMMUNITY_EVENT_STATUS_REQUESTINVITE;
+
+			// Always a member
+			$eventMembers->permission = '3';
 			$eventMembers->created    = $date->toMySQL();
 
 			// Get the owner data
@@ -1126,8 +1192,8 @@ class event
 			$params->set('event_url', 'index.php?option=com_community&view=events&task=viewevent&eventid=' . $event->id);
 			CNotificationLibrary::add('event_join_request', $this->my->id, $emails, JText::sprintf('COM_COMMUNITY_EVENT_JOIN_REQUEST_SUBJECT'), '', 'events.joinrequest', $params);
 
-			//Send push notification
-			// get user push notification params and user device token and device type
+			// Send push notification
+			// Get user push notification params and user device token and device type
 			$memberslist = implode(',', $emails);
 			$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
@@ -1162,7 +1228,7 @@ class event
 			$eventdata['ongoing']   = (strtotime($event->startdate) <= time() and strtotime($event->enddate) > time()) ? 1 : 0;
 			$eventdata['confirmed'] = $event->confirmedcount;
 
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail']['content_data']         = $eventdata;
 			$pushOptions['detail']['content_data']['type'] = 'event';
 			$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -1176,6 +1242,7 @@ class event
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1185,9 +1252,9 @@ class event
 				$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_event_join_request';
 			}
 
-			//trigger for on event request invite
+			// Trigger for on event request invite
 			CFactory::load('controllers', 'events');
-			$event_controller_obj = new CommunityEventsController ();
+			$event_controller_obj = new CommunityEventsController;
 			$event_controller_obj->triggerEvents('onEventRequestInvite', $event, $this->my->id);
 			IJReq::setResponse(708);
 			$this->jsonarray['code'] = 708;
@@ -1196,9 +1263,9 @@ class event
 		}
 	}
 
-
 	/**
-	 * @uses    to approve user invitation
+	 * used to approve user invitation
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1211,7 +1278,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function approveMember()
+	public function approveMember()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$memberID = IJReq::getTaskData('memberID', 0, 'int');
@@ -1223,6 +1290,7 @@ class event
 
 			return false;
 		}
+
 		$filter   = JFilterInput::getInstance();
 		$uniqueID = $filter->clean($uniqueID, 'int');
 		$memberID = $filter->clean($memberID, 'int');
@@ -1266,7 +1334,7 @@ class event
 			$params->set('event_url', 'index.php?option=com_community&view=events&task=viewevent&eventid=' . $event->id);
 			CNotificationLibrary::add('events_invitation_approved', $event->creator, $user->id, JText::sprintf('COM_COMMUNITY_EVENTS_EMAIL_SUBJECT', $event->title), '', 'events.invitation.approved', $params);
 
-			// get user push notification params
+			// Get user push notification params
 			$eventdata['id']        = $event->id;
 			$eventdata['title']     = $event->title;
 			$eventdata['location']  = $event->location;
@@ -1301,7 +1369,7 @@ class event
 			$puser    = $this->db->loadObject();
 			$ijparams = new CParameter($puser->jomsocial_params);
 
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail']['content_data']         = $eventdata;
 			$pushOptions['detail']['content_data']['type'] = 'event';
 			$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -1312,6 +1380,7 @@ class event
 			$obj->detail  = $pushOptions;
 			$obj->tocount = 1;
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1321,14 +1390,15 @@ class event
 				$this->jsonarray['pushNotificationData']['configtype'] = 'pushnotif_events_invitation_approved';
 			}
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to send mail to all participent
+	 * used to send mail to all participent
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1341,7 +1411,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function response()
+	public function response()
 	{
 		CFactory::load('helpers', 'friends');
 
@@ -1356,7 +1426,7 @@ class event
 			return false;
 		}
 
-		//$model = CFactory::getModel ( 'events' );
+		// $model = CFactory::getModel ( 'events' );
 		$event = JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
@@ -1386,7 +1456,8 @@ class event
 
 		if ($eventMember->permission != 1 && $eventMember->permission != 2)
 		{
-			$eventMember->permission = 3; //always a member
+			// Always a member
+			$eventMember->permission = 3;
 		}
 
 		$date                 = JFactory::getDate();
@@ -1397,7 +1468,7 @@ class event
 		$event->updateGuestStats();
 		$event->store();
 
-		//activities stream goes here.
+		// Activities stream goes here.
 		$url       = $handler->getFormattedLink('index.php?option=com_community&view=events&task=viewevent&eventid=' . $event->id, false);
 		$statustxt = JText::_('COM_COMMUNITY_EVENTS_NO');
 
@@ -1437,13 +1508,13 @@ class event
 			CActivityStream::add($act, $params->toString());
 		}
 
-		//trigger goes here.
+		// Trigger goes here.
 		CFactory::load('libraries', 'apps');
-		$appsLib  =CAppPlugins::getInstance();
+		$appsLib = CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$params    = array();
-		$params []  =$event;
+		$params [] = $event;
 		$params [] = $this->my->id;
 		$params [] = $status;
 
@@ -1455,9 +1526,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to edit avatar
+	 * used to edit avatar
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1471,9 +1542,10 @@ class event
 	 * // avatar image will be post with the name 'image'
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function editAvatar()
+	public function editAvatar()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(204);
@@ -1481,6 +1553,7 @@ class event
 
 			return false;
 		}
+
 		$event = JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
@@ -1496,7 +1569,7 @@ class event
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib      =CAppPlugins::getInstance();
+		$appsLib     = CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-events-uploadavatar'));
 
 		if (empty ($saveSuccess) || !in_array(false, $saveSuccess))
@@ -1520,7 +1593,7 @@ class event
 				return false;
 			}
 
-			$uploadLimit = ( double ) $this->config->get('maxuploadsize');
+			$uploadLimit = (double) $this->config->get('maxuploadsize');
 			$uploadLimit = ($uploadLimit * 1024 * 1024);
 
 			// @rule: Limit image size based on the maximum upload allowed.
@@ -1589,7 +1662,7 @@ class event
 				CActivityStream::add($act, $params->toString());
 			}
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('event.avatar.upload');
 			$query = 'SELECT MAX(id)
@@ -1604,13 +1677,14 @@ class event
 			$res                       = $this->db->loadObject();
 			$this->jsonarray['code']   = 200;
 			$this->jsonarray['avatar'] = JURI::base() . $res->avatar;
+
 			return $this->jsonarray;
 		}
 	}
 
-
 	/**
-	 * @uses    to add like to the event
+	 * used to add like to the event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1622,9 +1696,10 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function like()
+	public function like()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -1632,6 +1707,7 @@ class event
 
 			return false;
 		}
+
 		if ($this->jomHelper->Like('events', $uniqueID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -1648,7 +1724,8 @@ class event
 	}
 
 	/**
-	 * @uses    to add dislike to the event
+	 * used  to add dislike to the event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1660,9 +1737,10 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function dislike()
+	public function dislike()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -1670,6 +1748,7 @@ class event
 
 			return false;
 		}
+
 		if ($this->jomHelper->Dislike('events', $uniqueID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -1685,9 +1764,9 @@ class event
 		}
 	}
 
-
 	/**
-	 * @uses    to unlike like/dislike value to the event
+	 * used  to unlike like/dislike value to the event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1699,9 +1778,10 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function unlike()
+	public function unlike()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (!$uniqueID)
 		{
 			IJReq::setResponse(400);
@@ -1709,6 +1789,7 @@ class event
 
 			return false;
 		}
+
 		if ($this->jomHelper->Unlike('events', $uniqueID))
 		{
 			$this->jsonarray['code'] = 200;
@@ -1724,9 +1805,9 @@ class event
 		}
 	}
 
-
 	/**
-	 * @uses    to ignore event
+	 * used to ignore event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1738,7 +1819,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function ignore()
+	public function ignore()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
@@ -1761,18 +1842,19 @@ class event
 			$eventMembers->status = COMMUNITY_EVENT_STATUS_IGNORE;
 			$eventMembers->store();
 
-			//now we need to update the events various count.
+			// Now we need to update the events various count.
 			$event->updateGuestStats();
 			$event->store();
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to delete event
+	 *used to delete event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1784,9 +1866,10 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function delete()
+	public function delete()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
+
 		if (empty($uniqueID))
 		{
 			IJReq::setResponse(400, JText::_('COM_COMMUNITY_EVENTS_INVALID_ID_ERROR'));
@@ -1850,6 +1933,7 @@ class event
 				$path = explode('/', $eventData->avatar);
 
 				$file = JPATH_ROOT . '/' . $path[0] . '/' . $path[1] . '/' . $path[2] . '/' . $path[3];
+
 				if (JFile::exists($file))
 				{
 					JFile::delete($file);
@@ -1859,15 +1943,16 @@ class event
 			if ($eventData->thumb != 'components/com_community/assets/event_thumb.png' && !empty($eventData->avatar))
 			{
 				$file = JPATH_ROOT . '/' . JString::str_ireplace('/', '/', $eventData->thumb);
+
 				if (JFile::exists($file))
 				{
 					JFile::delete($file);
 				}
 			}
 
-			//trigger for onGroupDelete
+			// Trigger for onGroupDelete
 			CFactory::load('controllers', 'events');
-			$event_controller_obj = new CommunityEventsController ();
+			$event_controller_obj = new CommunityEventsController;
 			$event_controller_obj->triggerEvents('onAfterEventDelete', $eventData);
 
 			// Remove from activity stream
@@ -1887,7 +1972,8 @@ class event
 	}
 
 	/**
-	 * @uses    to report event
+	 * used to report event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1900,7 +1986,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function report()
+	public function report()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$message  = IJReq::getTaskData("message");
@@ -1933,9 +2019,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to set user as admin
+	 * used to set user as admin
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1948,7 +2034,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setAdmin()
+	public function setAdmin()
 	{
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -1987,9 +2073,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to revert Admin
+	 * used to revert Admin
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2002,7 +2088,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setUser()
+	public function setUser()
 	{
 		$userID   = IJReq::getTaskData('userID', 0, 'int');
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -2041,9 +2127,9 @@ class event
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to add/edit event
+	 * used to add/edit event
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2057,7 +2143,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function addEvent()
+	public function addEvent()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$fields   = IJReq::getTaskData('fields', 0, 'bool');
@@ -2071,8 +2157,10 @@ class event
 		}
 
 		if ($fields)
-		{ // for getting fields to add/edit event.
+		{
+			// For getting fields to add/edit event.
 			$this->jsonarray = $this->addEventFields($uniqueID);
+
 			if (!$this->jsonarray)
 			{
 				return false;
@@ -2082,7 +2170,7 @@ class event
 		}
 
 		require_once JPATH_ROOT . '/components/com_community/controllers/events.php';
-		$event_controller_obj = new CommunityEventsController ();
+		$event_controller_obj = new CommunityEventsController;
 		$event                = JTable::getInstance('Event', 'CTable');
 
 		if ($uniqueID)
@@ -2113,7 +2201,7 @@ class event
 				$event->load($uniqueID);
 			}
 
-			//trigger for onGroupCreate
+			// Trigger for onGroupCreate
 			$event_controller_obj->triggerEvents('onEventUpdate', $event);
 
 			$this->jsonarray['code'] = 200;
@@ -2134,7 +2222,7 @@ class event
 	/**
 	 * to get field list to add/edit event.
 	 *
-	 * @param  integer  $uniqueID  uniqueid
+	 * @param   integer  $uniqueID  uniqueid
 	 *
 	 * @return array  jsonarray
 	 */
@@ -2148,19 +2236,19 @@ class event
 		$halper_time_obj     = new CTimeHelper;
 
 		$fieldList = array('title'       => array('text', 1, JText::_('COM_COMMUNITY_EVENTS_TITLE_LABEL')),
-		                   'summary'     => array('textarea', 0, JText::_('COM_COMMUNITY_EVENTS_SUMMARY')),
-		                   'description' => array('textarea', 0, JText::_('COM_COMMUNITY_EVENTS_DESCRIPTION')),
-		                   'catid'       => array('select', 1, JText::_('COM_COMMUNITY_EVENTS_CATEGORY')),
-		                   'location'    => array('map', 1, JText::_('COM_COMMUNITY_EVENTS_LOCATION')),
-		                   'startdate'   => array('datetime', 1, JText::_('COM_COMMUNITY_EVENTS_START_TIME')),
-		                   'enddate'     => array('datetime', 1, JText::_('COM_COMMUNITY_EVENTS_END_TIME')),
-		                   'allday'      => array('checkbox', 0, JText::_('COM_COMMUNITY_EVENTS_ALL_DAY')),
-		                   'repeat'      => array('select', 1, JText::_('COM_COMMUNITY_EVENTS_REPEAT')),
-		                   'repeatend'   => array('datetime', 1, JText::_('COM_COMMUNITY_EVENTS_REPEAT_END')),
-		                   'offset'      => array('select', 1, JText::_('COM_COMMUNITY_TIMEZONE')),
-		                   'permission'  => array('checkbox', 0, JText::_('COM_COMMUNITY_EVENTS_PRIVATE_EVENT')),
-		                   'ticket'      => array('text', 1, JText::_('COM_COMMUNITY_EVENTS_NO_SEAT')),
-		                   'allowinvite' => array('checkbox', 0, JText::_('COM_COMMUNITY_EVENTS_GUEST_INVITE'))
+							'summary'     => array('textarea', 0, JText::_('COM_COMMUNITY_EVENTS_SUMMARY')),
+							'description' => array('textarea', 0, JText::_('COM_COMMUNITY_EVENTS_DESCRIPTION')),
+							'catid'       => array('select', 1, JText::_('COM_COMMUNITY_EVENTS_CATEGORY')),
+							'location'    => array('map', 1, JText::_('COM_COMMUNITY_EVENTS_LOCATION')),
+							'startdate'   => array('datetime', 1, JText::_('COM_COMMUNITY_EVENTS_START_TIME')),
+							'enddate'     => array('datetime', 1, JText::_('COM_COMMUNITY_EVENTS_END_TIME')),
+							'allday'      => array('checkbox', 0, JText::_('COM_COMMUNITY_EVENTS_ALL_DAY')),
+							'repeat'      => array('select', 1, JText::_('COM_COMMUNITY_EVENTS_REPEAT')),
+							'repeatend'   => array('datetime', 1, JText::_('COM_COMMUNITY_EVENTS_REPEAT_END')),
+							'offset'      => array('select', 1, JText::_('COM_COMMUNITY_TIMEZONE')),
+							'permission'  => array('checkbox', 0, JText::_('COM_COMMUNITY_EVENTS_PRIVATE_EVENT')),
+							'ticket'      => array('text', 1, JText::_('COM_COMMUNITY_EVENTS_NO_SEAT')),
+							'allowinvite' => array('checkbox', 0, JText::_('COM_COMMUNITY_EVENTS_GUEST_INVITE'))
 		);
 
 		$query = "SELECT *
@@ -2172,20 +2260,25 @@ class event
 		$timezone                = $halper_time_obj->getTimezoneList();
 		$event                   = false;
 		$this->jsonarray['code'] = 200;
+
 		if ($uniqueID != '' || $uniqueID != 0)
 		{
 			$event = JTable::getInstance('Event', 'CTable');
 			$event->load($uniqueID);
 		}
+
 		$i = 0;
+
 		foreach ($fieldList as $key => $field)
 		{
 			$this->jsonarray['fields'][$i]['name']     = $key;
 			$this->jsonarray['fields'][$i]['type']     = $field[0];
 			$this->jsonarray['fields'][$i]['required'] = $field[1];
 			$this->jsonarray['fields'][$i]['caption']  = $field[2];
+
 			if ($event)
-			{ // if edit event.. value should be passed to adit.
+			{
+				// If edit event.. value should be passed to adit.
 				$this->jsonarray['fields'][$i]['value'] = trim($event->{$key});
 			}
 			else
@@ -2217,6 +2310,7 @@ class event
 			if ($key == 'offset')
 			{
 				$is = 0;
+
 				foreach ($timezone as $timek => $timev)
 				{
 					$this->jsonarray['fields'][$i]['options'][$is]['name']  = $timev;
@@ -2224,6 +2318,7 @@ class event
 					$is++;
 				}
 			}
+
 			$i++;
 		}
 
@@ -2233,7 +2328,7 @@ class event
 	/**
 	 * to get field list to add/edit event.
 	 *
-	 * @param   [type]  $event  event
+	 * @param   [type]  &$event  event
 	 *
 	 * @return  integer/boolean  id and true on success or false on failure
 	 */
@@ -2257,6 +2352,7 @@ class event
 		$enddate                 = explode(' ', $enddate);
 		$postData['startdate']   = $startdate[0];
 		$postData['enddate']     = $enddate[0];
+
 		if (isset($startdate[1]) && isset($enddate[1]))
 		{
 			$startdate                  = explode(':', $startdate[1]);
@@ -2277,6 +2373,7 @@ class event
 			$postData['endtime-min']    = 0;
 			$postData['endtime-ampm']   = 'AM';
 		}
+
 		$postData['allday']      = IJReq::getTaskData('allday', 0);
 		$postData['repeat']      = IJReq::getTaskData('repeat');
 		$postData['repeatend']   = IJReq::getTaskData('repeatend');
@@ -2285,12 +2382,12 @@ class event
 		$postData['permission']  = IJReq::getTaskData('permission', 0, 'int');
 		$postData['allowinvite'] = IJReq::getTaskData('allowinvite', 0, 'int');
 
-		//format startdate and eendate with time before we bind into event object
+		// Format startdate and eendate with time before we bind into event object
 		$this->_formatStartEndDate($postData);
 
 		$event->load($uniqueID);
 
-		// record event original start and end date
+		// Record event original start and end date
 		$postData['oldstartdate'] = $event->startdate;
 		$postData['oldenddate']   = $event->enddate;
 
@@ -2305,7 +2402,7 @@ class event
 		{
 			$event->allowinvite = 0;
 		}
-		else if (isset($postData['endtime-ampm']) && $postData['endtime-ampm'] == 'AM' && $postData['endtime-hour'] == 12)
+		elseif (isset($postData['endtime-ampm']) && $postData['endtime-ampm'] == 'AM' && $postData['endtime-hour'] == 12)
 		{
 			$postData['endtime-hour'] = 00;
 		}
@@ -2379,8 +2476,9 @@ class event
 			return false;
 		}
 
-		// if all day event.
+		// If all day event.
 		$isToday = false;
+
 		if ($postData['allday'] == '1')
 		{
 			$isToday = date("Y-m-d", strtotime($event->enddate)) == date("Y-m-d", strtotime($now->toMySQL(true))) ? true : $isToday;
@@ -2396,14 +2494,17 @@ class event
 		}
 
 		$eventChild = array();
-		// check event recurrence limit.
+
+		// Check event recurrence limit.
 
 		if (!empty($event->repeat) && ($isNew || $postData['repeataction'] == 'future'))
 		{
 			$repeatLimit = 'COMMUNITY_EVENT_RECURRING_LIMIT_' . strtoupper($event->repeat);
+
 			if (defined($repeatLimit))
 			{
 				$eventChild = $this->_generateRepeatList($event);
+
 				if (count($eventChild) > constant($repeatLimit))
 				{
 					IJReq::setResponse(416, sprintf(JText::_('COM_COMMUNITY_EVENTS_REPEAT_LIMIT_ERROR')));
@@ -2424,7 +2525,8 @@ class event
 		if ($isNew)
 		{
 			$event->creator = $this->my->id;
-			//@rule: If event moderation is enabled, event should be unpublished by default
+
+			// @rule: If event moderation is enabled, event should be unpublished by default
 			$event->published = $this->config->get('event_moderation') ? 0 : 1;
 			$event->created   = JFactory::getDate()->toMySQL();
 
@@ -2454,18 +2556,18 @@ class event
 
 		if ($isNew)
 		{
-			// add activity stream
+			// Add activity stream
 			$this->_addActivityStream($event);
 
-			//add user points
+			// Add user points
 			$action_str = 'events.create';
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint($action_str);
 
-			//add notification: New group event is added
+			// Add notification: New group event is added
 			$this->_addGroupNotification($event);
 
-			//Send notification
+			// Send notification
 			$modelGroup    = CFactory::getModel('groups');
 			$groupMembers = array();
 			$groupMembers = $modelGroup->getMembersId($event->contentid, true);
@@ -2504,7 +2606,7 @@ class event
 			$eventdata['ongoing']   = (strtotime($event->startdate) <= time() and strtotime($event->enddate) > time()) ? 1 : 0;
 			$eventdata['confirmed'] = $event->confirmedcount;
 
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail']['content_data']         = $eventdata;
 			$pushOptions['detail']['content_data']['type'] = 'event';
 			$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -2517,6 +2619,7 @@ class event
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -2533,7 +2636,7 @@ class event
 	/**
 	 * function _formatStartEndDate description
 	 *
-	 * @param   string  $postData  postdata
+	 * @param   string  &$postData  postdata
 	 *
 	 * @return  void
 	 */
@@ -2565,7 +2668,6 @@ class event
 		{
 			$postData['startdate'] = $postData['startdate'] . ' 00:00:00';
 			$postData['enddate']   = $postData['enddate'] . ' 23:59:59';
-
 		}
 		else
 		{
@@ -2605,7 +2707,6 @@ class event
 		// Repeat option.
 		switch ($event->repeat)
 		{
-
 			case 'daily':
 				$day          = 1;
 				$defaultLimit = COMMUNITY_EVENT_RECURRING_LIMIT_DAILY;
@@ -2638,11 +2739,12 @@ class event
 		$start = strtotime($event->startdate);
 		$end   = strtotime($event->enddate);
 
-		// if repeatend is empty, generate dummy date to make it valid.
+		// If repeatend is empty, generate dummy date to make it valid.
 		if ($event->repeatend == '')
 		{
 			$repeatend = $event->enddate;
-			// if both repeat end and limit never been set, use default limit.
+
+			// If both repeat end and limit never been set, use default limit.
 			$limit = $limit == 0 ? $defaultLimit : $limit;
 		}
 		else
@@ -2652,10 +2754,10 @@ class event
 
 		$addDay   = 0;
 		$addMonth = 0;
+
 		// Generate list of event childs in given date.
 		while ((CTimeHelper::timeIntervalDifference($repeatend, $enddate) >= 0) || ($count < $limit))
 		{
-
 			// Add event child as new array item.
 			$eventList[] = array('startdate' => $startdate . ' ' . $starttime, 'enddate' => $enddate . ' ' . $endtime);
 
@@ -2692,7 +2794,6 @@ class event
 	 */
 	private function _saveMember($event)
 	{
-
 		// Since this is storing event, we also need to store the creator / admin
 		// into the events members table
 		$member           = JTable::getInstance('EventMembers', 'CTable');
@@ -2731,23 +2832,24 @@ class event
 		}
 		else
 		{
-			// event edit
+			// Event edit
 			$id = $event->id;
+
 			if (isset($postData['repeataction']) && $postData['repeataction'] == 'future')
 			{
-
 				$newList = $eventChild;
 				array_shift($newList);
 
 				$model   = CFactory::getModel('Events');
 				$oldList = $model->getEventChilds($event->parent, array('id' => $event->id));
 
-				// start update old records.
+				// Start update old records.
 				$this->db->setQuery('START TRANSACTION');
 				$this->db->query();
 
 				// Update existing event child.
 				$published = $event->published;
+
 				foreach ($oldList as $key => $value)
 				{
 					if (isset($newList[$key]))
@@ -2766,18 +2868,20 @@ class event
 
 				if (count($newList) > count($oldList))
 				{
-					// insert new event child
+					// Insert new event child
 					$insertList = array_slice($newList, count($oldList));
 				}
-				else if (count($oldList) > count($newList))
+				elseif (count($oldList) > count($newList))
 				{
-					// delete
+					// Delete
 					$deleteList = array_slice($oldList, count($newList));
 					$id         = array();
+
 					foreach ($deleteList as $value)
 					{
 						$id[] = $value['id'];
 					}
+
 					$model->deleteExpiredEvent($id);
 				}
 
@@ -2794,7 +2898,6 @@ class event
 
 			foreach ($insertList as $key => $value)
 			{
-
 				$event->id        = 0;
 				$event->startdate = $value['startdate'];
 				$event->enddate   = $value['enddate'];
@@ -2808,20 +2911,19 @@ class event
 				// Increment the member count
 				$event->updateGuestStats();
 				$event->store();
-
 			}
+
 			$event->id = $id;
 
 			$this->db->setQuery('COMMIT');
 			$this->db->query();
 		}
-
 	}
 
 	/**
 	 * function _addActivityStream
 	 *
-	 * @param  [type]  $event  event
+	 * @param   [type]  $event  event
 	 *
 	 * @return void
 	 */
@@ -2834,7 +2936,7 @@ class event
 	/**
 	 * function  _addGroupNotification
 	 *
-	 * @param  [type]  $event  event
+	 * @param   [type]  $event  event
 	 *
 	 * @return void
 	 */
@@ -2844,9 +2946,9 @@ class event
 		CEvents::addGroupNotification($event);
 	}
 
-
 	/**
-	 * @uses    to invite friends
+	 * used  to invite friends
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2860,7 +2962,7 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function invite()
+	public function invite()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$userID   = IJReq::getTaskData('userID');
@@ -2868,7 +2970,7 @@ class event
 
 		CFactory::load('controllers', 'events');
 		CFactory::load('helpers', 'owner');
-		$event_controller_obj = new CommunityEventsController ();
+		$event_controller_obj = new CommunityEventsController;
 
 		$userID = explode(',', $userID);
 
@@ -2902,6 +3004,7 @@ class event
 		{
 			$invitedCount = 0;
 			$invited      = array();
+
 			foreach ($userID as $invitedUserId)
 			{
 				$date                     = JFactory::getDate();
@@ -2917,7 +3020,7 @@ class event
 				$invitedCount++;
 			}
 
-			//now update the invited count in event
+			// Now update the invited count in event
 			$event->invitedcount = $event->invitedcount + $invitedCount;
 			$event->store();
 
@@ -2930,8 +3033,8 @@ class event
 			$params->set('message', $inviteMessage);
 			CNotificationLibrary::add('etype_events_invite', $this->my->id, $invited, JText::sprintf('COM_COMMUNITY_EVENTS_JOIN_INVITE', $event->title), '', 'events.invite', $params);
 
-			//Send push notification
-			// get user push notification params and user device token and device type
+			// Send push notification
+			// Get user push notification params and user device token and device type
 			$userIDS     = IJReq::getTaskData('userID');
 			$memberslist = implode(',', $invited);
 			$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
@@ -2967,7 +3070,7 @@ class event
 			$eventdata['ongoing']   = (strtotime($event->startdate) <= time() and strtotime($event->enddate) > time()) ? 1 : 0;
 			$eventdata['confirmed'] = $event->confirmedcount;
 
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail']['content_data']         = $eventdata;
 			$pushOptions['detail']['content_data']['type'] = 'event';
 			$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -2981,6 +3084,7 @@ class event
 			$obj->detail  = $pushOptions;
 			$obj->tocount = count($puserlist);
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -3003,9 +3107,9 @@ class event
 		}
 	}
 
-
 	/**
-	 * @uses    to invite friends
+	 * used to invite friends
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3018,9 +3122,9 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function friendList()
+	public function friendList()
 	{
-		//$userId = JRequest::getInt( 'userid',0);
+		// $userId = JRequest::getInt( 'userid',0);
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
 		$limit    = PAGE_MEMBER_LIMIT;
@@ -3137,7 +3241,8 @@ class event
 	}
 
 	/**
-	 * @uses    to invite friends
+	 * used to invite friends
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3151,15 +3256,17 @@ class event
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function addWall()
+	public function addWall()
 	{
 		$message = IJReq::getTaskData('message');
 
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($audiofileupload)
 		{
 			$message = $message . $audiofileupload['voicetext'];
 		}
+
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$comment  = IJReq::getTaskData('comment', 0, 'bool');
 
@@ -3175,7 +3282,6 @@ class event
 			{
 				return false;
 			}
-
 		}
 
 		if (!COwnerHelper::isRegisteredUser())
@@ -3194,7 +3300,7 @@ class event
 		CFactory::load('helpers', 'linkgenerator');
 		CFactory::load('libraries', 'notification');
 
-		//@rule: In case someone bypasses the status in the html, we enforce the character limit.
+		// @rule: In case someone bypasses the status in the html, we enforce the character limit.
 		if (JString::strlen($message) > $this->config->get('statusmaxchar'))
 		{
 			$message = JString::substr($message, 0, $this->config->get('statusmaxchar'));
@@ -3202,8 +3308,10 @@ class event
 
 		$message    = JString::trim($message);
 		$rawMessage = $message;
+
 		// @rule: Autolink hyperlinks
 		$message = CLinkGeneratorHelper::replaceURL($message);
+
 		// @rule: Autolink to users profile when message contains @username
 		$message      = CLinkGeneratorHelper::replaceAliasURL($message);
 		$emailMessage = CLinkGeneratorHelper::replaceAliasURL($rawMessage, true);
@@ -3230,14 +3338,14 @@ class event
 			}
 		}
 
-		//respect wall setting before adding activity
+		// Respect wall setting before adding activity
 		CFactory::load('helpers', 'friends');
 		CFactory::load('helpers', 'owner');
 		CFactory::load('models', 'status');
 
 		if (!empty($message))
 		{
-			//push to activity stream
+			// Push to activity stream
 			$privacyParams     = $this->my->getParams();
 			$act               = new stdClass;
 			$act->cmd          = 'events.wall';
@@ -3258,6 +3366,7 @@ class event
 			CActivityStream::add($act);
 			CUserPoints::assignPoint('events.wall');
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;

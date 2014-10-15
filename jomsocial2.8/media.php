@@ -16,30 +16,44 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial2.8
  * @since       1.0
  */
-class media
+class Media
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
-		$this->jomHelper = new jomHelper ();
+		$this->jomHelper = new jomHelper;
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 		$notification    = $this->jomHelper->getNotificationCount();
+
 		if (isset ($notification ['notification']))
 		{
 			$this->jsonarray ['notification'] = $notification ['notification'];
@@ -47,7 +61,8 @@ class media
 	}
 
 	/**
-	 * @uses    get comment user list
+	 * uses to  get comment user list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -60,7 +75,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function allAlbums()
+	public function allAlbums()
 	{
 		$groupID = IJReq::getTaskData('groupID', 0, 'int');
 		$pageNO  = IJReq::getTaskData('pageNO', 0, 'int');
@@ -74,9 +89,10 @@ class media
 			$startFrom = (PAGE_ALBUM_LIMIT * ($pageNO - 1));
 		}
 
-		$isAdmin = ( int ) COwnerHelper::isCommunityAdmin();
+		$isAdmin = (int) COwnerHelper::isCommunityAdmin();
 
 		$groupquery = "";
+
 		if ($groupID)
 		{
 			$photoModel = CFactory::getModel('photos');
@@ -96,6 +112,7 @@ class media
 					FROM ' . '(SELECT a.`id`, a.`creator`, a.`name`, a.`description`, a.`permissions`, a.`created`, ' . ' a.`path` , a.`type` , a.`groupid`, a.`location`, ' . 'c.thumbnail, ' . 'c.storage, ' . 'c.id as photoid, ' . 'IF( a.groupid>0, IF( d.approvals=0,true,(' . $subQuery . ') ), true ) as display, ' . 'CASE a.permissions ' . '	WHEN 0 THEN ' . '	  true ' . '	WHEN 20 THEN ' . '	  (SELECT COUNT(u.id) FROM ' . $this->db->nameQuote('#__users') . ' AS u WHERE u.block=0 AND u.id=' . $this->db->Quote($this->IJUserID) . ') ' . '	WHEN 30 THEN ' . '	  IF( a.creator=' . $this->db->Quote($this->IJUserID) . ' or ' . $isAdmin . ', true, (SELECT COUNT(v.connection_id) FROM ' . $this->db->nameQuote('#__community_connection') . ' AS v WHERE v.connect_from=a.creator AND v.connect_to=' . $this->db->Quote($this->IJUserID) . ' AND v.status=1) ) ' . '	WHEN 40 THEN ' . '	  IF(a.creator=' . $this->db->Quote($this->IJUserID) . ' or ' . $isAdmin . ',true,false) ' . '	END ' . '	AS privacy ' . 'FROM ' . $this->db->nameQuote('#__community_photos_albums') . ' AS a ' . 'LEFT JOIN ' . $this->db->nameQuote('#__community_photos') . ' AS c ' . 'ON a.photoid=c.id ' . 'LEFT JOIN ' . $this->db->nameQuote('#__community_groups') . ' AS d ' . 'ON a.groupid=d.id ' . 'GROUP BY a.id ' . 'HAVING display=true AND privacy=true ' . 'ORDER BY a.`created` DESC ' . ') AS x ' . 'INNER JOIN `#__community_photos` AS b ' . 'ON x.id=b.albumid ' . 'GROUP BY x.id ' . 'ORDER BY x.`created` DESC ';
 			$this->db->setQuery($query);
 			$result = $this->db->loadObjectList();
+
 			if ($this->db->getErrorNum())
 			{
 				IJReq::setResponse(500);
@@ -103,6 +120,7 @@ class media
 
 				return false;
 			}
+
 			$total  = count($result);
 			$result = array_slice($result, $startFrom, PAGE_ALBUM_LIMIT);
 		}
@@ -133,10 +151,12 @@ class media
 					continue;
 				}
 			}
+
 			$this->jsonarray ['albums'] [$key] ['id']          = $value->id;
 			$this->jsonarray ['albums'] [$key] ['name']        = $value->name;
 			$this->jsonarray ['albums'] [$key] ['description'] = $value->description;
 			$this->jsonarray ['albums'] [$key] ['permission']  = $value->permissions;
+
 			if ($groupID)
 			{
 				$this->jsonarray ['albums'] [$key] ['thumb'] = str_replace('default_thumb.jpg', 'photo_thumb.png', $value->thumbnail);
@@ -145,9 +165,10 @@ class media
 			{
 				$this->jsonarray ['albums'] [$key] ['thumb'] = JURI::base() . str_replace('default_thumb.jpg', 'photo_thumb.png', $value->thumbnail);
 			}
+
 			$this->jsonarray ['albums'] [$key] ['date'] = $this->jomHelper->timeLapse($this->jomHelper->getDate($value->lastupdated));
 
-			$user                                                =CFactory::getUser($value->creator);
+			$user                                               = CFactory::getUser($value->creator);
 			$usr                                                = $this->jomHelper->getUserDetail($value->creator);
 			$this->jsonarray ['albums'] [$key] ['user_id']      = $usr->id;
 			$this->jsonarray ['albums'] [$key] ['user_name']    = $usr->name;
@@ -156,14 +177,14 @@ class media
 			$this->jsonarray ['albums'] [$key] ['count']        = $value->count;
 			$this->jsonarray ['albums'] [$key] ['location']     = $value->location;
 
-			//likes
+			// Likes
 			$likes                                          = $this->jomHelper->getLikes('album', $value->id, $this->IJUserID);
 			$this->jsonarray ['albums'] [$key] ['likes']    = $likes->likes;
 			$this->jsonarray ['albums'] [$key] ['dislikes'] = $likes->dislikes;
 			$this->jsonarray ['albums'] [$key] ['liked']    = $likes->liked;
 			$this->jsonarray ['albums'] [$key] ['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                                               = $this->jomHelper->getCommentCount($value->id, 'albums');
 			$this->jsonarray ['albums'] [$key] ['commentCount']  = $count;
 			$this->jsonarray ['albums'] [$key] ['deleteAllowed'] = intval(($this->IJUserID == $value->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -175,7 +196,8 @@ class media
 	}
 
 	/**
-	 * @uses    get comment user list
+	 * uses to   get comment user list
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -190,21 +212,24 @@ class media
 	 * copied from photos model _getAlbums()
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function myAlbums()
+	public function myAlbums()
 	{
 		$userID = IJReq::getTaskData('userID', $this->IJUserID, 'int');
+
 		if (!$userID)
 		{
-			IJReq::setResponse(704); // set error code to restricted access
+			// Set error code to restricted access
+			IJReq::setResponse(704);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
 		}
+
 		$pageNO = IJReq::getTaskData('pageNO', 0, 'int');
 		$type   = IJReq::getTaskData('type', PHOTOS_USER_TYPE);
 		$limit  = PAGE_ALBUM_LIMIT;
 
-		//change permission for album list
+		// Change permission for album list
 		$access_limit = $this->jomHelper->getUserAccess($this->IJUserID, $userID);
 		$query        = "SELECT params
 					FROM #__community_users
@@ -229,7 +254,7 @@ class media
 
 		// Get total albums
 		CFactory::load('models', 'photos');
-		$photosModelObject = new CommunityModelPhotos ();
+		$photosModelObject = new CommunityModelPhotos;
 		$total             = $photosModelObject->getAlbumCount($query);
 		$result            = $photosModelObject->getAlbumPhotoCount($query);
 
@@ -246,6 +271,7 @@ class media
 
 			return false;
 		}
+
 		foreach ($result as $key => $value)
 		{
 			$this->jsonarray ['albums'] [$key] ['id']           = $value->id;
@@ -262,14 +288,14 @@ class media
 			$this->jsonarray ['albums'] [$key] ['count']        = $value->count;
 			$this->jsonarray ['albums'] [$key] ['location']     = $value->location;
 
-			//likes
+			// Likes
 			$likes                                          = $this->jomHelper->getLikes('album', $value->id, $this->IJUserID);
 			$this->jsonarray ['albums'] [$key] ['likes']    = $likes->likes;
 			$this->jsonarray ['albums'] [$key] ['dislikes'] = $likes->dislikes;
 			$this->jsonarray ['albums'] [$key] ['liked']    = $likes->liked;
 			$this->jsonarray ['albums'] [$key] ['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                                               = $this->jomHelper->getCommentCount($value->id, 'albums');
 			$this->jsonarray ['albums'] [$key] ['commentCount']  = $count;
 			$this->jsonarray ['albums'] [$key] ['deleteAllowed'] = intval(($this->IJUserID == $value->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -280,33 +306,26 @@ class media
 	}
 
 	/**
-	 * @uses    create album
-	 * @example the json string will be like, :
-	 *    {
-	 *        "extName":"jomsocial",
-	 *        "extView":"media",
-	 *        "extTask":"addAlbum",
-	 *        "taskData":{
-	 *            "albumID":"albumID",
-	 *            "name":"name",
-	 *            "desc":"desc",
-	 *            "lat":"lat",
-	 *            "long":"long",
-	 *            "groupID":"groupID" // optional for user album
-	 *            "privacy":"privacy" // optional for group albums
-	 *        }
-	 *    }
+	 * function addAlbum
+	 *
+	 * @param   string  $aname  aname
+	 * @param   string  $adesc  a description
+	 * @param   string  $alat   alt
+	 * @param   string  $along  along
+	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function addAlbum($aname = '', $adesc = '', $alat = '', $along = '')
+	public function addAlbum($aname = '', $adesc = '', $alat = '', $along = '')
 	{
 		if (!$this->IJUserID)
 		{
-			IJReq::setResponse(704); // set error code to restricted access
+			// Set error code to restricted access
+			IJReq::setResponse(704);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
 		}
+
 		require_once JPATH_ROOT . '/components/com_community/controllers/controller.php';
 		require_once JPATH_ROOT . '/components/com_community/controllers/photos.php';
 
@@ -316,6 +335,7 @@ class media
 		$lat     = IJReq::getTaskData('lat', $alat);
 		$long    = IJReq::getTaskData('long', $along);
 		$groupID = IJReq::getTaskData('groupID', 0, 'int');
+
 		if ($groupID)
 		{
 			$type = 'group';
@@ -324,8 +344,10 @@ class media
 		{
 			$type = 'user';
 		}
+
 		$permission = IJReq::getTaskData('privacy', 0, 'int');
-		//get location from latlong
+
+		// Get location from latlong
 		$temp_loc = $this->jomHelper->getaddress($lat, $long);
 		$location = $this->jomHelper->gettitle($temp_loc);
 
@@ -344,7 +366,7 @@ class media
 		$album = JTable::getInstance('Album', 'CTable');
 		$album->load($albumID);
 
-		//$postData	= JRequest::get('POST');
+		// $postData	= JRequest::get('POST');
 		$postData                 = array();
 		$postData ['name']        = ($name) ? $name : $album->name;
 		$postData ['description'] = ($desc) ? $desc : $album->description;
@@ -355,6 +377,7 @@ class media
 		$postData ['longitude']   = ($long) ? $long : $album->longitude;
 		$postData ['albumid']     = ($albumID) ? $albumID : '';
 		$postData ['permissions'] = $permission;
+
 		if ($aname)
 		{
 			$postData ['default'] = 1;
@@ -362,10 +385,10 @@ class media
 
 		$handler = $this->_getHandler($album);
 		$handler->bindAlbum($album, $postData);
+
 		// @rule: New album should not have any id's.
 		if (!$albumID)
 		{
-
 			$album->creator = $this->my->id;
 		}
 
@@ -374,17 +397,17 @@ class media
 		$albumPath   = CString::str_ireplace('\\', '/', $albumPath);
 		$album->path = $albumPath;
 
-		// update permissions in activity streams as well
+		// Update permissions in activity streams as well
 		$activityModel = CFactory::getModel('activities');
 		$activityModel->updatePermission($album->permissions, null, $this->my->id, 'photos', $album->id);
 		$activityModel->update(array('cid' => $album->id, 'app' => 'photos', 'actor' => $this->my->id), array('location' => $album->location));
 
-		$appsLib      =CAppPlugins::getInstance();
+		$appsLib     = CAppPlugins::getInstance();
 		$saveSuccess = $appsLib->triggerEvent('onFormSave', array('jsform-photos-newalbum'));
 
 		$album->store();
 
-		//Update inidividual Photos Permissions
+		// Update inidividual Photos Permissions
 		$photos = CFactory::getModel('photos');
 		$photos->updatePermissionByAlbum($album->id, $album->permissions);
 
@@ -393,7 +416,7 @@ class media
 			$this->jsonarray ['code']    = 200;
 			$this->jsonarray ['albumid'] = $album->id;
 
-			//Send push notification
+			// Send push notification
 			if ($groupID)
 			{
 				$groupsModel = CFactory::getModel('groups');
@@ -403,6 +426,7 @@ class media
 				$memberCount  = $groupsModel->getMembersCount($groupID);
 				$members      = $groupsModel->getMembers($groupID, $memberCount, true, false, SHOW_GROUP_ADMIN);
 				$membersArray = array();
+
 				foreach ($members as $row)
 				{
 					$membersArray[] = $row->id;
@@ -430,14 +454,14 @@ class media
 				$albumdata['count']        = 0;
 				$albumdata['location']     = ($album->location) ? $album->location : '';
 
-				//likes
+				// Likes
 				$likes                 = $this->jomHelper->getLikes('album', $album->id, $this->IJUserID);
 				$albumdata['likes']    = $likes->likes;
 				$albumdata['dislikes'] = $likes->dislikes;
 				$albumdata['liked']    = $likes->liked;
 				$albumdata['disliked'] = $likes->disliked;
 
-				//comments
+				// Comments
 				$count                     = $this->jomHelper->getCommentCount($album->id, 'albums');
 				$albumdata['commentCount'] = $count;
 				$albumdata['shareLink']    = JURI::base() . "index.php?option=com_community&view=photos&task=album&albumid={$album->id}&userid={$album->creator}";
@@ -447,6 +471,7 @@ class media
 
 				CFactory::load('helpers', 'group');
 				$allowManagePhotos = CGroupHelper::allowManagePhoto($group->id);
+
 				if ($allowManagePhotos && $this->config->get('groupphotos') && $this->config->get('enablephotos'))
 				{
 					$albumdata['uploadPhoto'] = ($albums) ? 1 : 0;
@@ -456,7 +481,7 @@ class media
 					$albumdata['uploadPhoto'] = 0;
 				}
 
-				//send pushnotification data
+				// Send pushnotification data
 				$search  = array('{target}', '{url}');
 				$replace = array($usr->name, '');
 				$message = str_replace($search, $replace, JText::sprintf('COM_COMMUNITY_EMAIL_GROUP_ALBUM_TEXT', $group->name, $album->name));
@@ -467,7 +492,8 @@ class media
 					$isAdmin                    = $groupsModel->isAdmin($puser->userid, $group->id);
 					$albumdata['deleteAllowed'] = intval(($usr->id == $album->creator or COwnerHelper::isCommunityAdmin($usr->id)));
 					$albumdata['editAlbum']     = ($group->id) ? intval($isAdmin) : intval($usr->id == $album->creator);
-					//change for id based push notification
+
+					// Change for id based push notification
 					$pushOptions                                   = array();
 					$pushOptions['detail']['content_data']         = $albumdata;
 					$pushOptions['detail']['content_data']['type'] = 'album';
@@ -478,6 +504,7 @@ class media
 					$obj->detail  = $pushOptions;
 					$obj->tocount = 1;
 					$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 					if ($obj->id)
 					{
 						$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -503,7 +530,8 @@ class media
 	}
 
 	/**
-	 * @uses    To remove album with its all photos inside
+	 * uses    To remove album with its all photos inside
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -515,11 +543,12 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function removeAlbum()
+	public function removeAlbum()
 	{
 		if (!$this->IJUserID)
 		{
-			IJReq::setResponse(704); // set error code to restricted access
+			// Set error code to restricted access
+			IJReq::setResponse(704);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
@@ -544,7 +573,7 @@ class media
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib  =CAppPlugins::getInstance();
+		$appsLib  = CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$params    = array();
@@ -556,10 +585,10 @@ class media
 
 			// @rule: remove from featured item if item is featured
 			CFactory::load('libraries', 'featured');
-			$featured = new CFeatured (FEATURED_ALBUMS);
+			$featured = new CFeatured(FEATURED_ALBUMS);
 			$featured->delete($album->id);
 
-			//add user points
+			// Add user points
 			CFactory::load('libraries', 'userpoints');
 			CUserPoints::assignPoint('album.remove');
 
@@ -569,6 +598,7 @@ class media
 
 			return $this->jsonarray;
 		}
+
 		IJReq::setResponse(500);
 		IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
@@ -576,7 +606,8 @@ class media
 	}
 
 	/**
-	 * @uses    create album
+	 * uses to   create album
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -588,9 +619,9 @@ class media
 	 *            "type":"type" // 'albums'(default), 'photos', 'videos'
 	 *        }
 	 *    }
-	 *  @return array  jsonarray
+	 * @return array  jsonarray
 	 */
-	function comments()
+	public function comments()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type', 'albums');
@@ -606,9 +637,10 @@ class media
 			$startFrom = ($limit * ($pageNO - 1));
 		}
 
-		$wallModel  =CFactory::getModel('wall');
+		$wallModel = CFactory::getModel('wall');
 		$comments  = $wallModel->getPost($type, $uniqueID, $limit, $startFrom);
 		$count     = $this->jomHelper->getCommentCount($uniqueID, $type);
+
 		if (count($comments) > 0)
 		{
 			$this->jsonarray ['code'] = 200;
@@ -630,7 +662,7 @@ class media
 				break;
 			case 'photos' :
 				CFactory::load('models', 'photos');
-				$photos        = new CommunityModelPhotos ();
+				$photos        = new CommunityModelPhotos;
 				$creator       = intval($photos->isCreator($uniqueID, $this->IJUserID) > 0);
 				$deleteAllowed = intval(($creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
 				break;
@@ -678,7 +710,8 @@ class media
 	}
 
 	/**
-	 * @uses    add comment
+	 * uses to  add comment
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -692,18 +725,20 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function addComment()
+	public function addComment()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$message  = IJReq::getTaskData('message', null);
 
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($audiofileupload)
 		{
 			$message = $message . $audiofileupload['voicetext'];
 		}
 
 		$type = IJReq::getTaskData('type', null);
+
 		if (!$uniqueID or !$type)
 		{
 			IJReq::setResponse(400);
@@ -754,9 +789,9 @@ class media
 	/**
 	 * function for add Album Comment
 	 *
-	 * @param  string  $message   message
-	 * @param  integer  $uniqueId  uniqueid
-	 * @param  integer  $appId     application id
+	 * @param   string   $message   message
+	 * @param   integer  $uniqueId  uniqueid
+	 * @param   integer  $appId     application id
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
@@ -775,7 +810,7 @@ class media
 			return false;
 		}
 
-		//Load Libs
+		// Load Libs
 		CFactory::load('libraries', 'wall');
 		CFactory::load('helpers', 'url');
 		CFactory::load('libraries', 'activities');
@@ -811,7 +846,7 @@ class media
 		}
 
 		$wall  = CWallLibrary::saveWall($uniqueId, $message, 'albums', $this->my, ($this->my->id == $album->creator), 'photos,album');
-		$param = new CParameter ('');
+		$param = new CParameter('');
 		$url   = $handler->getAlbumURI($album->id, false);
 		$param->set('photoid', $uniqueId);
 		$param->set('action', 'wall');
@@ -824,9 +859,8 @@ class media
 		// Add activity logging based on app's type
 		$permission = $this->_getAppPremission($app, $album);
 
-		if (($app == 'user' && $permission == '0') || // Old defination for public privacy
-			($app == 'user' && $permission == PRIVACY_PUBLIC) || ($app == 'user' && $permission == PRIVACY_MEMBERS)
-		)
+// Old defination for public privacy
+		if (($app == 'user' && $permission == '0') || ($app == 'user' && $permission == PRIVACY_PUBLIC) || ($app == 'user' && $permission == PRIVACY_MEMBERS))
 		{
 			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($album->groupid);
@@ -836,7 +870,7 @@ class media
 		}
 
 		CFactory::load('libraries', 'notification');
-		$params = new CParameter ('');
+		$params = new CParameter('');
 		$params->set('url', $url);
 		$params->set('message', $message);
 
@@ -851,21 +885,22 @@ class media
 		}
 		else
 		{
-			//for activity reply action
-			//get relevent users in the activity
+			// For activity reply action
+			// Get relevent users in the activity
 			$wallModel = CFactory::getModel('wall');
 			$users     = $wallModel->getAllPostUsers('albums', $uniqueId, $album->creator);
+
 			if (!empty ($users))
 			{
 				CNotificationLibrary::add('photos_reply_wall', $this->my->id, $users, JText::sprintf('COM_COMMUNITY_ALBUM_WALLREPLY_EMAIL_SUBJECT'), '', 'album.wallreply', $params);
 			}
 		}
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('photos.wall.create');
 
-		//$response->addScriptCall( 'joms.walls.insert' , $wall->content );
+		// $response->addScriptCall( 'joms.walls.insert' , $wall->content );
 		$this->jsonarray ['code'] = 200;
 
 		return $this->jsonarray;
@@ -874,9 +909,9 @@ class media
 	/**
 	 * function for addPhotoComment
 	 *
-	 * @param  string  $message   message
-	 * @param  integer $uniqueId  uniqueid
-	 * @param  integer $appId     application id
+	 * @param   string   $message   message
+	 * @param   integer  $uniqueId  uniqueid
+	 * @param   integer  $appId     application id
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
@@ -945,7 +980,7 @@ class media
 
 		$wall  = CWallLibrary::saveWall($uniqueId, $message, 'photos', $this->my, ($this->my->id == $photo->creator), 'photos,photo');
 		$url   = $photo->getRawPhotoURI();
-		$param = new CParameter ('');
+		$param = new CParameter('');
 		$param->set('photoid', $uniqueId);
 		$param->set('action', 'wall');
 		$param->set('wallid', $wall->id);
@@ -957,9 +992,8 @@ class media
 		// Add activity logging based on app's type
 		$permission = $this->_getAppPremission($app, $album);
 
-		if (($app == 'user' && $permission == '0') || // Old defination for public privacy
-			($app == 'user' && $permission == PRIVACY_PUBLIC)
-		)
+		// Old defination for public privacy
+		if (($app == 'user' && $permission == '0') || ($app == 'user' && $permission == PRIVACY_PUBLIC))
 		{
 			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($album->groupid);
@@ -971,18 +1005,19 @@ class media
 		// Add notification
 		CFactory::load('libraries', 'notification');
 
-		$params = new CParameter ('');
+		$params = new CParameter('');
 		$params->set('url', $photo->getRawPhotoURI());
 		$params->set('message', $message);
 		$params->set('photo', JText::_('COM_COMMUNITY_SINGULAR_PHOTO'));
 		$params->set('photo_url', $url);
+
 		// @rule: Send notification to the photo owner.
 		if ($this->my->id !== $photo->creator)
 		{
 			CNotificationLibrary::add('photos_submit_wall', $this->my->id, $photo->creator, JText::sprintf('COM_COMMUNITY_PHOTO_WALL_EMAIL_SUBJECT'), '', 'photos.wall', $params);
 
-			//Send pushnotification
-			// get user push notification params and user device token and device type
+			// Send pushnotification
+			// Get user push notification params and user device token and device type
 			$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
 					WHERE `userid`={$photo->creator}";
@@ -995,6 +1030,7 @@ class media
 			$album->load($photo->albumid);
 			$pushcontentdata['albumdetail']['id']            = $album->id;
 			$pushcontentdata['albumdetail']['deleteAllowed'] = intval(($photo->creator == $album->creator or COwnerHelper::isCommunityAdmin($photo->creator)));
+
 			if ($photo->creator == $album->creator)
 			{
 				$uid = 0;
@@ -1003,16 +1039,18 @@ class media
 			{
 				$uid = $album->creator;
 			}
-			$pushcontentdata['albumdetail']['user_id'] = $uid;
 
+			$pushcontentdata['albumdetail']['user_id'] = $uid;
 
 			$pushcontentdata['photodetail']['id']      = $photo->id;
 			$pushcontentdata['photodetail']['caption'] = $photo->caption;
 
 			$p_url = JURI::base();
+
 			if ($photo->storage == 's3')
 			{
 				$s3BucketPath = $this->config->get('storages3bucket');
+
 				if (!empty ($s3BucketPath))
 					$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 			}
@@ -1021,21 +1059,23 @@ class media
 				if (!file_exists(JPATH_SITE . '/' . $photo->image))
 					$photo->image = $photo->original;
 			}
+
 			$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
 			$pushcontentdata['photodetail']['url']   = $p_url . $photo->image;
+
 			if (SHARE_PHOTOS == 1)
 			{
 				$pushcontentdata['photodetail']['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$userId}&albumid={$albumID}#photoid={$photo->id}";
 			}
 
-			//likes
+			// Likes
 			$likes                                      = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 			$pushcontentdata['photodetail']['likes']    = $likes->likes;
 			$pushcontentdata['photodetail']['dislikes'] = $likes->dislikes;
 			$pushcontentdata['photodetail']['liked']    = $likes->liked;
 			$pushcontentdata['photodetail']['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                                          = $this->jomHelper->getCommentCount($photo->id, 'photos');
 			$pushcontentdata['photodetail']['commentCount'] = $count;
 
@@ -1053,7 +1093,7 @@ class media
 				$replace = array($usr->name, JText::_('COM_COMMUNITY_SINGULAR_PHOTO'));
 				$message = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_PHOTO_WALL_EMAIL_SUBJECT'));
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions['detail']['content_data']         = $pushcontentdata;
 				$pushOptions['detail']['content_data']['type'] = 'photos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -1063,6 +1103,7 @@ class media
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1075,10 +1116,11 @@ class media
 		}
 		else
 		{
-			//for activity reply action
-			//get relevent users in the activity
+			// For activity reply action
+			// Get relevent users in the activity
 			$wallModel = CFactory::getModel('wall');
 			$users     = $wallModel->getAllPostUsers('photos', $photo->id, $photo->creator);
+
 			if (!empty ($users))
 			{
 				CNotificationLibrary::add('photos_reply_wall', $this->my->id, $users, JText::sprintf('COM_COMMUNITY_PHOTO_WALLREPLY_EMAIL_SUBJECT'), '', 'photos.wallreply', $params);
@@ -1089,6 +1131,7 @@ class media
 				$pushcontentdata['albumdetail']['id'] = $album->id;
 
 				$pushcontentdata['albumdetail']['deleteAllowed'] = intval(($photo->creator == $album->creator or COwnerHelper::isCommunityAdmin($photo->creator)));
+
 				if ($photo->creator == $album->creator)
 				{
 					$uid = 0;
@@ -1097,12 +1140,14 @@ class media
 				{
 					$uid = $album->creator;
 				}
+
 				$pushcontentdata['albumdetail']['user_id'] = $uid;
 
 				$pushcontentdata['photodetail']['id']      = $photo->id;
 				$pushcontentdata['photodetail']['caption'] = $photo->caption;
 
 				$p_url = JURI::base();
+
 				if ($photo->storage == 's3')
 				{
 					$s3BucketPath = $this->config->get('storages3bucket');
@@ -1114,21 +1159,23 @@ class media
 					if (!file_exists(JPATH_SITE . '/' . $photo->image))
 						$photo->image = $photo->original;
 				}
+
 				$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
 				$pushcontentdata['photodetail']['url']   = $p_url . $photo->image;
+
 				if (SHARE_PHOTOS == 1)
 				{
 					$pushcontentdata['photodetail']['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$userId}&albumid={$albumID}#photoid={$photo->id}";
 				}
 
-				//likes
+				// Likes
 				$likes                                      = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 				$pushcontentdata['photodetail']['likes']    = $likes->likes;
 				$pushcontentdata['photodetail']['dislikes'] = $likes->dislikes;
 				$pushcontentdata['photodetail']['liked']    = $likes->liked;
 				$pushcontentdata['photodetail']['disliked'] = $likes->disliked;
 
-				//comments
+				// Comments
 				$count                                          = $this->jomHelper->getCommentCount($photo->id, 'photos');
 				$pushcontentdata['photodetail']['commentCount'] = $count;
 
@@ -1139,8 +1186,8 @@ class media
 				$count                                  = $this->db->loadResult();
 				$pushcontentdata['photodetail']['tags'] = $count;
 
-				//Send push notification
-				// get user push notification params and user device token and device type
+				// Send push notification
+				// Get user push notification params and user device token and device type
 				$memberslist = implode(',', $users);
 				$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 						FROM #__ijoomeradv_users
@@ -1148,7 +1195,7 @@ class media
 				$this->db->setQuery($query);
 				$puserlist = $this->db->loadObjectList();
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions['detail']['content_data']         = $pushcontentdata;
 				$pushOptions['detail']['content_data']['type'] = 'photos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -1158,6 +1205,7 @@ class media
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1169,7 +1217,7 @@ class media
 			}
 		}
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('photos.wall.create');
 
@@ -1181,8 +1229,8 @@ class media
 	/**
 	 * function addVideoComment
 	 *
-	 * @param  string  $message   message
-	 * @param  integer $uniqueId  uniqueid
+	 * @param   string   $message   message
+	 * @param   integer  $uniqueId  uniqueid
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
@@ -1230,13 +1278,13 @@ class media
 		// Add activity logging
 		$url = $video->getViewUri(false);
 
-		$params = new CParameter ('');
+		$params = new CParameter('');
 		$params->set('videoid', $uniqueId);
 		$params->set('action', 'wall');
 		$params->set('wallid', $wall->id);
 		$params->set('video_url', $url);
 
-		$act         = new stdClass ();
+		$act         = new stdClass;
 		$act->cmd    = 'videos.wall.create';
 		$act->actor  = $this->my->id;
 		$act->access = $video->permissions;
@@ -1248,29 +1296,34 @@ class media
 
 		CFactory::load('libraries', 'activities');
 		CActivityStream::add($act);
+
 		// Add notification
 		CFactory::load('libraries', 'notification');
 
-		$params = new CParameter ('');
+		$params = new CParameter('');
 		$params->set('url', $url);
 		$params->set('message', $message);
 		$params->set('video', $video->title);
 		$params->set('video_url', $url);
+
 		if ($this->my->id !== $video->creator)
 		{
 			CNotificationLibrary::add('videos_submit_wall', $this->my->id, $video->creator, JText::sprintf('COM_COMMUNITY_VIDEO_WALL_EMAIL_SUBJECT'), '', 'videos.wall', $params);
-			// get user push notification params and user device token and device type
+
+			// Get user push notification params and user device token and device type
 			$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
 					FROM #__ijoomeradv_users
 					WHERE `userid`={$video->creator}";
 			$this->db->setQuery($query);
 			$puser    = $this->db->loadObject();
 			$ijparams = new CParameter($puser->jomsocial_params);
+
 			if ($ijparams->get('pushnotif_videos_submit_wall') == 1 && $video->creator != $this->IJUserID && !empty($puser))
 			{
-				//video detail
+				// Video detail
 				$video_file = $video->path;
 				$p_url      = JURI::root();
+
 				if ($video->type == 'file')
 				{
 					$ext = JFile::getExt($video->path);
@@ -1291,6 +1344,7 @@ class media
 							if (!empty ($s3BucketPath))
 								$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 						}
+
 						$video_file = $p_url . $vname . ".mp4";
 					}
 				}
@@ -1310,14 +1364,14 @@ class media
 				$videodata['user_avatar']  = $usr->avatar;
 				$videodata['user_profile'] = $usr->profile;
 
-				//likes
+				// Likes
 				$likes                 = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 				$videodata['likes']    = $likes->likes;
 				$videodata['dislikes'] = $likes->dislikes;
 				$videodata['liked']    = $likes->liked;
 				$videodata['disliked'] = $likes->disliked;
 
-				//comments
+				// Comments
 				$count                      = $this->jomHelper->getCommentCount($video->id, 'videos');
 				$videodata['commentCount']  = $count;
 				$videodata['deleteAllowed'] = intval(($video->creator or COwnerHelper::isCommunityAdmin($video->creator)));
@@ -1339,7 +1393,7 @@ class media
 				$replace = array($usr->name, $video->title);
 				$message = str_replace($search, $replace, JText::sprintf('COM_COMMUNITY_VIDEO_WALL_EMAIL_SUBJECT'));
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions['detail']['content_data']         = $videodata;
 				$pushOptions['detail']['content_data']['type'] = 'videos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -1349,6 +1403,7 @@ class media
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1361,16 +1416,17 @@ class media
 		}
 		else
 		{
-			//for activity reply action
-			//get relevent users in the activity
+			// For activity reply action
+			// Get relevent users in the activity
 			$wallModel = CFactory::getModel('wall');
 			$users     = $wallModel->getAllPostUsers('videos', $video->id, $video->creator);
+
 			if (!empty ($users))
 			{
 				CNotificationLibrary::add('videos_reply_wall', $this->my->id, $users, JText::sprintf('COM_COMMUNITY_VIDEO_WALLREPLY_EMAIL_SUBJECT'), '', 'videos.wallreply', $params);
 
-				//Send push notification
-				// get user push notification params and user device token and device type
+				// Send push notification
+				// Get user push notification params and user device token and device type
 				$memberslist = implode(',', $users);
 				$query       = "SELECT userid,`jomsocial_params`,`device_token`,`device_type`
 						FROM #__ijoomeradv_users
@@ -1378,9 +1434,10 @@ class media
 				$this->db->setQuery($query);
 				$puserlist = $this->db->loadObjectList();
 
-				//video detail
+				// Video detail
 				$video_file = $video->path;
 				$p_url      = JURI::root();
+
 				if ($video->type == 'file')
 				{
 					$ext = JFile::getExt($video->path);
@@ -1401,10 +1458,12 @@ class media
 							if (!empty ($s3BucketPath))
 								$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 						}
+
 						$video_file = $p_url . $vname . ".mp4";
 					}
 				}
-				//video detail
+
+				// Video detail
 				$videodata['id']          = $video->id;
 				$videodata['caption']     = $video->title;
 				$videodata['thumb']       = ($video->thumb) ? $p_url . $video->thumb : JURI::base() . 'components/com_community/assets/video_thumb.png';
@@ -1421,14 +1480,14 @@ class media
 				$videodata['user_avatar']  = $usr->avatar;
 				$videodata['user_profile'] = $usr->profile;
 
-				//likes
+				// Likes
 				$likes                 = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 				$videodata['likes']    = $likes->likes;
 				$videodata['dislikes'] = $likes->dislikes;
 				$videodata['liked']    = $likes->liked;
 				$videodata['disliked'] = $likes->disliked;
 
-				//comments
+				// Comments
 				$count                     = $this->jomHelper->getCommentCount($video->id, 'videos');
 				$videodata['commentCount'] = $count;
 
@@ -1444,11 +1503,12 @@ class media
 				$count             = $this->db->loadResult();
 				$videodata['tags'] = $count;
 
-				//change for id based push notification
+				// Change for id based push notification
 				foreach ($puserlist as $puser)
 				{
 					$videodata['deleteAllowed'] = intval(($puser->userid == $video->creator or COwnerHelper::isCommunityAdmin($puser->userid)));
 				}
+
 				$pushOptions['detail']['content_data']         = $videodata;
 				$pushOptions['detail']['content_data']['type'] = 'videos';
 				$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -1458,6 +1518,7 @@ class media
 				$obj->detail  = $pushOptions;
 				$obj->tocount = count($puserlist);
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -1469,7 +1530,7 @@ class media
 			}
 		}
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('videos.wall.create');
 
@@ -1481,25 +1542,25 @@ class media
 	/**
 	 * function addActivity
 	 *
-	 * @param  [type]  $command     command
-	 * @param  [type]  $actor       actor
-	 * @param  [type]  $target      target
-	 * @param  string  $title       title
-	 * @param  [type]  $content     content
-	 * @param  [type]  $app         application
-	 * @param  integer  $cid         cid
-	 * @param  [type]  $group       group
-	 * @param  [type]  $event       event
-	 * @param  string  $param       parameter
-	 * @param  [type]  $permission  permission
+	 * @param   [type]   $command     command
+	 * @param   [type]   $actor       actor
+	 * @param   [type]   $target      target
+	 * @param   string   $title       title
+	 * @param   [type]   $content     content
+	 * @param   [type]   $app         application
+	 * @param   integer  $cid         cid
+	 * @param   [type]   $group       group
+	 * @param   [type]   $event       event
+	 * @param   [type]   $permission  permission
+	 * @param   string   $param       parameter
 	 *
 	 * @return void
 	 */
-	private function _addActivity($command, $actor, $target, $title, $content, $app, $cid, $group, $event, $param = '', $permission)
+	private function _addActivity($command, $actor, $target, $title, $content, $app, $cid, $group, $event, $permission, $param = '')
 	{
 		CFactory::load('libraries', 'activities');
 
-		$act          = new stdClass ();
+		$act          = new stdClass;
 		$act->cmd     = $command;
 		$act->actor   = $actor;
 		$act->target  = $target;
@@ -1545,7 +1606,7 @@ class media
 			case 'event' :
 			case 'group' :
 				CFactory::load('models', 'group');
-				$group  =JTable::getInstance('Group', 'CTable');
+				$group  = JTable::getInstance('Group', 'CTable');
 				$group->load($album->groupid);
 				$permission = $group->approvals;
 				break;
@@ -1555,7 +1616,8 @@ class media
 	}
 
 	/**
-	 * @uses    to add like to the user profile
+	 * uses    to add like to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1568,10 +1630,11 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function removeComment()
+	public function removeComment()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type', null);
+
 		if (!$uniqueID or !$type)
 		{
 			IJReq::setResponse(400);
@@ -1633,7 +1696,7 @@ class media
 			return false;
 		}
 
-		$wallsModel  =CFactory::getModel('wall');
+		$wallsModel  = CFactory::getModel('wall');
 		$wall       = $wallsModel->get($wallId);
 		$album      = JTable::getInstance('Album', 'CTable');
 		$album->load($wall->contentid);
@@ -1686,7 +1749,7 @@ class media
 			return false;
 		}
 
-		$wallsModel  =CFactory::getModel('wall');
+		$wallsModel  = CFactory::getModel('wall');
 		$wall       = $wallsModel->get($wallId);
 		$photo      = JTable::getInstance('Photo', 'CTable');
 		$photo->load($wall->contentid);
@@ -1697,12 +1760,13 @@ class media
 			{
 				CActivities::removeWallActivities(array('app' => 'photos', 'cid' => $wall->contentid, 'createdAfter' => $wall->date), $wallId);
 
-				//add user points
+				// Add user points
 				if ($wall->post_by != 0)
 				{
 					CFactory::load('libraries', 'userpoints');
 					CUserPoints::assignPoint('wall.remove', $wall->post_by);
 				}
+
 				$this->jsonarray ['code'] = 200;
 			}
 			else
@@ -1749,7 +1813,7 @@ class media
 		}
 
 		// Only allow wall removal by admin or owner of the video.
-		$wallsModel  =CFactory::getModel('wall');
+		$wallsModel  = CFactory::getModel('wall');
 		$wall       = $wallsModel->get($wallId);
 		$video      = JTable::getInstance('Video', 'CTable');
 		$video->load($wall->contentid);
@@ -1766,6 +1830,7 @@ class media
 					CFactory::load('libraries', 'userpoints');
 					CUserPoints::assignPoint('wall.remove', $wall->post_by);
 				}
+
 				$this->jsonarray ['code'] = 200;
 			}
 			else
@@ -1787,7 +1852,8 @@ class media
 	}
 
 	/**
-	 * @uses    to add like to the user profile
+	 * uses    to add like to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1800,12 +1866,13 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function like()
+	public function like()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type');
 
 		$result = $this->jomHelper->Like($type, $uniqueID);
+
 		if (!empty($result))
 		{
 			$this->jsonarray          = $result;
@@ -1823,7 +1890,8 @@ class media
 	}
 
 	/**
-	 * @uses    to add dislike to the user profile
+	 * uses    to add dislike to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1836,10 +1904,11 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function dislike()
+	public function dislike()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type');
+
 		if ($this->jomHelper->Dislike($type, $uniqueID))
 		{
 			$this->jsonarray ['code'] = 200;
@@ -1856,7 +1925,8 @@ class media
 	}
 
 	/**
-	 * @uses    to unlike like/dislike value to the user profile
+	 * uses    to unlike like/dislike value to the user profile
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1869,10 +1939,11 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function unlike()
+	public function unlike()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type');
+
 		if ($this->jomHelper->Unlike($type, $uniqueID))
 		{
 			$this->jsonarray ['code'] = 200;
@@ -1889,7 +1960,8 @@ class media
 	}
 
 	/**
-	 * @uses    get photos from album
+	 * uses to get photos from album
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1904,7 +1976,7 @@ class media
 	 *    }
 	 * @return array  jsonarray
 	 */
-	function photos()
+	public function photos()
 	{
 		$userID  = IJReq::getTaskData('userID', $this->IJUserID, 'int');
 		$albumID = IJReq::getTaskData('albumID', 0, 'int');
@@ -1921,7 +1993,7 @@ class media
 		}
 
 		require_once JPATH_SITE . '/components/com_community/models/photos.php';
-		$obj    = new CommunityModelPhotos ();
+		$obj    = new CommunityModelPhotos;
 		$photos = $obj->getPhotos($albumID, $limit, $startFrom, false);
 
 		if (count($photos) > 0)
@@ -1942,6 +2014,7 @@ class media
 			$this->jsonarray ['photos'] [$key] ['caption'] = $photo->caption;
 
 			$p_url = JURI::base();
+
 			if ($photo->storage == 's3')
 			{
 				$s3BucketPath = $this->config->get('storages3bucket');
@@ -1953,21 +2026,23 @@ class media
 				if (!file_exists(JPATH_SITE . '/' . $photo->image))
 					$photo->image = $photo->original;
 			}
+
 			$this->jsonarray ['photos'] [$key] ['thumb'] = $p_url . $photo->thumbnail;
 			$this->jsonarray ['photos'] [$key] ['url']   = $p_url . $photo->image;
+
 			if (SHARE_PHOTOS == 1)
 			{
 				$this->jsonarray ['photos'] [$key] ['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$userId}&albumid={$albumID}#photoid={$photo->id}";
 			}
 
-			//likes
+			// Likes
 			$likes                                          = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 			$this->jsonarray ['photos'] [$key] ['likes']    = $likes->likes;
 			$this->jsonarray ['photos'] [$key] ['dislikes'] = $likes->dislikes;
 			$this->jsonarray ['photos'] [$key] ['liked']    = $likes->liked;
 			$this->jsonarray ['photos'] [$key] ['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                                              = $this->jomHelper->getCommentCount($photo->id, 'photos');
 			$this->jsonarray ['photos'] [$key] ['commentCount'] = $count;
 
@@ -1983,7 +2058,8 @@ class media
 	}
 
 	/**
-	 * @uses    to upload photos to the user album
+	 * uses    to upload photos to the user album
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -1999,13 +2075,14 @@ class media
 	 * photos will be post with name "image"
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function uploadPhoto()
+	public function uploadPhoto()
 	{
 		$photos          = JRequest::getVar('image', '', 'FILES', 'array');
 		$albumID         = IJReq::getTaskData('albumID', 0, 'int');
 		$profile         = IJReq::getTaskData('profile', false, 'bool');
 		$caption         = IJReq::getTaskData('caption', '');
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($audiofileupload)
 		{
 			$caption = $caption . $audiofileupload['voicetext'];
@@ -2038,7 +2115,8 @@ class media
 		$album = JTable::getInstance('Album', 'CTable');
 
 		if ($profile)
-		{ // upload photo from profile
+		{
+			// Upload photo from profile
 			$query = "SELECT id
 					FROM #__community_photos_albums
 					WHERE `creator`={$this->IJUserID}
@@ -2064,15 +2142,16 @@ class media
 
 		$handler = $this->_getHandler($album);
 		$result  = $this->_checkUploadedFile($photos, $album, $handler);
+
 		if (!$result)
 		{
 			return false;
 		}
 
-		//assign the result of the array and assigned to the right variable
+		// Assign the result of the array and assigned to the right variable
 		$photoTable = $result ['photoTable'];
 
-		//code for add caption for photo when photo upload
+		// Code for add caption for photo when photo upload
 		if ($audiofileupload)
 		{
 			$photoTable->caption = $caption;
@@ -2091,13 +2170,13 @@ class media
 		$photoTable->image     = CString::str_ireplace(JPATH_ROOT . '/', '', $storedPath);
 		$photoTable->thumbnail = CString::str_ireplace(JPATH_ROOT . '/', '', $result ['thumbPath']);
 
-		//In joomla 1.6, CString::str_ireplace is not replacing the path properly. Need to do a check here
+		// In joomla 1.6, CString::str_ireplace is not replacing the path properly. Need to do a check here
 		if ($photoTable->image == $storedPath)
 			$photoTable->image = str_ireplace(JPATH_ROOT . '/', '', $storedPath);
 		if ($photoTable->thumbnail == $result ['thumbPath'])
 			$photoTable->thumbnail = str_ireplace(JPATH_ROOT . '/', '', $result ['thumbPath']);
 
-		//photo filesize, use sprintf to prevent return of unexpected results for large file.
+		// Photo filesize, use sprintf to prevent return of unexpected results for large file.
 		$photoTable->filesize = sprintf("%u", filesize($result ['originalPath']));
 
 		// @rule: Set the proper ordering for the next photo upload.
@@ -2115,7 +2194,7 @@ class media
 
 		// Trigger for onPhotoCreate
 		CFactory::load('libraries', 'apps');
-		$apps  =CAppPlugins::getInstance();
+		$apps  = CAppPlugins::getInstance();
 		$apps->loadApplications();
 		$params    = array();
 		$params [] = $photoTable;
@@ -2144,11 +2223,12 @@ class media
 		}
 
 		// Generate activity stream
-		$act         = new stdClass ();
+		$act         = new stdClass;
 		$act->cmd    = 'photo.upload';
 		$act->actor  = $this->my->id;
 		$act->access = $album->permissions;
 		$act->target = 0;
+
 		if ($profile)
 		{
 			$act->title = $photoTable->caption;
@@ -2157,14 +2237,16 @@ class media
 		{
 			$act->title = '';
 		}
-		$act->content  = ''; // Gegenerated automatically by stream. No need to add anything
+
+		// Gegenerated automatically by stream. No need to add anything
+		$act->content  = '';
 		$act->app      = 'photos';
 		$act->cid      = $album->id;
 		$act->location = $album->location;
 
-		// Store group info
-		// I hate to load group here, but unfortunately, album does
-		// not store group permission setting
+		/* Store group info
+		 I hate to load group here, but unfortunately, album does
+		 not store group permission setting*/
 		$group = JTable::getInstance('Group', 'CTable');
 		$group->load($album->groupid);
 
@@ -2179,7 +2261,7 @@ class media
 		$act->like_type = 'albums';
 		$act->like_id   = $photoTable->id;
 
-		$params = new CParameter ('');
+		$params = new CParameter('');
 		$params->set('multiUrl', $handler->getAlbumURI($album->id, false));
 		$params->set('photoid', $photoTable->id);
 		$params->set('action', 'upload');
@@ -2190,7 +2272,7 @@ class media
 		CFactory::load('libraries', 'activities');
 		CActivityStream::add($act, $params->toString());
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('photo.upload');
 
@@ -2201,7 +2283,8 @@ class media
 	}
 
 	/**
-	 * @uses    to upload videos
+	 * uses  to upload videos
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2215,13 +2298,14 @@ class media
 	 * photos will be post with name "image"
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function removePhoto()
+	public function removePhoto()
 	{
 		$photoID = IJReq::getTaskData('photoID', 0, 'int');
 		$filter  = JFilterInput::getInstance();
 		$photoID = $filter->clean($photoID, 'int');
 
 		CFactory::load('helpers', 'owner');
+
 		if (!COwnerHelper::isRegisteredUser())
 		{
 			IJReq::setResponse(704);
@@ -2246,7 +2330,7 @@ class media
 		}
 
 		CFactory::load('libraries', 'apps');
-		$appsLib  =CAppPlugins::getInstance();
+		$appsLib  = CAppPlugins::getInstance();
 		$appsLib->loadApplications();
 
 		$params    = array();
@@ -2256,7 +2340,7 @@ class media
 		$photo->delete();
 		$appsLib->triggerEvent('onAfterPhotoDelete', $params);
 
-		//add user points
+		// Add user points
 		CFactory::load('libraries', 'userpoints');
 		CUserPoints::assignPoint('photo.remove');
 
@@ -2266,7 +2350,8 @@ class media
 	}
 
 	/**
-	 * @uses    to tag photos
+	 * uses    to tag photos
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2281,7 +2366,7 @@ class media
 	 * photos will be post with name "image"
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function tags()
+	public function tags()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', null, 'int');
 		$type     = IJReq::getTaskData('type', null);
@@ -2298,6 +2383,7 @@ class media
 		{
 			case 'photos' :
 				$this->jsonarray = $this->photoTags($uniqueID);
+
 				if (!$this->jsonarray)
 				{
 					return false;
@@ -2306,6 +2392,7 @@ class media
 
 			case 'videos' :
 				$this->jsonarray = $this->videoTags($uniqueID);
+
 				if (!$this->jsonarray)
 				{
 					return false;
@@ -2337,6 +2424,7 @@ class media
 				WHERE pt.`photoid`={$uniqueID}";
 		$this->db->setQuery($query);
 		$result = $this->db->loadObjectList();
+
 		if (count($result) > 0)
 		{
 			$this->jsonarray ['code'] = 200;
@@ -2378,6 +2466,7 @@ class media
 				WHERE `videoid`={$uniqueID}";
 		$this->db->setQuery($query);
 		$result = $this->db->loadObjectList();
+
 		if (count($result) > 0)
 		{
 			$this->jsonarray ['code'] = 200;
@@ -2395,13 +2484,16 @@ class media
 			$this->jsonarray ['tags'] [$key] ['id']        = $value->id;
 			$this->jsonarray ['tags'] [$key] ['position']  = $value->position;
 			$this->jsonarray ['tags'] [$key] ['date']      = $this->jomHelper->timeLapse($this->jomHelper->getDate($value->created));
-			$user                                           =CFactory::getUser($value->userid);
+			$user                                          = CFactory::getUser($value->userid);
 			$this->jsonarray ['tags'] [$key] ['user_id']   = ($this->IJUserID == $user->id) ? 0 : $user->id;
 			$this->jsonarray ['tags'] [$key] ['user_name'] = $this->jomHelper->getName($user);
 
 			$access_limit = $this->jomHelper->getUserAccess($this->IJUserID, $user->id);
 			$params       = $user->getParams();
-			$profileview  = $params->get('privacyProfileView'); // get profile view access
+
+			// Get profile view access
+			$profileview  = $params->get('privacyProfileView');
+
 			if ($profileview == 40 or $profileview > $access_limit)
 			{
 				$profileview = 0;
@@ -2410,6 +2502,7 @@ class media
 			{
 				$profileview = 1;
 			}
+
 			$this->jsonarray ['tags'] [$key] ['profile']       = $profileview;
 			$deleteAllowed                                     = intval(($this->IJUserID == $value->userid or $this->IJUserID == $value->created_by or COwnerHelper::isCommunityAdmin($this->IJUserID)));
 			$this->jsonarray ['tags'] [$key] ['deleteAllowed'] = $deleteAllowed;
@@ -2419,7 +2512,8 @@ class media
 	}
 
 	/**
-	 * @uses    to get friend list to tag
+	 * uses    to get friend list to tag
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2433,14 +2527,17 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function tagFriends()
+	public function tagFriends()
 	{
-		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int'); //  cid
+		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$pageNO   = IJReq::getTaskData('pageNO', 0, 'int');
 		$keyword  = IJReq::getTaskData('keyword', '');
 
 		$limit = PAGE_MEMBER_LIMIT;
-		$type  = IJReq::getTaskData('type', 'photos'); // callback
+
+		// Callback
+		$type  = IJReq::getTaskData('type', 'photos');
+
 		if ($type == 'videos')
 		{
 			$type = 'videos,inviteUsers';
@@ -2460,6 +2557,7 @@ class media
 		$uniqueID        = $filter->clean($uniqueID, 'int');
 		$handlerName     = '';
 		$callbackOptions = explode(',', $type);
+
 		if (isset ($callbackOptions [0]))
 		{
 			$handlerName = $callbackOptions [0];
@@ -2471,6 +2569,7 @@ class media
 		$friends     = '';
 		$friends     = $handler->$handlerFunc ($keyword, $this->IJUserID, $uniqueID, $startFrom, $limit);
 		$total       = count($friends);
+
 		if ($total > 0)
 		{
 			$this->jsonarray ['code']      = 200;
@@ -2497,7 +2596,8 @@ class media
 	}
 
 	/**
-	 * @uses    to upload videos
+	 * uses    to upload videos
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2512,7 +2612,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function addTag()
+	public function addTag()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$position = IJReq::getTaskData('position', null);
@@ -2531,19 +2631,22 @@ class media
 		{
 			case 'photos' :
 				$this->jsonarray = $this->addPhotoTag($uniqueID, $userID, $position);
+
 				if (!$this->jsonarray)
 				{
 					return false;
 				}
-				// for push notification
+				// For push notification
 				$message = COM_COMMUNITY_EMAIL_PHOTOS_TAGGING_TEXT;
 				$photo    = JTable::getInstance('Photo', 'CTable');
 				$photo->load($uniqueID);
-				//album detail
+
+				// Album detail
 				$album = JTable::getInstance('Album', 'CTable');
 				$album->load($photo->albumid);
 				$pushcontentdata['albumdetail']['id']            = $album->id;
 				$pushcontentdata['albumdetail']['deleteAllowed'] = intval(($userID == $album->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
+
 				if ($userID == $album->creator)
 				{
 					$uid = 0;
@@ -2552,12 +2655,15 @@ class media
 				{
 					$uid = $album->creator;
 				}
+
 				$pushcontentdata['albumdetail']['user_id'] = $uid;
-				//Photo detail
+
+				// Photo detail
 				$pushcontentdata['photodetail']['id']      = $photo->id;
 				$pushcontentdata['photodetail']['caption'] = $photo->caption;
 
 				$p_url = JURI::base();
+
 				if ($photo->storage == 's3')
 				{
 					$s3BucketPath = $this->config->get('storages3bucket');
@@ -2569,21 +2675,23 @@ class media
 					if (!file_exists(JPATH_SITE . '/' . $photo->image))
 						$photo->image = $photo->original;
 				}
+
 				$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
 				$pushcontentdata['photodetail']['url']   = $p_url . $photo->image;
+
 				if (SHARE_PHOTOS == 1)
 				{
 					$pushcontentdata['photodetail']['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$userId}&albumid={$albumID}#photoid={$photo->id}";
 				}
 
-				//likes
+				// Likes
 				$likes                                      = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 				$pushcontentdata['photodetail']['likes']    = $likes->likes;
 				$pushcontentdata['photodetail']['dislikes'] = $likes->dislikes;
 				$pushcontentdata['photodetail']['liked']    = $likes->liked;
 				$pushcontentdata['photodetail']['disliked'] = $likes->disliked;
 
-				//comments
+				// Comments
 				$count                                          = $this->jomHelper->getCommentCount($photo->id, 'photos');
 				$pushcontentdata['photodetail']['commentCount'] = $count;
 
@@ -2597,18 +2705,22 @@ class media
 
 			case 'videos' :
 				$this->jsonarray = $this->addVideoTag($uniqueID, $userID, $position);
+
 				if (!$this->jsonarray)
 				{
 					return false;
 				}
-				// for push notification
+
+				// For push notification
 				$message = COM_COMMUNITY_EMAIL_VIDEOS_TAGGING_TEXT;
-				//video detail
+
+				// Video detail
 				$video = JTable::getInstance('Video', 'CTable');
 				$video->load($uniqueID);
 
 				$video_file = $video->path;
 				$p_url      = JURI::root();
+
 				if ($video->type == 'file')
 				{
 					$ext = JFile::getExt($video->path);
@@ -2629,6 +2741,7 @@ class media
 							if (!empty ($s3BucketPath))
 								$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 						}
+
 						$video_file = $p_url . $vname . ".mp4";
 					}
 				}
@@ -2644,6 +2757,7 @@ class media
 				$pushcontentdata['categoryId']  = $video->category_id;
 
 				$usr = $this->jomHelper->getUserDetail($video->creator);
+
 				if ($userID == $video->creator)
 				{
 					$uid = 0;
@@ -2652,19 +2766,20 @@ class media
 				{
 					$uid = $usr->id;
 				}
+
 				$pushcontentdata['user_id']      = $uid;
 				$pushcontentdata['user_name']    = $usr->name;
 				$pushcontentdata['user_avatar']  = $usr->avatar;
 				$pushcontentdata['user_profile'] = $usr->profile;
 
-				//likes
+				// Likes
 				$likes                       = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 				$pushcontentdata['likes']    = $likes->likes;
 				$pushcontentdata['dislikes'] = $likes->dislikes;
 				$pushcontentdata['liked']    = $likes->liked;
 				$pushcontentdata['disliked'] = $likes->disliked;
 
-				//comments
+				// Comments
 				$count                            = $this->jomHelper->getCommentCount($video->id, 'videos');
 				$pushcontentdata['commentCount']  = $count;
 				$pushcontentdata['deleteAllowed'] = intval(($userID == $video->creator or COwnerHelper::isCommunityAdmin($userID)));
@@ -2689,8 +2804,8 @@ class media
 				return false;
 		}
 
-		//Send push notification
-		//change for id based push notification
+		// Send push notification
+		// Change for id based push notification
 		$pushOptions['detail']['content_data']         = $pushcontentdata;
 		$pushOptions['detail']['content_data']['type'] = $type;
 		$pushOptions                                   = gzcompress(json_encode($pushOptions));
@@ -2706,6 +2821,7 @@ class media
 		$obj->detail  = $pushOptions;
 		$obj->tocount = 1;
 		$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 		if ($obj->id)
 		{
 			$this->jsonarray['pushNotificationData']['id']         = $obj->id;
@@ -2721,9 +2837,9 @@ class media
 	/**
 	 * function add Photo Tag
 	 *
-	 * @param  integer  $uniqueID  uniqueid
-	 * @param  integer  $userID    userid
-	 * @param  [type]  $position  position
+	 * @param   integer  $uniqueID  uniqueid
+	 * @param   integer  $userID    userid
+	 * @param   [type]   $position  position
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
@@ -2749,6 +2865,7 @@ class media
 					VALUES ('{$uniqueID}', '{$userID}', '{$position}', '{$this->IJUserID}', now())";
 			$this->db->setQuery($query);
 			$this->db->Query();
+
 			if ($this->db->getErrorNum())
 			{
 				IJReq::setResponse(500);
@@ -2768,9 +2885,9 @@ class media
 	/**
 	 * function for add Video Tag
 	 *
-	 * @param  integer  $uniqueID  uniqueid
-	 * @param  integer  $userID    userid
-	 * @param  [type]   $position  position
+	 * @param   integer  $uniqueID  uniqueid
+	 * @param   integer  $userID    userid
+	 * @param   [type]   $position  position
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
@@ -2782,6 +2899,7 @@ class media
 				AND `userid` = {$userID}";
 		$this->db->setQuery($query);
 		$result = $this->db->loadResult();
+
 		if ($result > 0)
 		{
 			$this->jsonarray ['code'] = 200;
@@ -2795,6 +2913,7 @@ class media
 					VALUES ('{$uniqueID}', '{$userID}', '{$position}', '{$this->IJUserID}', now())";
 			$this->db->setQuery($query);
 			$this->db->Query();
+
 			if ($this->db->getErrorNum())
 			{
 				IJReq::setResponse(500);
@@ -2812,7 +2931,8 @@ class media
 	}
 
 	/**
-	 * @uses    to remove tags
+	 * uses    to remove tags
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2825,7 +2945,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function removeTag()
+	public function removeTag()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$type     = IJReq::getTaskData('type');
@@ -2842,6 +2962,7 @@ class media
 		{
 			case 'photos' :
 				$this->jsonarray = $this->removePhotoTag($uniqueID);
+
 				if (!$this->jsonarray)
 				{
 					return false;
@@ -2850,10 +2971,12 @@ class media
 
 			case 'videos' :
 				$this->jsonarray = $this->removeVideoTag($uniqueID);
+
 				if (!$this->jsonarray)
 				{
 					return false;
 				}
+
 				break;
 
 			default :
@@ -2879,6 +3002,7 @@ class media
 				WHERE `id`={$uniqueID}";
 		$this->db->setQuery($query);
 		$this->db->Query();
+
 		if ($this->db->getErrorNum())
 		{
 			IJReq::setResponse(500);
@@ -2907,6 +3031,7 @@ class media
 				WHERE `id`={$uniqueID}";
 		$this->db->setQuery($query);
 		$this->db->Query();
+
 		if ($this->db->getErrorNum())
 		{
 			IJReq::setResponse(500);
@@ -2923,7 +3048,8 @@ class media
 	}
 
 	/**
-	 * @uses    to upload videos
+	 * uses    to upload videos
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -2945,8 +3071,7 @@ class media
 	 * photos will be post with name "image"
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-
-	function uploadVideo()
+	public function uploadVideo()
 	{
 		if (!$this->IJUserID)
 		{
@@ -2972,6 +3097,7 @@ class media
 		$location = $this->jomHelper->gettitle($temp_loc);
 		$videos   = JRequest::getVar('video', '', 'FILES', 'array');
 		$groupID  = IJReq::getTaskData('groupID', 0, 'int');
+
 		if ($groupID)
 		{
 			$creatorType = 'group';
@@ -2990,6 +3116,7 @@ class media
 
 		CFactory::load('models', 'videos');
 		$video = JTable::getInstance('Video', 'CTable');
+
 		if ($videoID)
 		{
 			$video->load($videoID);
@@ -3041,6 +3168,7 @@ class media
 
 			$fileType  = $videoFile ['type'];
 			$allowable = CVideosHelper::getValidMIMEType();
+
 			if (!in_array($fileType, $allowable))
 			{
 				IJReq::setResponse(415, JText::_('COM_COMMUNITY_VIDEOS_FILETYPE_ERROR'));
@@ -3052,6 +3180,7 @@ class media
 			// Check if the video file exceeds file size limit
 			$uploadLimit   = $this->config->get('maxvideouploadsize') * 1024 * 1024;
 			$videoFileSize = sprintf("%u", filesize($videoFile ['tmp_name']));
+
 			if (($uploadLimit > 0) && ($videoFileSize > $uploadLimit))
 			{
 				IJReq::setResponse(415, JText::_('COM_COMMUNITY_VIDEOS_FILE_SIZE_EXCEEDED'));
@@ -3065,7 +3194,7 @@ class media
 			$folderPath     = CVideoLibrary::getPath($this->my->id, 'original');
 			$randomFileName = CFileHelper::getRandomFilename($folderPath, $videoFile ['name'], '');
 			$destination    = JPATH::clean($folderPath . '/' . $randomFileName);
-			$tempFile       = JPATH::clean($folderPath "/temp_" . $randomFileName );
+			$tempFile       = JPATH::clean($folderPath "/temp_" . $randomFileName);
 
 			if (!CFileHelper::upload($videoFile, $destination))
 			{
@@ -3077,11 +3206,13 @@ class media
 			else
 			{
 				$orientation = JRequest::getVar('orientation');
+
 				if ($orientation == 'portrait')
 				{
 					jimport('joomla.filesystem.file');
 					JFile::copy($destination, $tempFile);
 					$ffmpeg = $config->get('ffmpegPath');
+
 					if ($ffmpeg != '')
 					{
 						if (shell_exec($ffmpeg . ' -y -i ' . $tempFile . ' -vf "transpose=1" -sameq ' . $destination))
@@ -3121,7 +3252,7 @@ class media
 			$this->jsonarray ['code'] = 200;
 		}
 
-		//add notification: New group album is added
+		// Add notification: New group album is added
 		if ($video->groupid != 0)
 		{
 			CFactory::load('libraries', 'notification');
@@ -3129,11 +3260,11 @@ class media
 			$group->load($video->groupid);
 
 			CFactory::load('models', 'groups');
-			$modelGroup   = new CommunityModelGroups ();
+			$modelGroup   = new CommunityModelGroups;
 			$groupMembers = array();
 			$groupMembers = $modelGroup->getMembersId($video->groupid, true);
 
-			$params = new CParameter ('');
+			$params = new CParameter('');
 			$params->set('title', $video->title);
 			$params->set('group', $group->name);
 			$params->set('url', 'index.php?option=com_community&view=videos&task=video&videoid=' . $video->id);
@@ -3148,6 +3279,7 @@ class media
 
 			$video_file = $video->path;
 			$p_url      = JURI::root();
+
 			if ($video->type == 'file')
 			{
 				$ext = JFile::getExt($video->path);
@@ -3168,6 +3300,7 @@ class media
 						if (!empty ($s3BucketPath))
 							$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 					}
+
 					$video_file = $p_url . $vname . ".mp4";
 				}
 			}
@@ -3189,14 +3322,14 @@ class media
 			$videodata['user_avatar']  = $usr->avatar;
 			$videodata['user_profile'] = $usr->profile;
 
-			//likes
+			// Likes
 			$likes                 = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 			$videodata['likes']    = $likes->likes;
 			$videodata['dislikes'] = $likes->dislikes;
 			$videodata['liked']    = $likes->liked;
 			$videodata['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                     = $this->jomHelper->getCommentCount($video->id, 'videos');
 			$videodata['commentCount'] = $count;
 
@@ -3212,7 +3345,7 @@ class media
 			$count             = $this->db->loadResult();
 			$videodata['tags'] = $count;
 
-			//send pushnotification data
+			// Send pushnotification data
 			$usr     = $this->jomHelper->getUserDetail($this->IJUserID);
 			$match   = array('{actor}', '{video}', '{group}');
 			$replace = array($this->my->getDisplayName(), $video->title, $group->name);
@@ -3222,7 +3355,7 @@ class media
 			{
 				$videodata['deleteAllowed'] = intval(($puser->userid == $video->creator or COwnerHelper::isCommunityAdmin($puser->userid)));
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                                   = array();
 				$pushOptions['detail']['content_data']         = $videodata;
 				$pushOptions['detail']['content_data']['type'] = 'videos';
@@ -3233,6 +3366,7 @@ class media
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -3272,16 +3406,19 @@ class media
 					if (!empty ($s3BucketPath))
 						$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 				}
+
 				$video_file = $p_url . $vname . ".mp4";
 			}
 		}
+
 		$this->jsonarray ['url'] = $video_file;
 
 		return $this->jsonarray;
 	}
 
 	/**
-	 * @uses    get Video category listing
+	 * uses to   get Video category listing
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3292,7 +3429,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function videoCategories()
+	public function videoCategories()
 	{
 		$query = "SELECT *
 				FROM #__community_videos_category
@@ -3328,7 +3465,8 @@ class media
 	}
 
 	/**
-	 * @uses    get all video listing
+	 * uses to   get all video listing
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3345,10 +3483,11 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function allVideos()
+	public function allVideos()
 	{
 		$pageNO  = IJReq::getTaskData('pageNO', 0, 'int');
 		$groupID = IJReq::getTaskData('groupID', 0, 'int');
+
 		if ($groupID)
 		{
 			$filters = array('groupid' => $groupID, 'published' => 1, 'status' => 'ready', 'category_id' => IJReq::getTaskData('categoryID', null), 'creator_type' => VIDEO_GROUP_TYPE, 'sorting' => IJReq::getTaskData('sort', 'latest'), 'limitstart' => ($pageNO == 0 || $pageNO == 1) ? 0 : (PAGE_VIDEO_LIMIT * ($pageNO - 1)));
@@ -3361,6 +3500,7 @@ class media
 		$withlimit = (IJReq::getTaskData('withLimit', 'true', 'bool')) ? true : false;
 
 		$this->jsonarray = $this->videos($filters, PAGE_VIDEO_LIMIT, $withlimit);
+
 		if (!$this->jsonarray)
 		{
 			return false;
@@ -3370,7 +3510,8 @@ class media
 	}
 
 	/**
-	 * @uses    get my video listing
+	 * uses  to  get my video listing
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3385,9 +3526,10 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function myVideos()
+	public function myVideos()
 	{
 		$pageNO = IJReq::getTaskData('pageNO', 0, 'int');
+
 		if (!$this->IJUserID)
 		{
 			IJReq::setResponse(704);
@@ -3395,7 +3537,9 @@ class media
 
 			return false;
 		}
+
 		$filters = array();
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$filters ['limitstart'] = 0;
@@ -3427,6 +3571,7 @@ class media
 		}
 
 		$this->jsonarray = $this->videos($filters, PAGE_VIDEO_LIMIT, $withlimit);
+
 		if (!$this->jsonarray)
 		{
 			return false;
@@ -3438,15 +3583,16 @@ class media
 	/**
 	 * function for Videos
 	 *
-	 * @param  [type]  $filters       filters
-	 * @param  integer  $limit         limit
-	 * @param  [type]  $limitSetting  limitsetting
+	 * @param   [type]   $filters       filters
+	 * @param   integer  $limit         limit
+	 * @param   [type]   $limitSetting  limitsetting
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	private function Videos($filters, $limit, $limitSetting)
 	{
 		$where = array();
+
 		foreach ($filters as $field => $value)
 		{
 			if ($value || $value === 0)
@@ -3459,6 +3605,7 @@ class media
 							JArrayHelper::toInteger($value);
 							$value = implode(',', $value);
 						}
+
 						$where [] = 'v.' . $this->db->nameQuote('id') . ' IN (' . $value . ')';
 						break;
 					case 'title' :
@@ -3471,7 +3618,7 @@ class media
 						$where [] = 'v.' . $this->db->nameQuote('description') . ' LIKE ' . $this->db->quote('%' . $value . '%');
 						break;
 					case 'creator' :
-						$where [] = 'v.' . $this->db->nameQuote('creator') . ' = ' . $this->db->quote(( int ) $value);
+						$where [] = 'v.' . $this->db->nameQuote('creator') . ' = ' . $this->db->quote((int) $value);
 						break;
 					case 'creator_type' :
 						$where [] = 'v.' . $this->db->nameQuote('creator_type') . ' = ' . $this->db->quote($value);
@@ -3481,7 +3628,7 @@ class media
 						$where [] = 'v.' . $this->db->nameQuote('created') . ' BETWEEN ' . $this->db->quote('1970-01-01 00:00:01') . ' AND ' . $this->db->quote($value);
 						break;
 					case 'permissions' :
-						$where [] = 'v.' . $this->db->nameQuote('permissions') . ' <= ' . $this->db->quote(( int ) $value);
+						$where [] = 'v.' . $this->db->nameQuote('permissions') . ' <= ' . $this->db->quote((int) $value);
 						break;
 					case 'category_id' :
 						if (is_array($value))
@@ -3489,19 +3636,20 @@ class media
 							JArrayHelper::toInteger($value);
 							$value = implode(',', $value);
 						}
+
 						$where [] = 'v.' . $this->db->nameQuote('category_id') . ' IN (' . $value . ')';
 						break;
 					case 'hits' :
-						$where [] = 'v.' . $this->db->nameQuote('hits') . ' >= ' . $this->db->quote(( int ) $value);
+						$where [] = 'v.' . $this->db->nameQuote('hits') . ' >= ' . $this->db->quote((int) $value);
 						break;
 					case 'published' :
-						$where [] = 'v.' . $this->db->nameQuote('published') . ' = ' . $this->db->quote(( bool ) $value);
+						$where [] = 'v.' . $this->db->nameQuote('published') . ' = ' . $this->db->quote((bool) $value);
 						break;
 					case 'featured' :
-						$where [] = 'v.' . $this->db->nameQuote('featured') . ' = ' . $this->db->quote(( bool ) $value);
+						$where [] = 'v.' . $this->db->nameQuote('featured') . ' = ' . $this->db->quote((bool) $value);
 						break;
 					case 'duration' :
-						$where [] = 'v.' . $this->db->nameQuote('duration') . ' >= ' . $this->db->quote(( int ) $value);
+						$where [] = 'v.' . $this->db->nameQuote('duration') . ' >= ' . $this->db->quote((int) $value);
 						break;
 					case 'status' :
 						$where [] = 'v.' . $this->db->nameQuote('status') . ' = ' . $this->db->quote($value);
@@ -3517,9 +3665,10 @@ class media
 
 		// Joint with group table
 		$join = '';
-		if (isset ($filters ['or_group_privacy']))
+
+		if (isset($filters ['or_group_privacy']))
 		{
-			$approvals = ( int ) $filters ['or_group_privacy'];
+			$approvals = (int) $filters ['or_group_privacy'];
 			$join      = ' LEFT JOIN ' . $this->db->nameQuote('#__community_groups') . ' AS g';
 			$join .= ' ON g.' . $this->db->nameQuote('id') . ' = v.' . $this->db->nameQuote('groupid');
 			$where .= ' AND (g.' . $this->db->nameQuote('approvals') . ' = ' . $this->db->Quote('0') . ' OR g.' . $this->db->nameQuote('approvals') . ' IS NULL)';
@@ -3531,8 +3680,9 @@ class media
 		switch ($sorting)
 		{
 			case 'mostwalls' :
-				// mostwalls is sorted below using JArrayHelper::sortObjects
-				// since in db vidoes doesn't has wallcount field
+
+				// Mostwalls is sorted below using JArrayHelper::sortObjects
+				// Since in db vidoes doesn't has wallcount field
 			case 'mostviews' :
 				$order = ' ORDER BY v.' . $this->db->nameQuote('hits') . ' DESC';
 				break;
@@ -3557,6 +3707,7 @@ class media
 		$query = ' SELECT v.*, v.' . $this->db->nameQuote('created') . ' AS lastupdated' . ' FROM ' . $this->db->nameQuote('#__community_videos') . ' AS v' . $join . $where . $order . $limiter;
 		$this->db->setQuery($query);
 		$result = $this->db->loadObjectList();
+
 		if ($this->db->getErrorNum())
 		{
 			IJReq::setResponse(500);
@@ -3569,6 +3720,7 @@ class media
 		$query = ' SELECT COUNT(*)' . ' FROM ' . $this->db->nameQuote('#__community_videos') . ' AS v' . $join . $where;
 		$this->db->setQuery($query);
 		$total = $this->db->loadResult();
+
 		if ($this->db->getErrorNum())
 		{
 			IJReq::setResponse(500);
@@ -3612,6 +3764,7 @@ class media
 		{
 			$video_file = $video->path;
 			$p_url      = JURI::root();
+
 			if ($video->type == 'file')
 			{
 				$ext = JFile::getExt($video->path);
@@ -3632,6 +3785,7 @@ class media
 						if (!empty ($s3BucketPath))
 							$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 					}
+
 					$video_file = $p_url . $vname . ".mp4";
 				}
 			}
@@ -3652,14 +3806,14 @@ class media
 			$this->jsonarray ['videos'] [$key] ['user_avatar']  = $usr->avatar;
 			$this->jsonarray ['videos'] [$key] ['user_profile'] = $usr->profile;
 
-			//likes
+			// Likes
 			$likes                                          = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 			$this->jsonarray ['videos'] [$key] ['likes']    = $likes->likes;
 			$this->jsonarray ['videos'] [$key] ['dislikes'] = $likes->dislikes;
 			$this->jsonarray ['videos'] [$key] ['liked']    = $likes->liked;
 			$this->jsonarray ['videos'] [$key] ['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                                               = $this->jomHelper->getCommentCount($video->id, 'videos');
 			$this->jsonarray ['videos'] [$key] ['commentCount']  = $count;
 			$this->jsonarray ['videos'] [$key] ['deleteAllowed'] = intval(($this->IJUserID == $video->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -3681,7 +3835,8 @@ class media
 	}
 
 	/**
-	 * @uses    remove video
+	 * uses  to  remove video
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3693,7 +3848,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function removeVideo()
+	public function removeVideo()
 	{
 		$videoID = IJReq::getTaskData('videoID', 0, 'int');
 
@@ -3716,7 +3871,7 @@ class media
 		// Load libraries
 		CFactory::load('models', 'videos');
 		$video = JTable::getInstance('Video', 'CTable');
-		$video->load(( int ) $videoID);
+		$video->load((int) $videoID);
 
 		if (!empty ($video->groupid))
 		{
@@ -3734,10 +3889,12 @@ class media
 			$this->_deleteVideoWalls($video->id);
 			$this->_deleteVideoActivities($video->id);
 			$this->_deleteFeaturedVideos($video->id);
+
 			if (!$this->_deleteVideoFiles($video))
 			{
 				return false;
 			}
+
 			if (!$this->_deleteProfileVideo($video->creator, $video->id))
 			{
 				return false;
@@ -3751,7 +3908,6 @@ class media
 			{
 				$this->jsonarray ['code'] = 200;
 			}
-
 		}
 		else
 		{
@@ -3769,13 +3925,12 @@ class media
 	 *
 	 * @param   integer  $id  id
 	 *
-	 * @return  [type]        [description]
-	 *
 	 * @return  boolean  true on success or false on failure
 	 */
 	private function _deleteVideoWalls($id = 0)
 	{
 		CFactory::load('helpers', 'owner');
+
 		if (!COwnerHelper::isRegisteredUser())
 		{
 			IJReq::setResponse(704);
@@ -3783,6 +3938,7 @@ class media
 
 			return false;
 		}
+
 		$video = CFactory::getModel('Videos');
 		$video->deleteVideoWalls($id);
 	}
@@ -3803,6 +3959,7 @@ class media
 
 			return false;
 		}
+
 		$video = CFactory::getModel('Videos');
 		$video->deleteVideoActivities($id);
 	}
@@ -3825,7 +3982,7 @@ class media
 		}
 
 		CFactory::load('libraries', 'featured');
-		$featuredVideo = new CFeatured (FEATURED_VIDEOS);
+		$featuredVideo = new CFeatured(FEATURED_VIDEOS);
 		$featuredVideo->delete($id);
 	}
 
@@ -3873,7 +4030,7 @@ class media
 	/**
 	 * function for _deleteProfileVideo
 	 *
-	 * @param   [type]  $creator         [description]
+	 * @param   [type]   $creator         [description]
 	 * @param   integer  $deletedvideoid  deleted video id
 	 *
 	 * @return  boolean  true on success or false on failure
@@ -3906,9 +4063,9 @@ class media
 		return true;
 	}
 
-
 	/**
-	 * @uses    remove video
+	 * uses  to  remove video
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -3926,7 +4083,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function linkVideo()
+	public function linkVideo()
 	{
 		if (!$this->IJUserID)
 		{
@@ -3943,6 +4100,7 @@ class media
 
 			return false;
 		}
+
 		$url        = IJReq::getTaskData('url', null);
 		$lat        = IJReq::getTaskData('lat');
 		$long       = IJReq::getTaskData('long');
@@ -3995,7 +4153,7 @@ class media
 			return false;
 		}
 
-		$videoLib = new CVideoLibrary ();
+		$videoLib = new CVideoLibrary;
 		$video    = JTable::getInstance('Video', 'CTable');
 		$isValid  = $video->init($url);
 
@@ -4020,18 +4178,18 @@ class media
 			return false;
 		}
 
-		//add notification: New group album is added
+		// Add notification: New group album is added
 		if ($video->groupid != 0)
 		{
 			CFactory::load('libraries', 'notification');
 			$group = JTable::getInstance('Group', 'CTable');
 			$group->load($video->groupid);
 
-			$modelGroup    =CFactory::getModel('groups');
+			$modelGroup   = CFactory::getModel('groups');
 			$groupMembers = array();
 			$groupMembers = $modelGroup->getMembersId($video->groupid, true);
 
-			$params = new CParameter ('');
+			$params = new CParameter('');
 			$params->set('title', $video->title);
 			$params->set('group', $group->name);
 			$params->set('group_url', 'index.php?option=com_community&view=groups&task=viewgroup&groupid=' . $group->id);
@@ -4049,6 +4207,7 @@ class media
 
 			$video_file = $video->path;
 			$p_url      = JURI::root();
+
 			if ($video->type == 'file')
 			{
 				$ext = JFile::getExt($video->path);
@@ -4069,6 +4228,7 @@ class media
 						if (!empty ($s3BucketPath))
 							$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 					}
+
 					$video_file = $p_url . $vname . ".mp4";
 				}
 			}
@@ -4090,14 +4250,14 @@ class media
 			$videodata['user_avatar']  = $usr->avatar;
 			$videodata['user_profile'] = $usr->profile;
 
-			//likes
+			// Likes
 			$likes                 = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 			$videodata['likes']    = $likes->likes;
 			$videodata['dislikes'] = $likes->dislikes;
 			$videodata['liked']    = $likes->liked;
 			$videodata['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                     = $this->jomHelper->getCommentCount($video->id, 'videos');
 			$videodata['commentCount'] = $count;
 
@@ -4113,7 +4273,7 @@ class media
 			$count             = $this->db->loadResult();
 			$videodata['tags'] = $count;
 
-			//send pushnotification data
+			// Send pushnotification data
 			$match   = array('{actor}', '{video}', '{group}');
 			$replace = array($this->my->getDisplayName(), $video->title, $group->name);
 			$message = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_GROUP_NEW_VIDEO_NOTIFICATION'));
@@ -4122,7 +4282,7 @@ class media
 			{
 				$videodata['deleteAllowed'] = intval(($puser->userid == $video->creator or COwnerHelper::isCommunityAdmin($puser->userid)));
 
-				//change for id based push notification
+				// Change for id based push notification
 				$pushOptions                                   = array();
 				$pushOptions['detail']['content_data']         = $videodata;
 				$pushOptions['detail']['content_data']['type'] = 'videos';
@@ -4133,6 +4293,7 @@ class media
 				$obj->detail  = $pushOptions;
 				$obj->tocount = 1;
 				$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 				if ($obj->id)
 				{
 					$this->jsonarray['pushNotificationData']['multiid'][$puser->userid] = $obj->id;
@@ -4155,19 +4316,20 @@ class media
 		{
 			if ($this->_fetchThumbnail($video->id))
 			{
-				//return false;
 			}
 		}
 
 		// Add activity logging
 		$url = $video->getViewUri(false);
 
-		$act               = new stdClass ();
+		$act               = new stdClass;
 		$act->cmd          = 'videos.upload';
 		$act->actor        = $this->my->id;
 		$act->access       = $video->permissions;
 		$act->target       = 0;
-		$act->title        = $this->my->getDisplayName() . " ► " . JText::_('COM_COMMUNITY_ACTIVITIES_UPLOAD_VIDEO') . $caption; // since 2.4, sharing video will hide the title subject
+
+		// Since 2.4, sharing video will hide the title subject
+		$act->title        = $this->my->getDisplayName() . " ► " . JText::_('COM_COMMUNITY_ACTIVITIES_UPLOAD_VIDEO') . $caption;
 		$act->app          = 'videos';
 		$act->content      = '';
 		$act->cid          = $video->id;
@@ -4178,7 +4340,7 @@ class media
 		$act->like_type    = 'videos';
 		$act->groupid      = ($video->groupid != 0) ? $video->groupid : 0;
 
-		$params = new CParameter ('');
+		$params = new CParameter('');
 		$params->set('video_url', $url);
 
 		CFactory::load('libraries', 'activities');
@@ -4189,7 +4351,7 @@ class media
 		CUserPoints::assignPoint('video.add', $video->creator);
 		$this->jsonarray ['code'] = 200;
 
-		//$this->jsonarray['video_id'] = $video->id;
+		// $this->jsonarray['video_id'] = $video->id;
 		return $this->jsonarray;
 	}
 
@@ -4197,7 +4359,7 @@ class media
 	 * function for _triggerEvent
 	 *
 	 * @param   [type]  $event  event
-	 * @param   array  $args   arguments
+	 * @param   array   $args   arguments
 	 *
 	 * @return  void
 	 */
@@ -4205,7 +4367,7 @@ class media
 	{
 		// Trigger for onVideoCreate
 		CFactory::load('libraries', 'apps');
-		$apps  =CAppPlugins::getInstance();
+		$apps  = CAppPlugins::getInstance();
 		$apps->loadApplications();
 		$params    = array();
 		$params [] = $args;
@@ -4249,9 +4411,10 @@ class media
 				return false;
 			}
 
-			$videoLib = new CVideoLibrary ();
+			$videoLib = new CVideoLibrary;
 
 			$videoFullPath = JPATH::clean(JPATH_ROOT . '/' . $table->path);
+
 			if (!JFile::exists($videoFullPath))
 			{
 				IJReq::setResponse(404);
@@ -4272,7 +4435,7 @@ class media
 			}
 			else
 			{
-				$videoFrame = CVideosHelper::formatDuration(( int ) ($videoInfo ['duration'] ['sec'] / 2), 'HH:MM:SS');
+				$videoFrame = CVideosHelper::formatDuration((int) ($videoInfo ['duration'] ['sec'] / 2), 'HH:MM:SS');
 
 				// Create thumbnail
 				$oldThumb      = $table->thumb;
@@ -4292,6 +4455,7 @@ class media
 		else
 		{
 			CFactory::load('helpers', 'remote');
+
 			if (!CRemoteHelper::curlExists())
 			{
 				IJReq::setResponse(404, JText::_('COM_COMMUNITY_CURL_NOT_EXISTS'));
@@ -4300,8 +4464,9 @@ class media
 				return false;
 			}
 
-			$videoLib = new CVideoLibrary ();
+			$videoLib = new CVideoLibrary;
 			$videoObj = $videoLib->getProvider($table->path);
+
 			if ($videoObj == false)
 			{
 				IJReq::setResponse(500);
@@ -4329,7 +4494,7 @@ class media
 				return false;
 			}
 
-			// split the header and body
+			// Split the header and body
 			list ($headers, $body) = explode("\r\n\r\n", $thumbData, 2);
 			preg_match('/Content-Type: image\/(.*)/i', $headers, $matches);
 
@@ -4341,6 +4506,7 @@ class media
 				$thumbPath     = CVideoLibrary::getPath($table->creator, 'thumb');
 				$thumbFileName = CFileHelper::getRandomFilename($thumbPath);
 				$tmpThumbPath  = $thumbPath . '/' . $thumbFileName;
+
 				if (!JFile::write($tmpThumbPath, $body))
 				{
 					IJReq::setResponse(404, JText::_('COM_COMMUNITY_INVALID_FILE_REQUEST'));
@@ -4359,6 +4525,7 @@ class media
 
 				$thumbFilename = $thumbFileName . $thumbExtension;
 				$thumbPath     = $thumbPath . '/' . $thumbFilename;
+
 				if (!JFile::move($tmpThumbPath, $thumbPath))
 				{
 					IJReq::setResponse(500);
@@ -4439,7 +4606,7 @@ class media
 		$maxWidth  = JRequest::getVar('maxW', '', 'GET');
 		$maxHeight = JRequest::getVar('maxH', '', 'GET');
 
-		// round up the w/h to the nearest 10
+		// Round up the w/h to the nearest 10
 		$maxWidth  = round($maxWidth, -1);
 		$maxHeight = round($maxHeight, -1);
 
@@ -4463,6 +4630,7 @@ class media
 			if ($this->config->get('deleteoriginalphotos'))
 			{
 				$originalPath = JPATH_ROOT . '/' . $photo->original;
+
 				if (JFile::exists($originalPath))
 				{
 					JFile::delete($originalPath);
@@ -4474,13 +4642,14 @@ class media
 		if ($showPhoto)
 		{
 			$info = getimagesize(JPATH_ROOT . '/' . $photo->image);
+
 			// @rule: Clean whitespaces as this might cause errors when header is used.
 			$ob_active = ob_get_length() !== false;
 
 			if ($ob_active)
 			{
-				while (@ ob_end_clean())
-					;
+				while (@ ob_end_clean());
+
 				if (function_exists('ob_clean'))
 				{
 					@ob_clean();
@@ -4561,6 +4730,7 @@ class media
 		$originalPath = $handler->getOriginalPath($storage, $albumPath, $album->id);
 
 		CFactory::load('helpers', 'owner');
+
 		// @rule: Just in case user tries to exploit the system, we should prevent this from even happening.
 		if ($handler->isExceedUploadLimit(false) && !COwnerHelper::isCommunityAdmin())
 		{
@@ -4568,7 +4738,7 @@ class media
 
 			if (intval($groupID) > 0)
 			{
-				// group photo
+				// Group photo
 				$photoLimit = $this->config->get('groupphotouploadlimit');
 				IJReq::setResponse(416, JText::sprintf('COM_COMMUNITY_GROUPS_PHOTO_LIMIT', $photoLimit));
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
@@ -4577,7 +4747,7 @@ class media
 			}
 			else
 			{
-				// user photo
+				// User photo
 				$photoLimit = $this->config->get('photouploadlimit');
 				IJReq::setResponse(416, JText::sprintf('COM_COMMUNITY_PHOTOS_UPLOAD_LIMIT_REACHED', $photoLimit));
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
@@ -4590,28 +4760,30 @@ class media
 
 		if (!JFolder::exists($originalPath))
 		{
-			if (!JFolder::create($originalPath, ( int ) octdec($this->config->get('folderpermissionsphoto'))))
+			if (!JFolder::create($originalPath, (int) octdec($this->config->get('folderpermissionsphoto'))))
 			{
 				IJReq::setResponse(500, JText::_('COM_COMMUNITY_VIDEOS_CREATING_USERS_PHOTO_FOLDER_ERROR'));
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 				return false;
 			}
-			JFile::copy(JPATH_ROOT . '/components/com_community/index.html', $originalPath '/index.html' );
+
+			JFile::copy(JPATH_ROOT . '/components/com_community/index.html', $originalPath '/index.html');
 		}
 
 		$locationPath = $handler->getLocationPath($storage, $albumPath, $album->id);
 
 		if (!JFolder::exists($locationPath))
 		{
-			if (!JFolder::create($locationPath, ( int ) octdec($this->config->get('folderpermissionsphoto'))))
+			if (!JFolder::create($locationPath, (int) octdec($this->config->get('folderpermissionsphoto'))))
 			{
 				IJReq::setResponse(500, JText::_('COM_COMMUNITY_VIDEOS_CREATING_USERS_PHOTO_FOLDER_ERROR'));
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 				return false;
 			}
-			JFile::copy(JPATH_ROOT . '/components/com_community/index.html', $locationPath '/index.html' );
+
+			JFile::copy(JPATH_ROOT . '/components/com_community/index.html', $locationPath '/index.html');
 		}
 
 		$thumbPath = $handler->getThumbPath($storage, $album->id);
@@ -4636,6 +4808,7 @@ class media
 		// Set photos properties
 		$caption   = IJReq::getTaskData('caption', '');
 		$imagename = $imageFile ['name'];
+
 		if (JString::strlen($imagename) > 4)
 		{
 			$imagename = JString::substr($imagename, 0, JString::strlen($imagename) - 4);
@@ -4700,7 +4873,8 @@ class media
 	 */
 	private function _imageLimitExceeded($size)
 	{
-		$uploadLimit = ( double ) $this->config->get('maxuploadsize');
+		$uploadLimit = (double) $this->config->get('maxuploadsize');
+
 		if ($uploadLimit == 0)
 		{
 			IJReq::setResponse(416, JText::_('COM_COMMUNITY_VIDEOS_IMAGE_FILE_SIZE_EXCEEDED'));
@@ -4708,6 +4882,7 @@ class media
 
 			return false;
 		}
+
 		$uploadLimit = ($uploadLimit * 1024 * 1024);
 
 		return $size > $uploadLimit;
@@ -4741,32 +4916,40 @@ class media
 		// Rotata resized files ince it is smaller
 		switch ($orientation)
 		{
-			case 1 : // nothing
+			// Nothing
+			case 1 :
 				break;
 
-			case 2 : // horizontal flip
+			// Horizontal flip
+			case 2 :
 				break;
 
-			case 3 : // 180 rotate left
+			// 180 rotate left
+			case 3 :
 				CImageHelper::rotate($storedPath, $storedPath, 180);
 				CImageHelper::rotate($thumbPath, $thumbPath, 180);
 				break;
 
-			case 4 : // vertical flip
+			// Vertical flip
+			case 4 :
 				break;
 
-			case 5 : // vertical flip + 90 rotate right
+			// Vertical flip + 90 rotate right
+			case 5 :
 				break;
 
-			case 6 : // 90 rotate right
+			// 90 rotate right
+			case 6 :
 				CImageHelper::rotate($storedPath, $storedPath, -90);
 				CImageHelper::rotate($thumbPath, $thumbPath, -90);
 				break;
 
-			case 7 : // horizontal flip + 90 rotate right
+			// Horizontal flip + 90 rotate right
+			case 7 :
 				break;
 
-			case 8 : // 90 rotate left
+			// 90 rotate left
+			case 8 :
 				CImageHelper::rotate($storedPath, $storedPath, 90);
 				CImageHelper::rotate($thumbPath, $thumbPath, 90);
 				break;
@@ -4778,27 +4961,27 @@ class media
 	 *
 	 * @param   string   $tmpPath   temporory path
 	 * @param   string   $destPath  destination path
-	 * @param   integer  $albumId   album id
 	 * @param   integer  $userid    user id
+	 * @param   integer  $albumId   album id
 	 *
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	private function _storeOriginal($tmpPath, $destPath, $albumId = 0, $userid)
+	private function _storeOriginal($tmpPath, $destPath, $userid, $albumId = 0)
 	{
 		jimport('joomla.filesystem.file');
 		jimport('joomla.utilities.utility');
 
-		// @todo: We assume now that the config is using the relative path to the
-		// default images folder in Joomla.
-		// @todo:  this folder creation should really be in its own function
+		/* @todo: We assume now that the config is using the relative path to the
+	       default images folder in Joomla.
+		   @todo:  this folder creation should really be in its own function*/
 		$albumPath          = ($albumId == 0) ? '' . '/' . $albumId;
 		$originalPathFolder = JPATH_ROOT . '/' . $this->config->getString('photofolder') . '/' . JPath::clean($this->config->get('originalphotopath'));
 		$originalPathFolder = $originalPathFolder . '/' . $this->my->id . $albumPath;
 
 		if (!JFile::exists($originalPathFolder))
 		{
-			JFolder::create($originalPathFolder, ( int ) octdec($this->config->get('folderpermissionsphoto')));
-			JFile::copy(JPATH_ROOT . '/components/com_community/index.html', $originalPathFolder '/index.html' );
+			JFolder::create($originalPathFolder, (int) octdec($this->config->get('folderpermissionsphoto')));
+			JFile::copy(JPATH_ROOT . '/components/com_community/index.html', $originalPathFolder '/index.html');
 		}
 
 		if (!JFile::copy($tmpPath, $destPath))
@@ -4830,13 +5013,13 @@ class media
 
 		if (!empty ($groupId))
 		{
-			// group photo
-			$handler = new CommunityControllerPhotoGroupHandler ($this);
+			// Group photo
+			$handler = new CommunityControllerPhotoGroupHandler($this);
 		}
 		else
 		{
-			// user photo
-			$handler = new CommunityControllerPhotoUserHandler ($this);
+			// User photo
+			$handler = new CommunityControllerPhotoUserHandler($this);
 		}
 
 		return $handler;
@@ -4861,7 +5044,8 @@ class media
 	}
 
 	/**
-	 * @uses    report photo/video
+	 * uses    to report photo/video
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -4877,15 +5061,17 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function report()
+	public function report()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$albumID  = IJReq::getTaskData('albumID', 0, 'int');
 		$userID   = IJReq::getTaskData('userID', null, 'int');
+
 		if ($userID == 0)
 		{
 			$userID = $this->IJUserID;
 		}
+
 		$message = IJReq::getTaskData('message');
 		$type    = IJReq::getTaskData('type');
 
@@ -4899,11 +5085,14 @@ class media
 
 					return false;
 				}
+
 				$this->jsonarray = $this->reportPhoto($uniqueID, $albumID, $userID, $message);
+
 				if (!$this->jsonarray)
 				{
 					return false;
 				}
+
 				break;
 
 			case 'videos' :
@@ -4914,7 +5103,9 @@ class media
 
 					return false;
 				}
+
 				$this->jsonarray = $this->reportVideo($uniqueID, $userID, $message);
+
 				if (!$this->jsonarray)
 				{
 					return false;
@@ -4944,8 +5135,9 @@ class media
 	private function reportPhoto($uniqueID, $albumID, $userID, $message)
 	{
 		CFactory::load('libraries', 'reporting');
-		$report = new CReportingLibrary ();
+		$report = new CReportingLibrary;
 		$link   = JURI::base() . "/index.php?option=com_community&view=photos&task=photo&userid={$userID}&albumid={$albumID}#photoid={$uniqueID}";
+
 		if (!$this->config->get('enablereporting') || (($this->my->id == 0) && (!$this->config->get('enableguestreporting'))))
 		{
 			IJReq::setResponse(706);
@@ -4958,7 +5150,7 @@ class media
 		$report->createReport(JText::_('COM_COMMUNITY_BAD_PHOTO'), $link, $message);
 
 		// Add the action that needs to be called.
-		$action                = new stdClass ();
+		$action                = new stdClass;
 		$action->label         = 'Delete photo';
 		$action->method        = 'photos,unpublishPhoto';
 		$action->parameters    = $uniqueID;
@@ -4983,7 +5175,7 @@ class media
 	private function reportVideo($uniqueID, $userID, $message)
 	{
 		CFactory::load('libraries', 'reporting');
-		$report = new CReportingLibrary ();
+		$report = new CReportingLibrary;
 
 		if (!$this->config->get('enablereporting') || (($this->my->id == 0) && (!$this->config->get('enableguestreporting'))))
 		{
@@ -4997,7 +5189,7 @@ class media
 		$report->createReport(JText::_('COM_COMMUNITY_VIDEOS_ERROR'), $link, $message);
 
 		// Add the action that needs to be called.
-		$action                = new stdClass ();
+		$action                = new stdClass;
 		$action->label         = 'Delete video';
 		$action->method        = 'videos,deleteVideo';
 		$action->parameters    = array($uniqueID, 0);
@@ -5011,7 +5203,8 @@ class media
 	}
 
 	/**
-	 * @uses    to set photo as a coverpage
+	 * used    to set photo as a coverpage
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -5024,10 +5217,11 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setCover()
+	public function setCover()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$albumID  = IJReq::getTaskData('albumID', 0, 'int');
+
 		if (!COwnerHelper::isRegisteredUser())
 		{
 			IJReq::setResponse(704);
@@ -5059,7 +5253,8 @@ class media
 	}
 
 	/**
-	 * @uses    to set photo as a coverpage
+	 * uses    to set photo as a coverpage
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -5071,7 +5266,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setAvatar()
+	public function setAvatar()
 	{
 		$uniqueID   = IJReq::getTaskData('uniqueID', 0, 'int');
 		$photoModel = CFactory::getModel('Photos');
@@ -5116,7 +5311,6 @@ class media
 		$hashFileName = JString::substr($fileName, 0, 24);
 		$photoPath    = JPATH_ROOT . '/' . $photo->image;
 
-
 		if ($photo->storage == 'file')
 		{
 			// @rule: If photo original file still exists, we will use the original file.
@@ -5146,6 +5340,7 @@ class media
 
 				return false;
 			}
+
 			$jConfig   = JFactory::getConfig();
 			$photoPath = $jConfig->getValue('tmp_path') . '/' . md5($photo->image);
 
@@ -5183,7 +5378,7 @@ class media
 
 		if ($photo->storage != 'file')
 		{
-			//@rule: For non local storage, we need to remove the temporary photo
+			// @rule: For non local storage, we need to remove the temporary photo
 			JFile::delete($photoPath);
 		}
 
@@ -5195,11 +5390,13 @@ class media
 		$this->my->set('_thumb', $thumbnail);
 
 		$this->jsonarray ['code'] = 200;
+
 		return $this->jsonarray;
 	}
 
 	/**
-	 * @uses    to set photo as a coverpage
+	 * uses    to set photo as a coverpage
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -5211,7 +5408,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setProfileVideo()
+	public function setProfileVideo()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
@@ -5232,9 +5429,9 @@ class media
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to set photo as a coverpage
+	 * uses    to set photo as a coverpage
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -5247,12 +5444,13 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setPhotoCaption()
+	public function setPhotoCaption()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 		$caption  = IJReq::getTaskData('caption', '');
 
 		$audiofileupload = $this->jomHelper->uploadAudioFile();
+
 		if ($audiofileupload)
 		{
 			$caption = $caption . $audiofileupload['voicetext'];
@@ -5280,7 +5478,7 @@ class media
 
 		if ($photo->id == '0')
 		{
-			// user shouldnt call this at all or reach here at all
+			// User shouldnt call this at all or reach here at all
 			IJReq::setResponse(416, JText::_('COM_COMMUNITY_PHOTOS_INVALID_PHOTO_ID'));
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
@@ -5288,6 +5486,7 @@ class media
 		}
 
 		CFactory::load('helpers', 'owner');
+
 		if (!$handler->hasPermission($album->id))
 		{
 			IJReq::setResponse(706, JText::_('COM_COMMUNITY_PHOTOS_NOT_ALLOWED_EDIT_CAPTION_ERROR'));
@@ -5299,6 +5498,7 @@ class media
 		$photo->caption = $caption;
 		$photo->store();
 		$this->jsonarray['code'] = 200;
+
 		if ($audiofileupload)
 		{
 			$this->jsonarray['voice'] = $audiofileupload['voice3gppath'];
@@ -5308,7 +5508,8 @@ class media
 	}
 
 	/**
-	 * @uses    to search videos
+	 * uses    to search videos
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -5321,10 +5522,11 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function searchVideo()
+	public function searchVideo()
 	{
 		$qString = IJReq::getTaskData('query', null);
 		$pageNO  = IJReq::getTaskData('pageNO', 0, 'int');
+
 		if ($pageNO == 0 || $pageNO == 1)
 		{
 			$startFrom = 0;
@@ -5339,6 +5541,7 @@ class media
 		$searchModel->setState('limitstart', $startFrom);
 		$result = $searchModel->searchVideo($qString);
 		$total  = $searchModel->getTotal();
+
 		if ($total > 0)
 		{
 			$this->jsonarray ['code']      = 200;
@@ -5352,10 +5555,12 @@ class media
 
 			return false;
 		}
+
 		foreach ($result as $key => $video)
 		{
 			$video_file = $video->path;
 			$p_url      = JURI::root();
+
 			if ($video->type == 'file')
 			{
 				$ext = JFile::getExt($video->path);
@@ -5376,6 +5581,7 @@ class media
 						if (!empty ($s3BucketPath))
 							$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 					}
+
 					$video_file = $p_url . $vname . ".mp4";
 				}
 			}
@@ -5396,17 +5602,18 @@ class media
 			$this->jsonarray ['videos'] [$key] ['user_avatar']  = $usr->avatar;
 			$this->jsonarray ['videos'] [$key] ['user_profile'] = $usr->profile;
 
-			//likes
+			// Likes
 			$likes                                          = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 			$this->jsonarray ['videos'] [$key] ['likes']    = $likes->likes;
 			$this->jsonarray ['videos'] [$key] ['dislikes'] = $likes->dislikes;
 			$this->jsonarray ['videos'] [$key] ['liked']    = $likes->liked;
 			$this->jsonarray ['videos'] [$key] ['disliked'] = $likes->disliked;
 
-			//comments
+			// Comments
 			$count                                               = $this->jomHelper->getCommentCount($video->id, 'videos');
 			$this->jsonarray ['videos'] [$key] ['commentCount']  = $count;
 			$this->jsonarray ['videos'] [$key] ['deleteAllowed'] = intval(($this->IJUserID == $video->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
+
 			if (SHARE_VIDEOS)
 			{
 				$this->jsonarray ['videos'] [$key] ['shareLink'] = JURI::base() . "index.php?option=com_community&view=videos&task=video&userid={$video->creator}&videoid={$video->id}";
@@ -5423,9 +5630,9 @@ class media
 		return $this->jsonarray;
 	}
 
-
 	/**
-	 * @uses    to set user cover pic
+	 * used    to set user cover pic
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jomsocial",
@@ -5437,7 +5644,7 @@ class media
 	 *    }
 	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
-	function setUserCover()
+	public function setUserCover()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
 
@@ -5484,6 +5691,5 @@ class media
 
 			return $this->jsonarray;
 		}
-
 	}
 }

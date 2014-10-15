@@ -16,9 +16,10 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial2.6
  * @since       1.0
  */
-class jomsocial
+class Jomsocial
 {
 	var $classname = 'jomsocial';
+
 	var $sessionWhiteList = array("user.profileTypes", "user.getTermsNCondition");
 
 	/**
@@ -26,7 +27,7 @@ class jomsocial
 	 *
 	 * @return  void
 	 */
-	function init()
+	public function init()
 	{
 		jimport('joomla.utilities.date');
 		jimport('joomla.html.pagination');
@@ -45,6 +46,7 @@ class jomsocial
 		$lang->load('com_community');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('jomsocial', $plugin_path . '/jomsocial', $lang->getTag(), true);
+
 		if (file_exists(JPATH_COMPONENT_SITE . '/extensions/jomsocial' . '/' . "helper.php"))
 		{
 			require_once JPATH_COMPONENT_SITE . '/extensions/jomsocial' . '/' . "helper.php";
@@ -65,7 +67,7 @@ class jomsocial
 	 *
 	 * @return  array  jsonarray
 	 */
-	function getconfig()
+	public function getconfig()
 	{
 		$this->init();
 		$config                       = CFactory::getConfig();
@@ -79,7 +81,7 @@ class jomsocial
 		$jsonarray['isEnableTerms']   = intval($config->get('enableterms'));
 		$jsonarray['termsObject']     = '{"extName":"jomsocial","extView":"user","extTask":"getTermsNCondition"}';
 
-		//List ijoomeradv jomsocial config in applicationConfig
+		// List ijoomeradv jomsocial config in applicationConfig
 		$db     = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_jomsocial_config
@@ -94,20 +96,22 @@ class jomsocial
 	/**
 	 * function for write configuration
 	 *
-	 * @param   [type]  $d  d
+	 * @param   [type]  &$d  d
 	 *
 	 * @return  boolean  true on success and false on failure
 	 */
-	function write_configuration(&$d)
+	public function write_configuration(&$d)
 	{
 		$db     = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_jomsocial_config";
 		$db->setQuery($query);
 		$config_array = $db->loadObjectList();
+
 		foreach ($config_array as $config)
 		{
 			$config_name = $config->name;
+
 			if (isset($d[$config_name]))
 			{
 				$query = "UPDATE #__ijoomeradv_jomsocial_config
@@ -124,13 +128,14 @@ class jomsocial
 	/**
 	 * Prepares special type of html for jomsocial[prepareHTML description]
 	 *
-	 * @param   array   $config  Configuration array for model. Optional.
+	 * @param   array  &$config  Configuration array for model. Optional.
 	 *
 	 * @return  void
 	 */
-	function prepareHTML(&$config)
+	public function prepareHTML(&$config)
 	{
 		$db  = JFactory::getDBO();
+
 		foreach ($config as $key => $value)
 		{
 			$config[$key]->caption     = JText::_($value->caption);
@@ -147,6 +152,7 @@ class jomsocial
 
 					$input = '<select name="' . $value->name . '" id="' . $value->name . '">';
 					$input .= '<option value="">Select Field...</option>';
+
 					if ($fields)
 					{
 						foreach ($fields as $field)
@@ -155,6 +161,7 @@ class jomsocial
 							$input .= '<option value="' . $field->id . '" ' . $selected . '>' . $field->name . '</option>';
 						}
 					}
+
 					$input .= '</select>';
 					$config[$key]->html = $input;
 					break;
@@ -162,5 +169,3 @@ class jomsocial
 		}
 	}
 }
-
-?>

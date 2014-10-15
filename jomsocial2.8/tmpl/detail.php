@@ -17,6 +17,7 @@ JHTML::_('behavior.tooltip');
 			<td width="50%" valign="top">
 				<?php
 				$i = 0;
+
 				foreach ($this->groups as $group)
 				{
 					if ($i == 4)
@@ -28,26 +29,31 @@ JHTML::_('behavior.tooltip');
 						<legend><?php echo JText::_('COM_IJOOMERADV_JOM_' . strtoupper($group) . '_CONFIG') ?></legend>
 						<table style="text-align: left;" class="paramlist admintable">
 							<?php
+
 							foreach ($this->{$group . 'Config'} as $key => $value)
 							{
 								?>
 								<tr>
 									<td class="paramlist_key" width="40%">
-											<span class="hasTip"
-											      title="<?php echo $value->caption; ?>::<?php echo $value->description; ?>">
+											<span class="hasTip" title="<?php echo $value->caption; ?>::
+											<?php echo $value->description; ?>">
 												<?php echo $value->caption; ?>
 											</span>
 									</td>
 									<td><?php echo $value->html; ?></td>
 								</tr>
-							<?php } ?>
+							<?php
+							}
+							?>
 						</table>
 					</fieldset>
 					<?php
+
 					if ($i == 3)
 					{
 						echo '<td>';
 					}
+
 					$i++;
 				}?>
 			</td>

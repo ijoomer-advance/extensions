@@ -14,10 +14,10 @@
  * @subpackage  sobipro_1.0.8
  * @since       1.0
  */
-
-class sobipro
+class Sobipro
 {
 	public $classname = "sobipro";
+
 	public $sessionWhiteList = array('isobipro.sectionCategories',
 		'isobipro.getsearchField',
 		'isobipro.addentryField');
@@ -27,9 +27,9 @@ class sobipro
 	 *
 	 * @return void
 	 */
-	function init()
+	public function init()
 	{
-		$lang =  JFactory::getLanguage();
+		$lang = JFactory::getLanguage();
 		$lang->load('com_sobipro');
 		$plugin_path = JPATH_COMPONENT_SITE . '/extensions';
 		$lang->load('sobipro', $plugin_path . '/sobipro', $lang->getTag(), true);
@@ -40,7 +40,7 @@ class sobipro
 	 *
 	 * @return json array
 	 */
-	function getconfig()
+	public function getconfig()
 	{
 		$jsonarray = array();
 
@@ -48,20 +48,24 @@ class sobipro
 	}
 
 	/**
-	 * write_configuration function
+	 * function write_configuration
 	 *
-	 * @return void
+	 * @param   [type]  &$d  d
+	 *
+	 * @return  void
 	 */
-	function write_configuration(&$d)
+	public function write_configuration(&$d)
 	{
-		$db    =  JFactory::getDBO();
+		$db    = JFactory::getDBO();
 		$query = "SELECT *
 				From #__ijoomeradv_sobipro_config";
 		$db->setQuery($query);
 		$config_array = $db->loadObjectList();
+
 		foreach ($config_array as $config)
 		{
 			$config_name = $config->name;
+
 			if (isset($d[$config_name]))
 			{
 				$implode = implode(',', $d[$config_name]);
@@ -77,13 +81,16 @@ class sobipro
 	}
 
 	/**
-	 * prepareHTML function
+	 * function prepareHTML
 	 *
-	 * @return void
+	 * @param   [type]  &$config  configuration
+	 *
+	 * @return  some value
 	 */
-	function prepareHTML(&$config)
+	public function prepareHTML(&$config)
 	{
-		$db =  JFactory::getDBO();
+		$db = JFactory::getDBO();
+
 		foreach ($config as $key => $value)
 		{
 			$config[$key]->caption     = JText::_($value->caption);
@@ -105,6 +112,7 @@ class sobipro
 					$space   = "@&nbsp;";
 					$explode = explode(',', $value->value);
 					$a       = array();
+
 					foreach ($explode as $ex)
 					{
 						$explode1 = explode(':', $ex);
@@ -112,6 +120,7 @@ class sobipro
 					}
 
 					$input = '<select class="inputbox" multiple="multiple" name="' . $value->name . '[]" id="' . $value->name . '" style="width: 180px;height:180px">';
+
 					foreach ($sections as $section)
 					{
 						$input .= '<optgroup value="' . $section->id . '" label="' . $space . "&nbsp;" . $section->name . '">\n';
@@ -121,6 +130,7 @@ class sobipro
 								AND sf.section={$section->id}";
 						$db->setQuery($query);
 						$fields = $db->loadObjectList();
+
 						if ($fields)
 						{
 							foreach ($fields as $field)
@@ -133,12 +143,15 @@ class sobipro
 								{
 									$selected = '';
 								}
+
 								$input .= '<option value="' . $section->id . ":" . $field->fid . '" ' . $selected . '>' . $field->nid . '</option>';
 							}
 						}
+
 						$input .= '</optgroup>';
 						$config[$key]->html = $input;
 					}
+
 					$input .= '</select>';
 					break;
 			}
@@ -154,12 +167,22 @@ class sobipro
  * @since       1.0
  */
 
-class sobipro_menu
+class Sobipro_Menu
 {
+	/**
+	 * function getRequiredInput
+	 *
+	 * @param   [type]  $extension    extension
+	 * @param   [type]  $extTask      extensiontask
+	 * @param   [type]  $menuoptions  menuoption
+	 *
+	 * @return  void
+	 */
 	public function getRequiredInput($extension, $extTask, $menuoptions)
 	{
 		$db          = JFactory::getDBo();
 		$menuoptions = json_decode($menuoptions, true);
+
 		switch ($extTask)
 		{
 			case 'sectionCategories':
@@ -257,19 +280,23 @@ class sobipro_menu
 							WHERE so.oType='section' AND so.parent=0";
 				$db->setQuery($query);
 				$sections = $db->loadObjectList();
+
 				foreach ($sections as $key => $value)
 				{
 					$selected = '';
+
 					if (isset($catId) && ($sectionID == $value->id))
 					{
 						$selected = 'selected';
 					}
-					else if (!isset($parent) && ($sectionId == $value->id))
+					elseif (!isset($parent) && ($sectionId == $value->id))
 					{
 						$selected = 'selected';
 					}
+
 					$html .= '<option value="' . $value->id . '" ' . $selected . '>' . $value->name . '</option>';
 				}
+
 				$html .= '</select></div></li>';
 				$html .= '<li><label id="jform_request_cid-lbl" class="" title="" for="jform_request_cid">' . JText::_('COM_IJOOMERADV_SELECT_CATEGORY') . '
 							<span class="star">&nbsp;*</span>
@@ -283,22 +310,26 @@ class sobipro_menu
 							</label>';
 				$html .= '<select name="jform[request][pagelayout]" id="jform_request_pagelayout">';
 				$values = array("Business", "Cars", "Restaurant");
+
 				foreach ($values as $pagevalue)
 				{
 					$select = ($selvalue4 == $pagevalue) ? 'selected="selected"' : '';
 					$html .= '<option ' . $select . ' value="' . $pagevalue . '">' . $pagevalue . '</option>';
 				}
+
 				$html .= '</select>';
 				$html .= '<label title="" class="" for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_FEATURED_FIRST') . '
 								<span class="star">&nbsp;*</span>
 							</label>';
 				$html .= '<select name="jform[request][featuredFirst]" id="jform_request_featuredFirst">';
 				$featuredoptions = array("Yes", "No");
+
 				foreach ($featuredoptions as $featuredoption)
 				{
 					$featureselected = ($featuredFirst == $featuredoption) ? 'selected="selected"' : '';
 					$html .= '<option ' . $featureselected . ' value="' . $featuredoption . '">' . $featuredoption . '</option>';
 				}
+
 				$html .= '</select>';
 				$html .= '</fieldset>';
 
@@ -328,11 +359,13 @@ class sobipro_menu
 						AND so.parent!=0";
 				$db->setQuery($query);
 				$parent = $db->loadResult();
+
 				foreach ($sections as $key => $value)
 				{
 					$selected = ((isset($parent) && ($parent == $value->id)) || (!isset($parent) && ($sid == $value->id))) ? 'selected' : '';
 					$html .= '<option value="' . $value->id . '" ' . $selected . '>' . $value->name . '</option>';
 				}
+
 				$html .= '</select></div></li>';
 				$html .= '</ul>';
 				$html .= '<label title="" class="" for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_SELECT_PAGELAYOUT') . '
@@ -342,11 +375,13 @@ class sobipro_menu
 				$values = array("Business",
 					"Cars",
 					"Restaurant");
+
 				foreach ($values as $pagevalue)
 				{
 					$select = ($menuoptions['remoteUse']['pageLayout'] == $pagevalue) ? 'selected="selected"' : '';
 					$html .= '<option ' . $select . ' value="' . $pagevalue . '">' . $pagevalue . '</option>';
 				}
+
 				$html .= '</select>';
 				$html .= '</fieldset>';
 
@@ -358,17 +393,20 @@ class sobipro_menu
 	/**
 	 * setRequiredInput function
 	 *
-	 * @param  [type]  $extension    extension
-	 * @param  [type]  $extView      extView
-	 * @param  [type]  $extTask      extTask
-	 * @param  [type]  $remoteTask   remoteTask
-	 * @param  [type]  $menuoptions  menuoptions
-	 * @param  [type]  $data         data
+	 * @param   [type]  $extension    extension
+	 * @param   [type]  $extView      extView
+	 * @param   [type]  $extTask      extTask
+	 * @param   [type]  $remoteTask   remoteTask
+	 * @param   [type]  $menuoptions  menuoptions
+	 * @param   [type]  $data         data
+	 *
+	 * @return  void
 	 */
 	public function setRequiredInput($extension, $extView, $extTask, $remoteTask, $menuoptions, $data)
 	{
 		$db      = JFactory::getDBO();
 		$options = null;
+
 		switch ($extTask)
 		{
 			case 'sectionCategories':
