@@ -10,6 +10,14 @@
 defined('_JEXEC') or die;
 jimport('joomla.version');
 
+/**
+ * class for event
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0_v1.5
+ * @since       1.0
+ */
+
 class event
 {
 	private $jomHelper;
@@ -20,6 +28,10 @@ class event
 	private $my;
 	private $config;
 	private $jsonarray = array();
+
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -102,7 +114,13 @@ class event
 	}
 
 
-	// called from categories
+	/**
+	 * subCategories function
+	 *
+	 * @param   integer  $pid  [description]
+	 *
+	 * @return  boolean        jsonarray
+	 */
 	private function subCategories($pid)
 	{
 		$now       = new JDate;
@@ -827,7 +845,11 @@ class event
 	}
 
 
-	// called from remove admin
+	/**
+	 * blockMember function
+	 *
+	 * @return  boolean  jsonarray
+	 */
 	private function blockMember()
 	{
 		$uniqueID = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -1356,7 +1378,7 @@ class event
 			return false;
 		}
 
-		//$model = CFactory::getModel ( 'events' );
+
 		$event = JTable::getInstance('Event', 'CTable');
 		$event->load($uniqueID);
 
@@ -2118,7 +2140,13 @@ class event
 	}
 
 
-	// to get field list to add/edit event.
+	/**
+	 * addEventFields funtion
+	 *
+	 * @param   integer  $uniqueID  event
+	 *
+	 * @return boolean jsonarray
+	 */
 	private function addEventFields($uniqueID = 0)
 	{
 		CFactory::load('helpers', 'event');
@@ -2212,7 +2240,13 @@ class event
 	}
 
 
-	// call from addEvent
+	/**
+	 * save funtion
+	 *
+	 * @param   [type]  $event  [description]
+	 *
+	 * @return  boolean          event
+	 */
 	private function save(&$event)
 	{
 		// Get my current data.
@@ -2507,7 +2541,13 @@ class event
 	}
 
 
-	// call from save()
+	/**
+	 * _formatStartEndDate function
+	 *
+	 * @param   [type]  $postData  post data
+	 *
+	 * @return  boolean             void
+	 */
 	private function _formatStartEndDate(&$postData)
 	{
 		if (isset($postData['starttime-ampm']) && $postData['starttime-ampm'] == 'PM' && $postData['starttime-hour'] != 12)
@@ -2555,7 +2595,14 @@ class event
 		unset($postData['privacy']);
 	}
 
-
+	/**
+	 * _generateRepeaList function
+	 *
+	 * @param   [type]  $event     event
+	 * @param   string  $postData  post data
+	 *
+	 * @return  boolean             event list
+	 */
 	private function _generateRepeatList($event, $postData = '')
 	{
 		$day   = 0;
@@ -2647,7 +2694,13 @@ class event
 		return $eventList;
 	}
 
-
+	/**
+	 * _saveMember function
+	 *
+	 * @param   [type]  $event  event
+	 *
+	 * @return  boolean          void
+	 */
 	private function _saveMember($event)
 	{
 
@@ -2667,7 +2720,16 @@ class event
 		$member->store();
 	}
 
-
+	/**
+	 * _saveRepeatChild function
+	 *
+	 * @param   [type]   $event       [description]
+	 * @param   [type]   $eventChild  [description]
+	 * @param   boolean  $isNew       [description]
+	 * @param   string   $postData    [description]
+	 *
+	 * @return  boolean                void
+	 */
 	private function _saveRepeatChild($event, $eventChild, $isNew = true, $postData = '')
 	{
 		$insertList = array();
@@ -2767,14 +2829,22 @@ class event
 
 	}
 
-
+	/**
+	 * _addActivityStream function
+	 *
+	 * @param  [type]  $event  event
+	 */
 	private function _addActivityStream($event)
 	{
 		CFactory::load('libraries', 'events');
 		CEvents::addEventStream($event);
 	}
 
-
+	/**
+	 * _addGroupNotification function
+	 *
+	 * @param  [type]  $event  event
+	 */
 	private function _addGroupNotification($event)
 	{
 		CFactory::load('libraries', 'events');
@@ -3245,7 +3315,13 @@ class event
 	}
 
 
-	// this function is used to delete wall comment. Call by remove function
+	/**
+	 * removeComment function
+	 *
+	 * @param   integer  $wallid  wall id
+	 *
+	 * @return  boolean           void
+	 */
 	private function removeComment($wallid)
 	{
 		$filter = JFilterInput::getInstance();

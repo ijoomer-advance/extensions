@@ -9,16 +9,35 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for group
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0
+ * @since       1.0
+ */
+
 class group
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
+
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -93,7 +112,13 @@ class group
 		return $this->jsonarray;
 	}
 
-	// called from categories
+	/**
+	 * subCategories function
+	 *
+	 * @param   [type]  $pid  pid
+	 *
+	 * @return  boolean retuns value
+	 */
 	private function subCategories($pid)
 	{
 		$groupModel = CFactory::getModel('groups');
@@ -388,7 +413,11 @@ class group
 		}
 	}
 
-
+	/**
+	 * save function
+	 *
+	 * @return  boolean  returns value
+	 */
 	private function save()
 	{
 		// Get my current data.
@@ -614,7 +643,11 @@ class group
 		return $validated;
 	}
 
-	// called by save()
+	/**
+	 * _bindParams function
+	 *
+	 * @return  boolean  retuns value
+	 */
 	private function _bindParams()
 	{
 		$params  = new CParameter('');
@@ -726,7 +759,11 @@ class group
 	}
 
 
-	// called from
+	/**
+	 * addGroupFields function
+	 *
+	 * @param   [type]  $uniqueID  unique id
+	 */
 	private function addGroupFields($uniqueID)
 	{
 		$fiedList = array("name"                         => array("text", 1, JText::_('COM_COMMUNITY_GROUPS_TITLE')),
@@ -837,6 +874,14 @@ class group
 		return $this->jsonarray;
 	}
 
+	/**
+	 * getFieldCategories function
+	 *
+	 * @param   [type]  $categories  category
+	 * @param   [type]  $parent      parent
+	 *
+	 * @return  boolean returns value
+	 */
 	private function getFieldCategories($categories, $parent)
 	{
 		if ($parent > 0)
@@ -2772,7 +2817,13 @@ class group
 		}
 	}
 
-
+	/**
+	 * _saveDiscussion function
+	 *
+	 * @param   [type]  &$discussion  variable
+	 *
+	 * @return  boolean              retuns value
+	 */
 	private function _saveDiscussion(&$discussion)
 	{
 		$uniqueID                      = IJReq::getTaskData('uniqueID', 0, 'int');
@@ -4119,7 +4170,14 @@ class group
 	}
 
 
-	// called from join
+	/**
+	 * _saveMember function
+	 *
+	 * @param   [type]  $groupID  id of group
+	 *
+	 * @return  boolean            returns value
+	 */
+
 	private function _saveMember($groupID)
 	{
 		$group =  JTable::getInstance('Group', 'CTable');
@@ -4943,6 +5001,11 @@ class group
 		}
 	}
 
+	/**
+	 * Agotime function
+	 *
+	 * @param   [type]  $date  describes date
+	 */
 
 	private function Agotime($date)
 	{

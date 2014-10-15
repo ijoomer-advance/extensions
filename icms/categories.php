@@ -9,11 +9,21 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for categories
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  icms
+ * @since       1.0
+ */
 class categories
 {
 
 	private $db;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->db  = JFactory::getDBO();
@@ -29,6 +39,7 @@ class categories
 	 *        "taskData":{}
 	 *    }
 	 *
+	 * @return mixed articles and categories
 	 */
 	public function category()
 	{
@@ -39,7 +50,13 @@ class categories
 		return $this->prepareObject($articles, $categories);
 	}
 
-	// to fetch parent/children categories
+	/**
+	 * to fetch parent/children categories
+	 *
+	 * @param   int  $id  id
+	 *
+	 * @return  json categories
+	 */
 	private function getCategories($id)
 	{
 		JRequest::setVar('id', $id);
@@ -60,7 +77,13 @@ class categories
 		return (json_decode(json_encode($categories)));
 	}
 
-	// to fetch articles
+	/**
+	 * function for fetch articles
+	 *
+	 * @param   int  $id  id
+	 *
+	 * @return  json articles
+	 */
 	private function getArticles($id)
 	{
 		JRequest::setVar('id', $id);
@@ -84,10 +107,10 @@ class categories
 	/**
 	 * Function for prepare object with list of articles and categories
 	 *
-	 * @param Array $articles
-	 * @param Array $categories
+	 * @param Array $articles     articles
+	 * @param Array $categories   categories
 	 *
-	 * @return Array
+	 * @return Array jsonarray
 	 */
 	private function prepareObject($articles, $categories)
 	{
@@ -180,7 +203,13 @@ class categories
 		return $jsonarray;
 	}
 
-	// to fetch category child count.
+	/**
+	 * function for fetch category child count.
+	 *
+	 * @param   int  $id  id
+	 *
+	 * @return  boolean
+	 */
 	private function getChildCount($id)
 	{
 		$childcategory = $this->getCategories($id);

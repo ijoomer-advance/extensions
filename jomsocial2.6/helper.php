@@ -9,6 +9,14 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for jomhelper
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
+
 class jomHelper
 {
 	private $date_now;
@@ -18,6 +26,9 @@ class jomHelper
 	private $my;
 	private $config;
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->date_now  = JFactory::getDate();
@@ -28,6 +39,13 @@ class jomHelper
 		$this->config    = CFactory::getConfig();
 	}
 
+	/**
+	 * function for get name
+	 *
+	 * @param   object  $obj  object
+	 *
+	 * @return  $name some value
+	 */
 	function getName($obj)
 	{
 		if (method_exists($obj, 'getDisplayName'))
@@ -43,6 +61,14 @@ class jomHelper
 		return $name;
 	}
 
+	/**
+	 * function check's is connected or not
+	 *
+	 * @param   integer  $id1  id1
+	 * @param   integer  $id2  id2
+	 *
+	 * @return  mixed  jomHelper data object on success, false on failure.
+	 */
 	function isconnected($id1, $id2)
 	{
 		if (($id1 == $id2) && ($id1 != 0))
@@ -62,6 +88,13 @@ class jomHelper
 		return $result;
 	}
 
+	/**
+	 * function for check isMember or not
+	 *
+	 * @param   integer  $id1  id1
+	 *
+	 * @return  boolean  true on success and false on failure
+	 */
 	function isMember($id1 = 0)
 	{
 		if ($id1 == 0)
@@ -75,7 +108,11 @@ class jomHelper
 
 		return $result;
 	}
-
+	/**
+	 * function for get jomsocial version
+	 *
+	 * @return  $version
+	 */
 	function getjomsocialversion()
 	{
 		$parser  = JFactory::getXMLParser('Simple');
@@ -87,6 +124,13 @@ class jomHelper
 		return $version = $element->data();
 	}
 
+	/**
+	 * function for get Notification Parameters
+	 *
+	 * @param   integer  $userid  userid
+	 *
+	 * @return  boolean  jomHelper data object on success, false on failure.
+	 */
 	function getNotificationParams($userid = 0)
 	{
 		if ($userid == 0)
@@ -123,6 +167,16 @@ class jomHelper
 		return $result;
 	}
 
+	/**
+	 * function GetLatLong
+	 *
+	 * @param  string  $addrss   address
+	 * @param  string  $city     city
+	 * @param  string  $state    state
+	 * @param  string  $country  country
+	 *
+	 * @return $l
+	 */
 	function GetLatLong($addrss = '', $city = '', $state = '', $country = '')
 	{
 		$q_array = array();
@@ -156,7 +210,15 @@ class jomHelper
 		return $l;
 	}
 
-	// Send Push Notification In Android
+	/**
+	 * function for googleAuthenticate
+	 *
+	 * @param   string  $username  username
+	 * @param   mixed  $password  password
+	 * @param   [type]  $service   service
+	 *
+	 * @return array/boolean  true on success or false on failure
+	 */
 	function googleAuthenticate($username, $password, $service)
 	{
 		// get an authorization token
@@ -195,6 +257,18 @@ class jomHelper
 		return $matches[2];
 	}
 
+	/**
+	 * function for send Message To Android
+	 *
+	 * @param   integer  $authCode              authentication code
+	 * @param   integer  $deviceRegistrationId  deviceRegistrationId
+	 * @param   string  $msgType               message Type
+	 * @param   string  $messageText           messageText
+	 * @param   integer  $totMsg                totalMsg
+	 * @param   [type]  $whentype              whentype
+	 *
+	 * @return  boolean true on success and false on failure
+	 */
 	function sendMessageToAndroid($authCode, $deviceRegistrationId, $msgType, $messageText, $totMsg = '', $whentype)
 	{
 		if (!empty($authCode) && !empty($deviceRegistrationId))
@@ -230,7 +304,16 @@ class jomHelper
 		}
 	}
 
-	// send push notification code start here
+	/**
+	 * send push notification code start here
+	 *
+	 * @param   [type]   $device_token  device token
+	 * @param   string   $message       message
+	 * @param   integer  $badge         badge
+	 * @param   string   $type          type
+	 *
+	 * @return  void
+	 */
 	function send_push_notification($device_token, $message = '', $badge = 1, $type = '')
 	{
 		$server = 'ssl://gateway.push.apple.com:2195';
@@ -274,6 +357,15 @@ class jomHelper
 		fclose($fp);
 	}
 
+	/**
+	 * function updateLatLong
+	 *
+	 * @param   integer  $uid   uid
+	 * @param   integer  $lat   lat
+	 * @param   integer  $long  long
+	 *
+	 * @return  boolean true on success and false on failure
+	 */
 	function updateLatLong($uid = 0, $lat = 255, $long = 255)
 	{
 		$db  = JFactory::getDBO();
@@ -287,7 +379,14 @@ class jomHelper
 		$this->db->Query();
 	}
 
-	// get location from lat, long.
+	/**
+	 * get location from lat, long.
+	 *
+	 * @param   [type]  $lattitude  lattitude
+	 * @param   [type]  $longitude  longitude
+	 *
+	 * @return  array  address
+	 */
 	function getaddress($lattitude, $longitude)
 	{
 		$address = '';
@@ -313,12 +412,17 @@ class jomHelper
 		return $address;
 	}
 
-	// get title from location.
+	/**
+	 * get title from location.
+	 *
+	 * @param   string  $location  location
+	 *
+	 * @return  null or value
+	 */
 	function gettitle($location)
 	{
 		if ($location != '')
 		{
-			//
 			CFactory::load('helpers', 'remote');
 			$url     = 'http://maps.google.com/maps/api/geocode/json?address=' . urlencode($location) . '&sensor=false';
 			$content = CRemoteHelper::getContent($url);
@@ -334,7 +438,6 @@ class jomHelper
 					$address = $data->results[0]->address_components;
 					foreach ($address as $adKe => $adVal)
 					{
-
 						if ($adVal->types[0] == 'route' || $adVal->types[0] == 'neighborhood' || $adVal->types[0] == 'sublocality' || $adVal->types[0] == 'locality' || $adVal->types[0] == 'administrative_area_level_1')
 						{
 							$locality[] = $adVal->long_name;
@@ -373,6 +476,13 @@ class jomHelper
 		}
 	}
 
+	/**
+	 * function timeLapse
+	 *
+	 * @param   date  $date  date
+	 *
+	 * @return  lapse
+	 */
 	function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
@@ -407,6 +517,14 @@ class jomHelper
 		return $lapse;
 	}
 
+	/**
+	 * function for get Date
+	 *
+	 * @param   string   $str  string
+	 * @param   integer  $off  off
+	 *
+	 * @return  date $date
+	 */
 	function getDate($str = '', $off = 0)
 	{
 		require_once JPATH_ROOT . '/components/com_community/libraries/core.php';
@@ -467,6 +585,16 @@ class jomHelper
 		return $date;
 	}
 
+	/**
+	 * function for show a date
+	 *
+	 * @param   [type]  $time    time
+	 * @param   string  $mode    mode
+	 * @param   string  $tz      tz
+	 * @param   integer  $offset offset
+	 *
+	 * @return  date  $date
+	 */
 	function showDate($time, $mode = 'datetime_today', $tz = 'kunena', $offset = null)
 	{
 		require_once JPATH_SITE . '/components/com_kunena/lib/kunena.timeformat.class.php';
@@ -544,8 +672,9 @@ class jomHelper
 	}
 
 	/**
-	 * @uses to get the notification count for logged in user
+	 * get the notification count for logged in user
 	 *
+	 * @return  array  jsonarray
 	 */
 	function getNotificationCount()
 	{
@@ -576,7 +705,7 @@ class jomHelper
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxLike
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function Like($element, $itemId)
 	{
@@ -1390,7 +1519,7 @@ class jomHelper
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxDislike
-	 *
+	 * @return boolean  true on success or false on failure
 	 */
 	function Dislike($element, $itemId)
 	{
@@ -1441,6 +1570,7 @@ class jomHelper
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxDislike
 	 *
+	 * @return boolean  true on success or false on failure
 	 */
 	function Unlike($element, $itemId)
 	{
@@ -1490,6 +1620,7 @@ class jomHelper
 	 * @param mixed  $itemId  Unique id to identify object item
 	 * @param mixed  $userId
 	 *
+	 * @return  mixed    jomHelper data object on success, false on failure.
 	 */
 	function getLikes($element, $itemId, $userId)
 	{
@@ -1528,6 +1659,7 @@ class jomHelper
 	 * @param $userID   : the user who will be affected by the user permission.
 	 * @param $friendID : the user who set the permission.
 	 *
+	 * @return $access_limit
 	 */
 	function getUserAccess($userID = null, $friendID = null)
 	{
@@ -1562,6 +1694,7 @@ class jomHelper
 	 * @param $uniqueID : id of the element.
 	 * @param $type     : type of the comment. // videos, albums, photos, profile.status,
 	 *
+	 * @return integer  count
 	 */
 	function getCommentCount($uniqueID, $type)
 	{
@@ -1575,9 +1708,13 @@ class jomHelper
 		return $count;
 	}
 
-
 	/**
 	 * This function is use to get user details
+	 *
+	 * @param   integer  $userID     userid
+	 * @param   [type]  $frontUser  frontuser
+	 *
+	 * @return  $user
 	 */
 	function getUserDetail($userID, $frontUser = null)
 	{
@@ -1671,6 +1808,11 @@ class jomHelper
 		return $user;
 	}
 
+	/**
+	 * function for uploadAudioFile
+	 *
+	 * @return boolean  true on success or false on failure
+	 */
 	public function uploadAudioFile()
 	{
 		jimport('joomla.filesystem.file');
@@ -1717,6 +1859,13 @@ class jomHelper
 		}
 	}
 
+	/**
+	 * function for add Audio File
+	 *
+	 * @param  [type]  $content  content
+	 *
+	 * @return $content
+	 */
 	public function addAudioFile($content)
 	{
 		$matches = array();

@@ -9,6 +9,13 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for user
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
 class user
 {
 	private $jomHelper;
@@ -20,6 +27,9 @@ class user
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -61,6 +71,7 @@ class user
 	 * @access  privacyVideoView = video view
 	 * @access  privacyGroupsView = group view
 	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function profile()
 	{
@@ -208,8 +219,11 @@ class user
 
 
 	/**
-	 * @uses this function is used to add a view count to the visited user profile.
+	 * this function is used to add a view count to the visited user profile.
 	 *
+	 * @param   integer  $ID  id
+	 *
+	 * @return  boolean true on success and false on failure
 	 */
 	private function profileViewCount($ID)
 	{
@@ -243,7 +257,7 @@ class user
 	 * avatar image will be post to "image" variable
 	 *
 	 * status maessage update is removed form update profile. Status message can be added from addWall function from wall.php
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function updateProfile()
 	{
@@ -497,8 +511,12 @@ class user
 	}
 
 	/**
-	 * @uses called from updateprofile
+	 * function for update
 	 *
+	 * @param   integer  $id      id
+	 * @param   string   $status  status
+	 *
+	 * @return  boolean true on success or false on failure
 	 */
 	private function update($id, $status)
 	{
@@ -538,7 +556,7 @@ class user
 	 *            "userID":"userID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function like()
 	{
@@ -572,7 +590,7 @@ class user
 	 *            "userID":"userID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function dislike()
 	{
@@ -605,7 +623,7 @@ class user
 	 *            "userID":"userID" // optional, if not passed then logged in user id will be used
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function unlike()
 	{
@@ -638,7 +656,7 @@ class user
 	 *            "form":"0/1" (0=to post form, 1=to get form)
 	 *        }
 	 *    }
-	 *
+	 * @return UserDetails
 	 */
 	function userDetail()
 	{
@@ -653,8 +671,9 @@ class user
 	}
 
 	/**
-	 * @uses to get the user detail form along with user data
+	 * get the user detail form along with user data
 	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	private function getUserDetail()
 	{
@@ -793,8 +812,9 @@ class user
 	}
 
 	/**
-	 * @uses to set the user detail
+	 * function for set the user detail
 	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	private function setUserDetail()
 	{
@@ -848,7 +868,7 @@ class user
 	 *        "extView":"friend",
 	 *        "extTask":"notification"
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function notification()
 	{
@@ -1267,7 +1287,7 @@ class user
 	 *            "form":"0/1"(0=form post, 1=get the form)
 	 *        }
 	 *    }
-	 *
+	 * @return preferences
 	 */
 	function preferences()
 	{
@@ -1282,8 +1302,9 @@ class user
 	}
 
 	/**
-	 * @uses to get the form for user privacy settings
+	 * function for get Preferences
 	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	private function getPreferences()
 	{
@@ -1626,8 +1647,9 @@ class user
 	}
 
 	/**
-	 * @uses to set the user privacy settings
+	 * function for set the user privacy settings
 	 *
+	 * @return boolean  true on success and false on failure
 	 */
 	private function setPreferences()
 	{
@@ -1669,7 +1691,13 @@ class user
 		}
 	}
 
-
+	/**
+	 * function timeLapse
+	 *
+	 * @param   date  $date  date
+	 *
+	 * @return  $lapse
+	 */
 	private function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
@@ -1703,6 +1731,14 @@ class user
 		return $lapse;
 	}
 
+	/**
+	 * function for get the date
+	 *
+	 * @param   string   $str  string
+	 * @param   integer  $off  offset
+	 *
+	 * @return  date  $date
+	 */
 	private function getDate($str = '', $off = 0)
 	{
 		$extraOffset = $this->config->get('daylightsavingoffset');
@@ -1770,7 +1806,7 @@ class user
 	 *        "taskData":{
 	 *        }
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function profileTypes()
 	{
@@ -1817,7 +1853,7 @@ class user
 	 *        "extView":"user",
 	 *        "extTask":"getTermsNCondition"
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function getTermsNCondition()
 	{
@@ -1849,7 +1885,7 @@ class user
 	 *            ]
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function advanceSearch()
 	{

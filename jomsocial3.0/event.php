@@ -10,16 +10,35 @@
 defined('_JEXEC') or die;
 jimport('joomla.version');
 
+/**
+ * class for event
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.0
+ * @since       1.0
+ */
+
 class event
 {
 	private $jomHelper;
+
 	private $date_now;
+
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $config;
+
 	private $jsonarray = array();
+
+	/**
+	 * construct function
+	 */
 
 	function __construct()
 	{
@@ -102,7 +121,13 @@ class event
 	}
 
 
-	// called from categories
+	/**
+	 * subcategories function
+	 *
+	 * @param   [type]  $pid  [description]
+	 *
+	 * @return  $jsonarray 	  returns jsonarray
+	 */
 	private function subCategories($pid)
 	{
 		$now       = new JDate;

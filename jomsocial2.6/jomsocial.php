@@ -9,11 +9,23 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for jomsocial
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
 class jomsocial
 {
 	var $classname = 'jomsocial';
 	var $sessionWhiteList = array("user.profileTypes", "user.getTermsNCondition");
 
+	/**
+	 * function for initialization
+	 *
+	 * @return  void
+	 */
 	function init()
 	{
 		jimport('joomla.utilities.date');
@@ -48,6 +60,11 @@ class jomsocial
 		}
 	}
 
+	/**
+	 * function for get configuration
+	 *
+	 * @return  array  jsonarray
+	 */
 	function getconfig()
 	{
 		$this->init();
@@ -74,6 +91,13 @@ class jomsocial
 		return $jsonarray;
 	}
 
+	/**
+	 * function for write configuration
+	 *
+	 * @param   [type]  $d  d
+	 *
+	 * @return  boolean  true on success and false on failure
+	 */
 	function write_configuration(&$d)
 	{
 		$db     = JFactory::getDBO();
@@ -97,9 +121,13 @@ class jomsocial
 		return true;
 	}
 
-	/*
-		* Prepares special type of html for jomsocial
-		*/
+	/**
+	 * Prepares special type of html for jomsocial[prepareHTML description]
+	 *
+	 * @param   array   $config  Configuration array for model. Optional.
+	 *
+	 * @return  void
+	 */
 	function prepareHTML(&$config)
 	{
 		$db  = JFactory::getDBO();

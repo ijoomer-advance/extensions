@@ -9,6 +9,13 @@
 
 defined('_JEXEC') or die;
 
+/**
+ * class for friend
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial2.6
+ * @since       1.0
+ */
 class friend
 {
 	private $jomHelper;
@@ -20,6 +27,9 @@ class friend
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * constructor
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -47,7 +57,7 @@ class friend
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function members()
 	{
@@ -122,7 +132,7 @@ class friend
 	 *            "pageNO":"pageNO"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function friends()
 	{
@@ -224,7 +234,7 @@ class friend
 	 *            "message":"message"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function addFriend()
 	{
@@ -292,7 +302,15 @@ class friend
 		return $this->jsonarray;
 	}
 
-
+	/**
+	 * function for trigger Friend Events
+	 *
+	 * @param   string  $eventName  name of events
+	 * @param   [type]  $args       arguments
+	 * @param   [type]  $target     target
+	 *
+	 * @return  boolean true on success or false on failure
+	 */
 	private function triggerFriendEvents($eventName, &$args, $target = null)
 	{
 		require_once JPATH_SITE . '/components/com_community/libraries/apps.php';
@@ -322,7 +340,7 @@ class friend
 	 *            "memberID":"memberID"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function removeFriend()
 	{
@@ -357,7 +375,13 @@ class friend
 		}
 	}
 
-
+	/**
+	 * function for delete
+	 *
+	 * @param   integer  $id  id
+	 *
+	 * @return  boolean  true on success or false on failure
+	 */
 	private function delete($id)
 	{
 		$friend = CFactory::getUser($id);
@@ -406,7 +430,7 @@ class friend
 	 *            "connectionID":"connectionID"
 	 *        }
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function approveRequest()
 	{
@@ -503,7 +527,7 @@ class friend
 	 *            "connectionID":"connectionID"
 	 *        }
 	 *    }
-	 *
+	 * @return array  jsonarray
 	 */
 	function rejectRequest()
 	{
@@ -542,7 +566,7 @@ class friend
 	 *            "pageNO":"pageno"
 	 *        }
 	 *    }
-	 *
+	 * @return array/boolean  jsonarray and true on success or false on failure
 	 */
 	function search()
 	{
@@ -672,8 +696,13 @@ class friend
 		}
 	}
 
-
-	// called by search()
+	/**
+	 * function for get Filtered
+	 *
+	 * @param   array   $wheres  wheres
+	 *
+	 * @return  mixed   friend data object on success, false on failure.
+	 */
 	private function getFiltered($wheres = array())
 	{
 		$wheres[] = 'block = 0';

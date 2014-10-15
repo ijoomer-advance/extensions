@@ -11,6 +11,14 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.model');
 require_once JPATH_ROOT . '/components/com_community/models/models.php';
 
+/**
+ * class for message
+ *
+ * @package     IJoomer.Extensions
+ * @subpackage  jomsocial3.2
+ * @since       1.0
+ */
+
 class message
 {
 	private $jomHelper;
@@ -22,6 +30,9 @@ class message
 	private $config;
 	private $jsonarray = array();
 
+	/**
+	 * construct function
+	 */
 	function __construct()
 	{
 		$this->jomHelper = new jomHelper;
@@ -664,7 +675,14 @@ class message
 		return $this->jsonarray;
 	}
 
-
+	/**
+	 * _isSpam function
+	 *
+	 * @param   [type]   $user  user
+	 * @param   [type]   $data  data
+	 *
+	 * @return  void
+	 */
 	private function _isSpam($user, $data)
 	{
 		// @rule: Spam checks
@@ -689,6 +707,11 @@ class message
 		return false;
 	}
 
+	/**
+	 * write1 function
+	 *
+	 * @return  array  jsonarray
+	 */
 	function write1()
 	{
 		$userID  = IJReq::getTaskData('userID');
@@ -737,9 +760,16 @@ class message
 		return $this->jsonarray;
 	}
 
+	/**
+	 * addReceipient function
+	 *
+	 * @param   [type]   $msgObj       message object
+	 * @param   integer  $recepientId  id of recepient
+	 *
+	 * @return  returns value
+	 */
 	private function addReceipient($msgObj, $recepientId)
 	{
-
 		$recepient             = new stdClass;
 		$recepient->msg_id     = $msgObj->id;
 		$recepient->msg_parent = $msgObj->parent;
