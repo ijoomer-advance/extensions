@@ -94,8 +94,8 @@ jimport('joomla.html.pane');
 	<table style="text-align: left;" class="paramlist admintable">
 		<tr>
 			<td class="paramlist_key" width="40%">
-	      						<span class="hasTip"
-						              title="<?php echo JText::_('SOBIPRO_CHECK_SESSION_LBL'); ?>::<?php echo JText::_('SOBIPRO_CHECK_SESSION_EXPLAIN'); ?>">
+	      						<span class="hasTip" title="<?php echo JText::_('SOBIPRO_CHECK_SESSION_LBL'); ?>::
+	      						<?php echo JText::_('SOBIPRO_CHECK_SESSION_EXPLAIN'); ?>">
 									<?php echo JText::_('SOBIPRO_CHECK_SESSION_LBL'); ?>
 								</span>
 			</td>
@@ -110,8 +110,8 @@ jimport('joomla.html.pane');
 		<tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_SECTION_LISTING'); ?>::<?php echo JText::_('SOBIPRO_SECTION_LISTING_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_SECTION_LISTING'); ?>::
+									      <?php echo JText::_('SOBIPRO_SECTION_LISTING_EXPLAIN'); ?>">
 										<?php echo JText::_('SOBIPRO_SECTION_LISTING'); ?>
 									</span>
 			</td>
@@ -150,17 +150,18 @@ jimport('joomla.html.pane');
 		<tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_SECTION_DISPLAY'); ?>::<?php echo JText::_('SOBIPRO_SECTION_DISPLAY_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_SECTION_DISPLAY'); ?>::
+									<?php echo JText::_('SOBIPRO_SECTION_DISPLAY_EXPLAIN'); ?>">
 										<?php echo JText::_('SOBIPRO_SECTION_DISPLAY'); ?>
 									</span>
 			</td>
 			<?php
+
 			if (empty($this->cfg["sobipro_Section"]))
 			{
 				$sel = "selected='selected'";
 			}
-			else if ($this->cfg["sobipro_Section"] == "thumb")
+			elseif ($this->cfg["sobipro_Section"] == "thumb")
 			{
 				$sel = "selected='selected'";
 			}
@@ -168,31 +169,37 @@ jimport('joomla.html.pane');
 			{
 				$sel = "";
 			}
+
 			?>
 			<td>
 				<select name="sobipro_Section" id="sobipro_Section" class="inputbox">
 					<option value="thumb" <?php echo $sel; ?>>Thumbnails</option>
-					<option value="list" <?php if ($this->cfg["sobipro_Section"] == "list")
+					<option value="list"
+
+					<?php
+					if ($this->cfg["sobipro_Section"] == "list")
 					{
 						echo "selected='selected'";
-					} ?>>List
+					}
+					?>>List
 					</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_CATEGORY_DISPLAY'); ?>::<?php echo JText::_('SOBIPRO_CATEGORY_DISPLAY_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_CATEGORY_DISPLAY'); ?>::
+									<?php echo JText::_('SOBIPRO_CATEGORY_DISPLAY_EXPLAIN'); ?>">
 										<?php echo JText::_('SOBIPRO_CATEGORY_DISPLAY'); ?>
 									</span>
 			</td>
 			<?php
+
 			if (empty($this->cfg["sobipro_Category"]))
 			{
 				$sel = "selected='selected'";
 			}
-			else if ($this->cfg["sobipro_Category"] == "thumb")
+			elseif ($this->cfg["sobipro_Category"] == "thumb")
 			{
 				$sel = "selected='selected'";
 			}
@@ -204,40 +211,49 @@ jimport('joomla.html.pane');
 			<td>
 				<select name="sobipro_Category" id="sobipro_Category" class="inputbox">
 					<option value="thumb" <?php echo $sel; ?>>Thumbnails</option>
-					<option value="list" <?php if ($this->cfg["sobipro_Category"] == "list")
+					<option value="list"
+					<?php
+					if ($this->cfg["sobipro_Category"] == "list")
 					{
 						echo "selected='selected'";
-					} ?>>List
+					}
+					?>>List
 					</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_ENTRY_DISPLAY'); ?>::<?php echo JText::_('SOBIPRO_ENTRY_DISPLAY_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_ENTRY_DISPLAY'); ?>::
+									<?php echo JText::_('SOBIPRO_ENTRY_DISPLAY_EXPLAIN'); ?>">
 										<?php echo JText::_('SOBIPRO_ENTRY_DISPLAY'); ?>
 									</span>
 			</td>
-			<?php if (empty($this->cfg["sobipro_List"]))
+			<?php
+
+			if (empty($this->cfg["sobipro_List"]))
 			{
 				$sel = "selected='selected'";
 			}
-			else if ($this->cfg["sobipro_List"] == "thumb")
+			elseif ($this->cfg["sobipro_List"] == "thumb")
 			{
 				$sel = "selected='selected'";
 			}
 			else
 			{
 				$sel = "";
-			}?>
+			}
+			?>
 			<td>
 				<select name="sobipro_List" id="sobipro_List" class="inputbox">
 					<option value="thumb" <?php echo $sel; ?>>Thumbnails</option>
-					<option value="list" <?php if ($this->cfg["sobipro_List"] == "list")
+					<option value="list"
+					<?php
+					if ($this->cfg["sobipro_List"] == "list")
 					{
 						echo "selected='selected'";
-					} ?>>List
+					}
+					?>>List
 					</option>
 				</select>
 			</td>
@@ -249,8 +265,8 @@ jimport('joomla.html.pane');
 		<tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_MAP_API_KEY'); ?>::<?php echo JText::_('SOBIPRO_MAP_API_KEY_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_MAP_API_KEY'); ?>::
+									<?php echo JText::_('SOBIPRO_MAP_API_KEY_EXPLAIN'); ?>">
 									<?php echo JText::_('SOBIPRO_MAP_API_KEY'); ?>
 									</span>
 			</td>
@@ -266,8 +282,8 @@ jimport('joomla.html.pane');
 		<tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_RADIUS_SEARCH'); ?>::<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_RADIUS_SEARCH'); ?>::
+									<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_EXPLAIN'); ?>">
 									<?php echo JText::_('SOBIPRO_RADIUS_SEARCH'); ?>
 									</span>
 			</td>
@@ -277,8 +293,8 @@ jimport('joomla.html.pane');
 		</tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_UNIT'); ?>::<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_UNIT_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_UNIT'); ?>::
+									<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_UNIT_EXPLAIN'); ?>">
 									<?php echo JText::_('SOBIPRO_RADIUS_SEARCH_UNIT'); ?>
 									</span>
 			</td>
@@ -298,8 +314,8 @@ jimport('joomla.html.pane');
 
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_MAX_SEARCH'); ?>::<?php echo JText::_('SOBIPRO_MAX_SEARCH_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_MAX_SEARCH'); ?>::
+									<?php echo JText::_('SOBIPRO_MAX_SEARCH_EXPLAIN'); ?>">
 									<?php echo JText::_('SOBIPRO_MAX_SEARCH'); ?>
 									</span>
 			</td>
@@ -321,20 +337,20 @@ jimport('joomla.html.pane');
 					<thead>
 					<tr>
 						<th>
-							   						<span class="hasTip"
-												          title="<?php echo JText::_('SOBIPRO_SECTION_LBL'); ?>::<?php echo JText::_('SOBIPRO_SECTION_LBL_EXPLAIN'); ?>">
+							   						<span class="hasTip" title="<?php echo JText::_('SOBIPRO_SECTION_LBL'); ?>::
+							   						<?php echo JText::_('SOBIPRO_SECTION_LBL_EXPLAIN'); ?>">
 														<?php echo JText::_('SOBIPRO_SECTION_LBL'); ?>
 													</span>
 						</th>
 						<th width="150px">
-							   						<span class="hasTip"
-												          title="<?php echo JText::_('SOBIPRO_FIELD_NAME'); ?>::<?php echo JText::_('SOBIPRO_FIELD_NAME_EXPLAIN'); ?>">
+							   						<span class="hasTip" title="<?php echo JText::_('SOBIPRO_FIELD_NAME'); ?>::
+							   						<?php echo JText::_('SOBIPRO_FIELD_NAME_EXPLAIN'); ?>">
 														<?php echo JText::_('SOBIPRO_FIELD_NAME'); ?>
 													</span>
 						</th>
 						<th width="250px">
-							   						<span class="hasTip"
-												          title="<?php echo JText::_('SOBIPRO_FIELDS'); ?>::<?php echo JText::_('SOBIPRO_FIELDS_EXPLAIN'); ?>">
+							   						<span class="hasTip" title="<?php echo JText::_('SOBIPRO_FIELDS'); ?>::
+							   						<?php echo JText::_('SOBIPRO_FIELDS_EXPLAIN'); ?>">
 														<?php echo JText::_('SOBIPRO_FIELDS'); ?>
 													</span>
 						</th>
@@ -355,8 +371,8 @@ jimport('joomla.html.pane');
 	<table style="text-align: left;" class="paramlist admintable">
 		<tr>
 			<td class="paramlist_key" width="40%">
-						 			<span class="hasTip"
-								          title="<?php echo JText::_('SOBIPRO_FEATURED_LBL'); ?>::<?php echo JText::_('SOBIPRO_FEATURED_EXPLAIN'); ?>">
+						 			<span class="hasTip" title="<?php echo JText::_('SOBIPRO_FEATURED_LBL'); ?>::
+								          <?php echo JText::_('SOBIPRO_FEATURED_EXPLAIN'); ?>">
 										<?php echo JText::_('SOBIPRO_FEATURED_LBL'); ?>
 									</span>
 			</td>
@@ -366,8 +382,8 @@ jimport('joomla.html.pane');
 		</tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_LISTING_LBL'); ?>::<?php echo JText::_('SOBIPRO_LISTING_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_LISTING_LBL'); ?>::
+									<?php echo JText::_('SOBIPRO_LISTING_EXPLAIN'); ?>">
 										<?php echo JText::_('SOBIPRO_LISTING_LBL'); ?>
 									</span>
 			</td>
@@ -395,27 +411,39 @@ jimport('joomla.html.pane');
 		</tr>
 		<tr>
 			<td class="paramlist_key" width="40%">
-									<span class="hasTip"
-									      title="<?php echo JText::_('SOBIPRO_FEATURED_DISPLAY'); ?>::<?php echo JText::_('SOBIPRO_FEATURED_DISPLAY_EXPLAIN'); ?>">
+									<span class="hasTip" title="<?php echo JText::_('SOBIPRO_FEATURED_DISPLAY'); ?>::
+									<?php echo JText::_('SOBIPRO_FEATURED_DISPLAY_EXPLAIN'); ?>">
 									<?php echo JText::_('SOBIPRO_FEATURED_DISPLAY'); ?>
 									</span>
 			</td>
 			<td>
 				<select name="sobipro_Featured_View" id="sobipro_Featured_View" class="inputbox">
-					<option value="global" <?php if ($this->cfg["sobipro_Featured_View"] == "global")
+					<option value="global"
+					<?php
+					if ($this->cfg["sobipro_Featured_View"] == "global")
 					{
 						echo "selected='selected'";
-					} ?>>Global
+					}
+
+					?>>Global
 					</option>
-					<option value="thumb" <?php if ($this->cfg["sobipro_Featured_View"] == "thumb")
+					<option value="thumb"
+					<?php
+					if ($this->cfg["sobipro_Featured_View"] == "thumb")
 					{
 						echo "selected='selected'";
-					} ?>>Thumbnails
+					}
+
+					?>>Thumbnails
 					</option>
-					<option value="list" <?php if ($this->cfg["sobipro_Featured_View"] == "list")
+					<option value="list"
+					<?php
+					if ($this->cfg["sobipro_Featured_View"] == "list")
 					{
 						echo "selected='selected'";
-					} ?>>List
+					}
+
+					?>>List
 					</option>
 				</select>
 			</td>

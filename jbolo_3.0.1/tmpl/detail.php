@@ -29,19 +29,24 @@ JHTML::_('behavior.tooltip');
 						<legend><?php echo JText::_('COM_IJOOMERADV_JBOLO_' . strtoupper($group) . '_CONFIG') ?></legend>
 						<table style="text-align: left;" class="paramlist admintable">
 							<?php
+
 							foreach ($this->{$group . 'Config'} as $key => $value)
 							{
 								?>
 								<tr>
 									<td class="paramlist_key" width="40%">
-											<span class="hasTip"
-											      title="<?php echo $value->caption; ?>::<?php echo $value->description; ?>">
-												<?php echo $value->caption; ?>
+											<span class="hasTip" title="<?php echo $value->caption; ?>::
+											      <?php echo $value->description; ?>">
+												<?php
+												echo $value->caption;
+												?>
 											</span>
 									</td>
 									<td><?php echo $value->html; ?></td>
 								</tr>
-							<?php } ?>
+							<?php
+							}
+							?>
 						</table>
 					</fieldset>
 					<?php
@@ -49,6 +54,7 @@ JHTML::_('behavior.tooltip');
 					{
 						echo '<td>';
 					}
+
 					$i++;
 				}?>
 			</td>

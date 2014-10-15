@@ -16,9 +16,7 @@ defined('_JEXEC') or die;
  * @subpackage  jomsocial3.0
  * @since       1.0
  */
-
-
-class jomHelper
+class JomHelper
 {
 	private $date_now;
 
@@ -36,13 +34,19 @@ class jomHelper
 	 * construct function
 	 */
 
-	function __construct()
+	public function __construct()
 	{
 		$this->date_now  = JFactory::getDate();
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
-		$this->my        = CFactory::getUser($this->IJUserID); // set the login user object
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
+
+		// Set the login user object
+		$this->my        = CFactory::getUser($this->IJUserID);
 		$this->config    = CFactory::getConfig();
 	}
 
@@ -53,8 +57,7 @@ class jomHelper
 	 *
 	 * @return  boolean        retuns value
 	 */
-
-	function getName($obj)
+	public function getName($obj)
 	{
 		if (method_exists($obj, 'getDisplayName'))
 		{
@@ -62,7 +65,6 @@ class jomHelper
 		}
 		else
 		{
-
 			$name = ($this->config->get('displayname') == 'username') ? $obj->username : $obj->name;
 		}
 
@@ -77,8 +79,7 @@ class jomHelper
 	 *
 	 * @return  boolean        returns value
 	 */
-
-	function isconnected($id1, $id2)
+	public function isconnected($id1, $id2)
 	{
 		if (($id1 == $id2) && ($id1 != 0))
 			return true;
@@ -104,7 +105,7 @@ class jomHelper
 	 *
 	 * @return  boolean        returns value
 	 */
-	function isMember($id1 = 0)
+	public function isMember($id1 = 0)
 	{
 		if ($id1 == 0)
 			return false;
@@ -117,14 +118,14 @@ class jomHelper
 
 		return $result;
 	}
+
 	/**
 	 * getjomsocialversion
 	 *
 	 * @return  boolean  returns value
 	 */
-	function getjomsocialversion()
+	public function getjomsocialversion()
 	{
-
 		$xmlfile = JPATH_ROOT . '/administrator/components/com_community/community.xml';
 		$xml     = JFactory::getXML($xmlfile, 1);
 		$version = (string) $xml->version;
@@ -139,7 +140,7 @@ class jomHelper
 	 *
 	 * @return  boolean            returns result
 	 */
-	function getNotificationParams($userid = 0)
+	public function getNotificationParams($userid = 0)
 	{
 		if ($userid == 0)
 		{
@@ -154,6 +155,7 @@ class jomHelper
 		$row = $this->db->loadObject();
 
 		$result = array();
+
 		if (!isset($row->jomsocial_params) || $row->jomsocial_params == "")
 		{
 			$result['pushFriendOnline']  = 1;
@@ -174,6 +176,7 @@ class jomHelper
 
 		return $result;
 	}
+
 	/**
 	 * GetLatLong function
 	 *
@@ -181,8 +184,10 @@ class jomHelper
 	 * @param   string  $city     city name
 	 * @param   string  $state    state name
 	 * @param   string  $country  country name
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function GetLatLong($addrss = '', $city = '', $state = '', $country = '')
+	public function GetLatLong($addrss = '', $city = '', $state = '', $country = '')
 	{
 		$q_array = array();
 		$address = urlencode($addrss);
@@ -210,14 +215,17 @@ class jomHelper
 		curl_close($init);
 
 		$l = ",";
+
 		if (!empty($response))
 		{
 			$arr = json_decode($response, true);
+
 			if (is_array($arr))
 			{
 				if ($arr['Status']['code'] == 200)
 				{
 					$l = implode(',', $arr['Placemark'][0]['Point']['coordinates']);
+
 					if (trim($country) != "")
 					{
 						foreach ($arr['Placemark'] As $placemark)
@@ -245,10 +253,11 @@ class jomHelper
 	 *
 	 * @return  boolean             matches
 	 */
-	function googleAuthenticate($username, $password, $service)
+	public function googleAuthenticate($username, $password, $service)
 	{
-		// get an authorization token
+		// Get an authorization token
 		$ch = curl_init();
+
 		if (!$ch)
 		{
 			return false;
@@ -267,12 +276,13 @@ class jomHelper
 		$response = curl_exec($ch);
 
 		curl_close($ch);
+
 		if (strpos($response, '200 OK') === false)
 		{
 			return false;
 		}
 
-		// find the auth code
+		// Find the auth code
 		preg_match("/(Auth=)([\w|-]+)/", $response, $matches);
 
 		if (!$matches[2])
@@ -282,6 +292,7 @@ class jomHelper
 
 		return $matches[2];
 	}
+
 	/**
 	 * sendMessageToAndroid function
 	 *
@@ -289,12 +300,12 @@ class jomHelper
 	 * @param   integer  $deviceRegistrationId  id of device
 	 * @param   [type]   $msgType               type of message
 	 * @param   [type]   $messageText           text message
-	 * @param   string   $totMsg                total message
 	 * @param   [type]   $whentype              type
+	 * @param   string   $totMsg                total message
 	 *
 	 * @return  boolean                         returns value
 	 */
-	function sendMessageToAndroid($authCode, $deviceRegistrationId, $msgType, $messageText, $totMsg = '', $whentype)
+	public function sendMessageToAndroid($authCode, $deviceRegistrationId, $msgType, $messageText, $whentype, $totMsg = '')
 	{
 		if (!empty($authCode) && !empty($deviceRegistrationId))
 		{
@@ -305,15 +316,19 @@ class jomHelper
 				'data.type'       => $whentype,
 				'data.totalcount' => $totMsg,
 				'data.badge'      => 1,
-				'data.message'    => $messageText //TODO Add more params with just simple data instead
+
+				// TODO Add more params with just simple data instead
+				'data.message'    => $messageText
 			);
 			$ch      = curl_init();
 
 			curl_setopt($ch, CURLOPT_URL, 'https://android.apis.google.com/c2dm/send');
+
 			if ($headers)
 			{
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			}
+
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($ch, CURLOPT_POST, true);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -339,7 +354,7 @@ class jomHelper
 	 *
 	 * @return  boolean                  address
 	 */
-	function send_push_notification($device_token, $message = '', $badge = 1, $type = '')
+	public function send_push_notification($device_token, $message = '', $badge = 1, $type = '')
 	{
 		$server = 'ssl://gateway.push.apple.com:2195';
 		if (PUSH_SERVER == '1')
@@ -347,10 +362,12 @@ class jomHelper
 		$keyCertFilePath = JPATH_SITE . '/components/com_ijoomeradv/certificates/certificates.pem';
 
 		$sound = 'default';
+
 		// Construct the notification payload
 		$badge       = (int) $badge;
 		$body        = array();
 		$body['aps'] = array('alert' => $message);
+
 		if ($badge)
 			$body['aps']['badge'] = $badge;
 		if ($sound)
@@ -362,21 +379,24 @@ class jomHelper
 		$ctx = stream_context_create();
 		stream_context_set_option($ctx, 'ssl', 'local_cert', $keyCertFilePath);
 
-		// assume the private key passphase was removed.
+		// Assume the private key passphase was removed.
 
 		$fp = stream_socket_client($server, $err, $errstr, 60, STREAM_CLIENT_CONNECT, $ctx);
-		// for production change the server to ssl://gateway.push.apple.com:219
+
+		// For production change the server to ssl://gateway.push.apple.com:219
 
 		if (!$fp)
 		{
 			return;
 		}
+
 		$payload = json_encode($body);
 
 		$msg = chr(0) . pack("n", 32) . pack('H*', str_replace(' ', '', $device_token)) . pack("n", strlen($payload)) . $payload;
 		fwrite($fp, $msg);
 		fclose($fp);
 	}
+
 	/**
 	 * updateLatLong function
 	 *
@@ -386,9 +406,10 @@ class jomHelper
 	 *
 	 * @return  void
 	 */
-	function updateLatLong($uid = 0, $lat = 255, $long = 255)
+	public function updateLatLong($uid = 0, $lat = 255, $long = 255)
 	{
-		$db =  JFactory::getDBO();
+		$db = JFactory::getDBO();
+
 		if ($uid == 0)
 			return false;
 
@@ -407,15 +428,17 @@ class jomHelper
 	 *
 	 * @return  boolean              address
 	 */
-	function getaddress($lattitude, $longitude)
+	public function getaddress($lattitude, $longitude)
 	{
 		$address = '';
+
 		if ($lattitude != '' && $longitude != '')
 		{
 			CFactory::load('helpers', 'remote');
 			$url     = 'http://maps.google.com/maps/api/geocode/json?latlng=' . urlencode($lattitude . "," . $longitude) . '&sensor=false';
 			$content = CRemoteHelper::getContent($url);
 			$status  = null;
+
 			if (!empty($content))
 			{
 				require_once JPATH_SITE . '/plugins/system/azrul.system/pc_includes/JSON.php';
@@ -439,7 +462,7 @@ class jomHelper
 	 *
 	 * @return  boolean             returns value
 	 */
-	function gettitle($location)
+	public function gettitle($location)
 	{
 		if ($location != '')
 		{
@@ -449,28 +472,33 @@ class jomHelper
 			$content = CRemoteHelper::getContent($url);
 
 			$status = null;
+
 			if (!empty($content))
 			{
 				require_once JPATH_SITE . '/plugins/system/azrul.system/pc_includes/JSON.php';
 				$json = new Services_JSON;
 				$data = $json->decode($content);
+
 				if ($data->status == 'OK')
 				{
 					$address = $data->results[0]->address_components;
+
 					foreach ($address as $adKe => $adVal)
 					{
-
 						if ($adVal->types[0] == 'route' || $adVal->types[0] == 'neighborhood' || $adVal->types[0] == 'sublocality' || $adVal->types[0] == 'locality' || $adVal->types[0] == 'administrative_area_level_1')
 						{
 							$locality[] = $adVal->long_name;
 						}
+
 						if ($adVal->types[0] == 'country')
 						{
 							$locality1 = $adVal->long_name;
 						}
 					}
+
 					$title   = $locality;
 					$title[] = $locality1;
+
 					if (count($title))
 					{
 						$add = implode(', ', $title);
@@ -497,6 +525,7 @@ class jomHelper
 			return '';
 		}
 	}
+
 	/**
 	 * timeLapse
 	 *
@@ -504,7 +533,7 @@ class jomHelper
 	 *
 	 * @return  boolean         lapse
 	 */
-	function timeLapse($date)
+	public function timeLapse($date)
 	{
 		jimport('joomla.utilities.date');
 		require_once JPATH_ROOT . '/components/com_community/helpers/string.php';
@@ -537,6 +566,7 @@ class jomHelper
 
 		return $lapse;
 	}
+
 	/**
 	 * getDate function
 	 *
@@ -545,19 +575,20 @@ class jomHelper
 	 *
 	 * @return  boolean         returns date
 	 */
-	function getDate($str = '', $off = 0)
+	public function getDate($str = '', $off = 0)
 	{
 		require_once JPATH_ROOT . '/components/com_community/libraries/core.php';
 
 		$extraOffset = $this->config->get('daylightsavingoffset');
-		//convert to utc time first.
+
+		// Convert to utc time first.
 		$utc_date = new JDate($str);
 		$date     = new JDate($utc_date->toUnix() + $off * 3600);
 
-		$my  =  JFactory::getUser();
+		$my  = JFactory::getUser();
 		$cMy = CFactory::getUser();
 
-		//J1.6 returns timezone as string, not integer offset.
+		// J1.6 returns timezone as string, not integer offset.
 		if (method_exists('JDate', 'getOffsetFromGMT'))
 		{
 			$systemOffset = new JDate('now', $this->mainframe->getCfg('offset'));
@@ -579,6 +610,7 @@ class jomHelper
 				$pos = JString::strpos($my->params, 'timezone');
 
 				$offset = $systemOffset + $extraOffset;
+
 				if ($pos === false)
 				{
 					$offset = $systemOffset + $extraOffset;
@@ -596,6 +628,7 @@ class jomHelper
 					else
 						$offset = $offset + $cOffset;
 				}
+
 				$date->setTimezone($offset);
 			}
 			else
@@ -604,6 +637,7 @@ class jomHelper
 
 		return $date;
 	}
+
 	/**
 	 * showDate function
 	 *
@@ -614,7 +648,7 @@ class jomHelper
 	 *
 	 * @return  boolean           date
 	 */
-	function showDate($time, $mode = 'datetime_today', $tz = 'kunena', $offset = null)
+	public function showDate($time, $mode = 'datetime_today', $tz = 'kunena', $offset = null)
 	{
 		require_once JPATH_SITE . '/components/com_kunena/lib/kunena.timeformat.class.php';
 
@@ -624,6 +658,7 @@ class jomHelper
 		{
 			$offset = JFactory::getUser()->getParam('timezone', $this->mainframe->getCfg('offset', 0));
 		}
+
 		if (is_numeric($offset))
 		{
 			$date->setTimezone($offset);
@@ -634,7 +669,9 @@ class jomHelper
 			$offset = new DateTimeZone($offset);
 			$date->setTimezone($offset);
 		}
-		if ($date->toFormat('%Y') < 1902) return JText::_('COM_KUNENA_DT_DATETIME_UNKNOWN');
+
+		if ($date->toFormat('%Y') < 1902)
+			return JText::_('COM_KUNENA_DT_DATETIME_UNKNOWN');
 
 		$modearr = explode('_', $mode);
 
@@ -664,7 +701,6 @@ class jomHelper
 				$usertime_format  = $mode;
 				$today_format     = $mode;
 				$yesterday_format = $mode;
-
 		}
 
 		// Today and Yesterday?
@@ -675,15 +711,11 @@ class jomHelper
 			$then = @getdate($date->toUnix());
 
 			// Same day of the year, same year.... Today!
-			if ($then ['yday'] == $now ['yday'] &&
-				$then ['year'] == $now ['year']
-			)
+			if ($then ['yday'] == $now ['yday'] && $then ['year'] == $now ['year'])
 				$usertime_format = $today_format;
 
 			// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
-			if (($then ['yday'] == $now ['yday'] - 1 && $then ['year'] == $now ['year']) ||
-				($now ['yday'] == 0 && $then ['year'] == $now ['year'] - 1) && $then ['mon'] == 12 && $then ['mday'] == 31
-			)
+			if (($then ['yday'] == $now ['yday'] - 1 && $then ['year'] == $now ['year']) || ($now ['yday'] == 0 && $then ['year'] == $now ['year'] - 1) && $then ['mon'] == 12 && $then ['mday'] == 31)
 				$usertime_format = $yesterday_format;
 		}
 
@@ -691,13 +723,13 @@ class jomHelper
 	}
 
 	/**
+	 * uses to get the notification count for logged in user
 	 *
-	 * @uses to get the notification count for logged in user
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function getNotificationCount()
+	public function getNotificationCount()
 	{
-		// get message notification count
+		// Get message notification count
 		$query = "SELECT count(b.`id`)
 				FROM #__community_msg_recepient as a, #__community_msg as b
 				WHERE a.`to` = {$this->IJUserID}
@@ -706,17 +738,18 @@ class jomHelper
 				AND b.`id` = a.`msg_id`";
 		$this->db->setQuery($query);
 		$unreadInbox = $this->db->loadResult();
-		if ((int) $unreadInbox > 0)
+
+		// TODO Add more params with just simple data instead//TODO Add more params with just simple data instead	if ((int) $unreadInbox > 0)
 		{
 			$jsonarray['notification']['messageNotification'] = intval($unreadInbox);
 		}
 
-		// getting pending friend request count
-		$friendModel                                     =  CFactory::getModel('friends');
+		// Getting pending friend request count
+		$friendModel                                     = CFactory::getModel('friends');
 		$pendingFren                                     = $friendModel->countPending($this->IJUserID);
 		$jsonarray['notification']['friendNotification'] = intval($pendingFren);
 
-		// get globaknotification
+		// Get globaknotification
 		$eventModel = CFactory::getModel('events');
 		$groupModel = CFactory::getModel('groups');
 
@@ -724,26 +757,30 @@ class jomHelper
 		$ind              = 0;
 		$globalinvItation = 0;
 
-		//getting pending event request
+		// Getting pending event request
 		$pendingEvent = $eventModel->getPending($this->IJUserID);
 		$globalinvItation += count($pendingEvent);
-		//getting pending group request
+
+		// Getting pending group request
 		$pendingGroup = $groupModel->getGroupInvites($this->IJUserID);
 		$globalinvItation += count($pendingGroup);
-		//geting pending private group join request
-		//Find Users Groups Admin
+
+		// Geting pending private group join request
+		// Find Users Groups Admin
 		$allGroups = $groupModel->getAdminGroups($this->IJUserID, COMMUNITY_PRIVATE_GROUP);
 		$globalinvItation += count($allGroups);
-		//non require action notification
+
+		// Non require action notification
 		CFactory::load('helpers', 'content');
 		$notifCount        = 5;
 		$notificationModel = CFactory::getModel('notification');
-		$myParams          =  $this->my->getParams();
+		$myParams          = $this->my->getParams();
 
-		//$notifications = $notificationModel->getNotificationCount($this->IJUserID,'0',$myParams->get('lastnotificationlist',''));
+		// $notifications = $notificationModel->getNotificationCount($this->IJUserID,'0',$myParams->get('lastnotificationlist',''));
 		$sinceWhere = '';
 		$type       = 0;
 		$since      = $myParams->get('lastnotificationlist', '');
+
 		if (!empty($since))
 		{
 			$sinceWhere = ' AND ' . $this->db->quoteName('created') . ' >= ' . $this->db->Quote($since);
@@ -766,14 +803,15 @@ class jomHelper
 	/**
 	 * Like an item. Update ajax count
 	 *
-	 * @param string $element Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
+	 * @param   string  $element  Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxLike
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function Like($element, $itemId)
+	public function Like($element, $itemId)
 	{
 		$filter  = JFilterInput::getInstance();
 		$element = $filter->clean($element, 'string');
@@ -781,7 +819,8 @@ class jomHelper
 
 		if (!COwnerHelper::isRegisteredUser())
 		{
-			IJReq::setResponse(704); // if user is not logged in or not registered one.
+			// If user is not logged in or not registered one.
+			IJReq::setResponse(704);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
@@ -793,7 +832,7 @@ class jomHelper
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album' || $element == 'albums' || $element == 'photos.wall.create')
 		{
-			$act =  JTable::getInstance('Activity', 'CTable');
+			$act = JTable::getInstance('Activity', 'CTable');
 			$act->load($itemId);
 			$itemId = $act->like_id;
 		}
@@ -801,14 +840,16 @@ class jomHelper
 		{
 			if (!$like->enabled($element))
 			{
-				IJReq::setResponse(500); // if element on which like applied is not enabled/bloked to like.
+				// If element on which like applied is not enabled/bloked to like.
+				IJReq::setResponse(500);
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 				return false;
 			}
 		}
 
-		$like->addLike($element, $itemId); // add like
+		// Add like
+		$like->addLike($element, $itemId);
 
 		// Send push notification params
 		if ($element == 'profile')
@@ -817,19 +858,20 @@ class jomHelper
 		}
 		else
 		{
-			$act =  JTable::getInstance('Activity', 'CTable');
+			$act = JTable::getInstance('Activity', 'CTable');
 			$act->load($itemId);
 			$userid = $act->actor;
 		}
 
-		//===========================================================
-		//Send push notification
+		// Send push notification
 		$sendpushflag = false;
+
 		switch ($element)
 		{
 			case 'photo':
-				$photo =  JTable::getInstance('Photo', 'CTable');
+				$photo = JTable::getInstance('Photo', 'CTable');
 				$photo->load($itemId);
+
 				if ($photo->id)
 				{
 					CFactory::load('helpers', 'group');
@@ -837,6 +879,7 @@ class jomHelper
 					$album->load($photo->albumid);
 					$pushcontentdata['albumdetail']['id']            = $album->id;
 					$pushcontentdata['albumdetail']['deleteAllowed'] = intval(($photo->creator == $album->creator or COwnerHelper::isCommunityAdmin($photo->creator)));
+
 					if ($photo->creator == $album->creator)
 					{
 						$uid = 0;
@@ -845,11 +888,13 @@ class jomHelper
 					{
 						$uid = $album->creator;
 					}
+
 					$pushcontentdata['albumdetail']['user_id'] = $uid;
 					$pushcontentdata['photodetail']['id']      = $photo->id;
 					$pushcontentdata['photodetail']['caption'] = $photo->caption;
 
 					$p_url = JURI::base();
+
 					if ($photo->storage == 's3')
 					{
 						$s3BucketPath = $this->config->get('storages3bucket');
@@ -861,21 +906,23 @@ class jomHelper
 						if (!file_exists(JPATH_SITE . '/' . $photo->image))
 							$photo->image = $photo->original;
 					}
+
 					$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
 					$pushcontentdata['photodetail']['url']   = $p_url . $photo->image;
+
 					if (SHARE_PHOTOS == 1)
 					{
 						$pushcontentdata['photodetail']['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$userId}&albumid={$albumID}#photoid={$photo->id}";
 					}
 
-					//likes
+					// Likes
 					$likes                                      = $this->getLikes('photo', $photo->id, $this->IJUserID);
 					$pushcontentdata['photodetail']['likes']    = $likes->likes;
 					$pushcontentdata['photodetail']['dislikes'] = $likes->dislikes;
 					$pushcontentdata['photodetail']['liked']    = $likes->liked;
 					$pushcontentdata['photodetail']['disliked'] = $likes->disliked;
 
-					//comments
+					// Comments
 					$count                                          = $this->getCommentCount($photo->id, 'photos');
 					$pushcontentdata['photodetail']['commentCount'] = $count;
 
@@ -893,6 +940,7 @@ class jomHelper
 					$this->db->setQuery($query);
 					$puser    = $this->db->loadObject();
 					$ijparams = new CParameter($puser->jomsocial_params);
+
 					if ($ijparams->get('pushnotif_photos_like') == 1 && $photo->creator != $this->IJUserID && !empty($puser))
 					{
 						$sendpushflag = true;
@@ -901,19 +949,23 @@ class jomHelper
 						$replace      = array($usr->name, JText::_('COM_COMMUNITY_SINGULAR_PHOTO'));
 						$message      = str_replace($search, $replace, JText::_('COM_COMMUNITY_PHOTO_LIKE_EMAIL_SUBJECT'));
 					}
+
 					$configText = 'pushnotif_photos_like';
 					$toid       = $photo->creator;
 				}
+
 				break;
 			case 'album':
 				break;
 			case 'videos':
-				$video =  JTable::getInstance('Video', 'CTable');
+				$video = JTable::getInstance('Video', 'CTable');
 				$video->load($itemId);
+
 				if ($video->id)
 				{
 					$video_file = $video->path;
 					$p_url      = JURI::root();
+
 					if ($video->type == 'file')
 					{
 						$ext = JFile::getExt($video->path);
@@ -934,6 +986,7 @@ class jomHelper
 								if (!empty ($s3BucketPath))
 									$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 							}
+
 							$video_file = $p_url . $vname . ".mp4";
 						}
 					}
@@ -954,21 +1007,23 @@ class jomHelper
 					$pushcontentdata['user_avatar']  = $usr->avatar;
 					$pushcontentdata['user_profile'] = $usr->profile;
 
-					//likes
+					// Likes
 					$likes                       = $this->getLikes('videos', $video->id, $this->IJUserID);
 					$pushcontentdata['likes']    = $likes->likes;
 					$pushcontentdata['dislikes'] = $likes->dislikes;
 					$pushcontentdata['liked']    = $likes->liked;
 					$pushcontentdata['disliked'] = $likes->disliked;
 
-					//comments
+					// Comments
 					$count                            = $this->getCommentCount($video->id, 'videos');
 					$pushcontentdata['commentCount']  = $count;
 					$pushcontentdata['deleteAllowed'] = intval(($video->creator or COwnerHelper::isCommunityAdmin($video->creator)));
+
 					if (SHARE_VIDEOS)
 					{
 						$pushcontentdata['shareLink'] = JURI::base() . "index.php?option=com_community&view=videos&task=video&userid={$video->creator}&videoid={$video->id}";
 					}
+
 					$pushcontentdata['type'] = 'videos';
 
 					$query = "SELECT count(id)
@@ -994,12 +1049,15 @@ class jomHelper
 						$replace = array($usr->name, $video->title);
 						$message = str_replace($search, $replace, JText::_('COM_COMMUNITY_VIDEO_LIKE_EMAIL_SUBJECT'));
 					}
+
 					$configText = 'pushnotif_videos_like';
 					$toid       = $video->creator;
 				}
+
 				break;
 			case 'profile':
 				$profile = CFactory::getUser($itemId);
+
 				if ($profile->id)
 				{
 					$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
@@ -1008,6 +1066,7 @@ class jomHelper
 					$this->db->setQuery($query);
 					$puser    = $this->db->loadObject();
 					$ijparams = new CParameter($puser->jomsocial_params);
+
 					if ($ijparams->get('pushnotif_profile_like') == 1 && $profile->id != $this->IJUserID && !empty($puser))
 					{
 						$sendpushflag = true;
@@ -1015,13 +1074,14 @@ class jomHelper
 						$usr     = $this->getUserDetail($this->IJUserID);
 						$message = str_replace('{actor}', $usr->name, JText::_('COM_COMMUNITY_PROFILE_LIKE_EMAIL_SUBJECT'));
 					}
+
 					$pushcontentdata['id'] = $this->IJUserID;
 					$configText            = 'pushnotif_profile_like';
 					$toid                  = $profile->id;
 				}
 				break;
 			case 'profile.status':
-				$stream =  JTable::getInstance('Activity', 'CTable');
+				$stream = JTable::getInstance('Activity', 'CTable');
 				$stream->load($itemId);
 
 				if ($stream->id)
@@ -1043,7 +1103,7 @@ class jomHelper
 						$replace = array($usr->name, JText::_('COM_COMMUNITY_SINGULAR_STREAM'));
 						$message = str_replace($search, $replace, JText::_('COM_COMMUNITY_PROFILE_STREAM_LIKE_EMAIL_SUBJECT'));
 
-						//$pushcontentdata['id'] = $this->IJUserID;
+						// $pushcontentdata['id'] = $this->IJUserID;
 						CFactory::load('libraries', 'activities');
 						$actModel = CFactory::getModel('Activities');
 						$html     = $actModel->getActivities('', '', null, 1, true, null, false, $itemId);
@@ -1055,16 +1115,17 @@ class jomHelper
 						$cadmin                = COwnerHelper::isCommunityAdmin($this->IJUserID);
 						$pushcontentdata['id'] = $html->id;
 
-						// add user detail
+						// Add user detail
 						$usr                                            = $this->getUserDetail($html->actor);
 						$pushcontentdata['user_detail']['user_id']      = $usr->id;
 						$pushcontentdata['user_detail']['user_name']    = $usr->name;
 						$pushcontentdata['user_detail']['user_avatar']  = $usr->avatar;
 						$pushcontentdata['user_detail']['user_profile'] = $usr->profile;
 
-						// add content data
+						// Add content data
 						$pushcontentdata['content'] = strip_tags($html->content);
-						//add video detail
+
+						// Add video detail
 						if ($html->app == 'videos')
 						{
 							$pushcontentdata['content_data'] = $videotag;
@@ -1107,8 +1168,9 @@ class jomHelper
 								$pushcontentdata['type'] = 'videos';
 
 								$content_id = $this->getActivityContentID($html->id);
-								$video      =  JTable::getInstance('Video', 'CTable');
+								$video      = JTable::getInstance('Video', 'CTable');
 								$video->load($content_id);
+
 								if ($video->id)
 								{
 									if ($video->storage == 's3')
@@ -1157,14 +1219,14 @@ class jomHelper
 										$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 									}
 
-									//likes
+									// Likes
 									$likes                                       = $this->jomHelper->getLikes('videos', $video->id, $this->IJUserID);
 									$pushcontentdata['content_data']['likes']    = $likes->likes;
 									$pushcontentdata['content_data']['dislikes'] = $likes->dislikes;
 									$pushcontentdata['content_data']['liked']    = $likes->liked;
 									$pushcontentdata['content_data']['disliked'] = $likes->disliked;
 
-									//comments
+									// Comments
 									$count                                            = $this->jomHelper->getCommentCount($video->id, 'videos');
 									$pushcontentdata['content_data']['commentCount']  = $count;
 									$pushcontentdata['content_data']['deleteAllowed'] = intval(($this->IJUserID == $video->creator or COwnerHelper::isCommunityAdmin($this->IJUserID)));
@@ -1194,6 +1256,7 @@ class jomHelper
 										$rplc                        = array("►", "\"");
 										$pushcontentdata['titletag'] = str_replace($srch, $rplc, strip_tags($titletag));
 									}
+
 									$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 								}
 								else
@@ -1206,8 +1269,9 @@ class jomHelper
 							case 'photos':
 								$pushcontentdata['type'] = 'photos';
 								$content_id              = $this->getActivityContentID($html->id);
-								$album                   =  JTable::getInstance('Album', 'CTable');
+								$album                   = JTable::getInstance('Album', 'CTable');
 								$album->load($content_id);
+
 								if ($album->id)
 								{
 									$photoModel = CFactory::getModel('photos');
@@ -1228,25 +1292,27 @@ class jomHelper
 										$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 									}
 
-									//likes
+									// Likes
 									$likes                                       = $this->jomHelper->getLikes('album', $album->id, $this->IJUserID);
 									$pushcontentdata['content_data']['likes']    = $likes->likes;
 									$pushcontentdata['content_data']['dislikes'] = $likes->dislikes;
 									$pushcontentdata['content_data']['liked']    = $likes->liked;
 									$pushcontentdata['content_data']['disliked'] = $likes->disliked;
 
-									//comments
+									// Comments
 									$count                                           = $this->jomHelper->getCommentCount($album->id, 'albums');
 									$pushcontentdata['content_data']['commentCount'] = $count;
 									$pushcontentdata['content_data']['shareLink']    = JURI::base() . "index.php?option=com_community&view=photos&task=album&albumid={$value->id}&userid={$value->creator}";
 
 									$str = preg_match_all('|(#\w+=)(\d+)+|', $html->content, $match);
+
 									if ($str)
 									{
 										foreach ($match[2] as $key => $value)
 										{
 											$photo = $photoModel->getPhoto($value);
 											$p_url = JURI::base();
+
 											if ($photo->storage == 's3')
 											{
 												$s3BucketPath = $this->config->get('storages3bucket');
@@ -1258,23 +1324,25 @@ class jomHelper
 												if (!file_exists(JPATH_SITE . '/' . $photo->image))
 													$photo->image = $photo->original;
 											}
+
 											$pushcontentdata['image_data'][$key]['id']      = $photo->id;
 											$pushcontentdata['image_data'][$key]['caption'] = $photo->caption;
 											$pushcontentdata['image_data'][$key]['thumb']   = $p_url . $photo->thumbnail;
 											$pushcontentdata['image_data'][$key]['url']     = $p_url . $photo->image;
+
 											if (SHARE_PHOTOS == 1)
 											{
 												$pushcontentdata['image_data'][$key]['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$photo->creator}&albumid={$photo->albumid}#photoid={$photo->id}";
 											}
 
-											//likes
+											// Likes
 											$likes                                           = $this->jomHelper->getLikes('photo', $photo->id, $this->IJUserID);
 											$pushcontentdata['image_data'][$key]['likes']    = $likes->likes;
 											$pushcontentdata['image_data'][$key]['dislikes'] = $likes->dislikes;
 											$pushcontentdata['image_data'][$key]['liked']    = $likes->liked;
 											$pushcontentdata['image_data'][$key]['disliked'] = $likes->disliked;
 
-											//comments
+											// Comments
 											$count                                               = $this->jomHelper->getCommentCount($photo->id, 'photos');
 											$pushcontentdata['image_data'][$key]['commentCount'] = $count;
 
@@ -1319,6 +1387,7 @@ class jomHelper
 										$rplc                                             = array("►", "\"");
 										$pushcontentdata['titletag']                      = str_replace($srch, $rplc, strip_tags($titletag));
 									}
+
 									$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 								}
 								else
@@ -1342,8 +1411,9 @@ class jomHelper
 								$pushcontentdata['type'] = 'announcement';
 								$content_id              = $this->getActivityContentID($html->id);
 
-								$bulletin =  JTable::getInstance('Bulletin', 'CTable');
+								$bulletin = JTable::getInstance('Bulletin', 'CTable');
 								$bulletin->load($content_id);
+
 								if ($bulletin->id)
 								{
 									$pushcontentdata['content_data']['id']             = $bulletin->id;
@@ -1358,14 +1428,17 @@ class jomHelper
 									$pushcontentdata['content_data']['date']           = CTimeHelper::getFormattedTime($bulletin->date, $format);
 									$params                                            = new CParameter($bulletin->params);
 									$pushcontentdata['content_data']['filePermission'] = $params->get('filepermission-member');
+
 									if (SHARE_GROUP_BULLETIN == 1)
 									{
 										$pushcontentdata['content_data']['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewbulletin&groupid={$result->groupid}&bulletinid={$result->id}";
 									}
+
 									if ($type == 'group')
 									{
 										$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 									}
+
 									$query = "SELECT count(id)
 											FROM #__community_files
 											WHERE `groupid`={$bulletin->groupid}
@@ -1373,7 +1446,7 @@ class jomHelper
 									$this->db->setQuery($query);
 									$pushcontentdata['content_data']['files'] = $this->db->loadResult();
 
-									// group data.
+									// Group data.
 									$this->getGroupData($bulletin->groupid, $pushcontentdata['group_data']);
 									$srch                             = array("&#9658;", "&quot;");
 									$rplc                             = array("►", "\"");
@@ -1391,7 +1464,7 @@ class jomHelper
 							case 'groups.discussion':
 								$content_id = $this->getActivityContentID($html->id);
 
-								$discussion =  JTable::getInstance('Discussion', 'CTable');
+								$discussion = JTable::getInstance('Discussion', 'CTable');
 								$discussion->load($content_id);
 
 								if ($discussion->id)
@@ -1415,15 +1488,17 @@ class jomHelper
 										$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
 									}
 
-									$wallModel                                         =  CFactory::getModel('wall');
+									$wallModel                                         = CFactory::getModel('wall');
 									$wallContents                                      = $wallModel->getPost('discussions', $discussion->id, 9999999, 0);
 									$pushcontentdata['content_data']['topics']         = count($wallContents);
 									$params                                            = new CParameter($discussion->params);
 									$pushcontentdata['content_data']['filePermission'] = $params->get('filepermission-member');
+
 									if (SHARE_GROUP_DISCUSSION == 1)
 									{
 										$pushcontentdata['content_data']['shareLink'] = JURI::base() . "index.php?option=com_community&view=groups&task=viewdiscussion&groupid={$discussion->groupid}2&topicid={$group->id}";
 									}
+
 									$query = "SELECT count(id)
 											FROM #__community_files
 											WHERE `groupid`={$discussion->groupid}
@@ -1431,7 +1506,7 @@ class jomHelper
 									$this->db->setQuery($query);
 									$pushcontentdata['content_data']['files'] = $this->db->loadResult();
 
-									// group data.
+									// Group data.
 									$this->getGroupData($discussion->groupid, $pushcontentdata['group_data']);
 									$srch                             = array("&#9658;", "&quot;");
 									$rplc                             = array("►", "\"");
@@ -1456,6 +1531,7 @@ class jomHelper
 								$pushcontentdata['commentAllowed'] = $commentAllowed;
 								$pushcontentdata['likeCount']      = intval($html->likeCount);
 								$pushcontentdata['commentCount']   = intval($html->commentCount);
+
 								if ($type == 'group')
 								{
 									$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
@@ -1464,13 +1540,14 @@ class jomHelper
 								{
 									$pushcontentdata['liked'] = ($html->userLiked == 1) ? 1 : 0;
 								}
-								$group =  JTable::getInstance('Group', 'CTable');
+
+								$group = JTable::getInstance('Group', 'CTable');
 								$group->load($html->groupid);
 								$pushcontentdata['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $group->isAdmin($this->IJUserID));
 								$pushcontentdata['liketype']      = 'groups.wall';
 								$pushcontentdata['commenttype']   = 'groups.wall';
 
-								// event data
+								// Event data
 								$this->getGroupData($group->id, $pushcontentdata['group_data']);
 								$pushcontentdata['titletag']      = $usr->name . " ► " . $pushcontentdata['group_data']['title'] . "\n" . str_replace("&#9658;", "►", str_replace("&quot;", "\"", (strip_tags($titletag))));
 								$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id, $group));
@@ -1486,7 +1563,7 @@ class jomHelper
 								$pushcontentdata['type']           = 'event';
 								$content_id                        = $this->getActivityContentID($html->id);
 
-								// event data
+								// Event data
 								$this->getEventData($content_id, $pushcontentdata['content_data']);
 								$pushcontentdata['deleteAllowed'] = intval($this->my->authorise('community.delete', 'activities.' . $html->id));
 								break;
@@ -1500,6 +1577,7 @@ class jomHelper
 								$pushcontentdata['commentAllowed'] = $commentAllowed;
 								$pushcontentdata['likeCount']      = intval($html->likeCount);
 								$pushcontentdata['commentCount']   = intval($html->commentCount);
+
 								if ($type == 'event')
 								{
 									$pushcontentdata['liked'] = ($html->userLiked >= 0) ? 0 : 1;
@@ -1508,13 +1586,14 @@ class jomHelper
 								{
 									$pushcontentdata['liked'] = ($html->userLiked == 1) ? 1 : 0;
 								}
-								$event =  JTable::getInstance('Event', 'CTable');
+
+								$event = JTable::getInstance('Event', 'CTable');
 								$event->load($html->eventid);
 								$pushcontentdata['deleteAllowed'] = intval($this->IJUserID == $html->actor OR COwnerHelper::isCommunityAdmin($this->IJUserID) OR $event->isAdmin($this->IJUserID));
 								$pushcontentdata['liketype']      = 'events.wall';
 								$pushcontentdata['commenttype']   = 'events.wall';
 
-								// event data
+								// Event data
 								$this->getEventData($event->id, $pushcontentdata['event_data']);
 								$srch                             = array("&#9658;", "&quot;");
 								$rplc                             = array("►", "\"");
@@ -1536,15 +1615,17 @@ class jomHelper
 								break;
 						}
 					}
+
 					$configText = 'pushnotif_profile_stream_like';
 					$toid       = $profile->id;
 				}
+
 				break;
 		}
 
 		if ($sendpushflag)
 		{
-			//change for id based push notification
+			// Change for id based push notification
 			$pushOptions['detail']['content_data'] = $pushcontentdata;
 			$pushOptions                           = gzcompress(json_encode($pushOptions));
 
@@ -1553,6 +1634,7 @@ class jomHelper
 			$obj->detail  = $pushOptions;
 			$obj->tocount = 1;
 			$this->db->insertObject('#__ijoomeradv_push_notification_data', $obj, 'id');
+
 			if ($obj->id)
 			{
 				$this->jsonarray['pushNotificationData']['id']      = $obj->id;
@@ -1560,6 +1642,7 @@ class jomHelper
 				$this->jsonarray['pushNotificationData']['message'] = $message;
 				$viewType                                           = json_decode(JRequest::getVar('reqObject', ''));
 				$viewType                                           = $viewType->extView;
+
 				if ($viewType == 'wall')
 				{
 					$lType = 'walllike';
@@ -1568,21 +1651,24 @@ class jomHelper
 				{
 					$lType = ($element == 'photo') ? 'photos' : $element;
 				}
+
 				$this->jsonarray['pushNotificationData']['type']       = $lType;
 				$this->jsonarray['pushNotificationData']['configtype'] = $configText;
 			}
 		}
 
 		return $this->jsonarray;
-		//return true;
 	}
+
 	/**
 	 * Like_bkp function
 	 *
 	 * @param   string  	$element  [description]
 	 * @param   integer  $itemId   id
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function Like_bkp($element, $itemId)
+	public function Like_bkp($element, $itemId)
 	{
 		$filter  = JFilterInput::getInstance();
 		$element = $filter->clean($element, 'string');
@@ -1590,7 +1676,8 @@ class jomHelper
 
 		if (!COwnerHelper::isRegisteredUser())
 		{
-			IJReq::setResponse(401); // if user is not logged in or not registered one.
+			// If user is not logged in or not registered one.
+			IJReq::setResponse(401);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
@@ -1602,7 +1689,7 @@ class jomHelper
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album' || $element == 'albums' || $element == 'photos.wall.create')
 		{
-			$act =  JTable::getInstance('Activity', 'CTable');
+			$act = JTable::getInstance('Activity', 'CTable');
 			$act->load($itemId);
 			$itemId = $act->like_id;
 		}
@@ -1610,14 +1697,16 @@ class jomHelper
 		{
 			if (!$like->enabled($element))
 			{
-				IJReq::setResponse(500); // if element on which like applied is not enabled/bloked to like.
+				// If element on which like applied is not enabled/bloked to like.
+				IJReq::setResponse(500);
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 				return false;
 			}
 		}
 
-		$like->addLike($element, $itemId); // add like
+		// Add like
+		$like->addLike($element, $itemId);
 
 		// Send push notification params
 		if ($element == 'profile')
@@ -1626,19 +1715,20 @@ class jomHelper
 		}
 		else
 		{
-			$act =  JTable::getInstance('Activity', 'CTable');
+			$act = JTable::getInstance('Activity', 'CTable');
 			$act->load($itemId);
 			$userid = $act->actor;
 		}
 
-		//===========================================================
-		//Send push notification
+		// Send push notification
 		$sendpushflag = false;
+
 		switch ($element)
 		{
 			case 'photo':
-				$photo =  JTable::getInstance('Photo', 'CTable');
+				$photo = JTable::getInstance('Photo', 'CTable');
 				$photo->load($itemId);
+
 				if ($photo->id)
 				{
 					CFactory::load('helpers', 'group');
@@ -1646,6 +1736,7 @@ class jomHelper
 					$album->load($photo->albumid);
 					$pushcontentdata['albumdetail']['id']            = $album->id;
 					$pushcontentdata['albumdetail']['deleteAllowed'] = intval(($photo->creator == $album->creator or COwnerHelper::isCommunityAdmin($photo->creator)));
+
 					if ($photo->creator == $album->creator)
 					{
 						$uid = 0;
@@ -1654,11 +1745,13 @@ class jomHelper
 					{
 						$uid = $album->creator;
 					}
+
 					$pushcontentdata['albumdetail']['user_id'] = $uid;
 					$pushcontentdata['photodetail']['id']      = $photo->id;
 					$pushcontentdata['photodetail']['caption'] = $photo->caption;
 
 					$p_url = JURI::base();
+
 					if ($photo->storage == 's3')
 					{
 						$s3BucketPath = $this->config->get('storages3bucket');
@@ -1670,21 +1763,23 @@ class jomHelper
 						if (!file_exists(JPATH_SITE . '/' . $photo->image))
 							$photo->image = $photo->original;
 					}
+
 					$pushcontentdata['photodetail']['thumb'] = $p_url . $photo->thumbnail;
 					$pushcontentdata['photodetail']['url']   = $p_url . $photo->image;
+
 					if (SHARE_PHOTOS == 1)
 					{
 						$pushcontentdata['photodetail']['shareLink'] = JURI::base() . "index.php?option=com_community&view=photos&task=photo&userid={$userId}&albumid={$albumID}#photoid={$photo->id}";
 					}
 
-					//likes
+					// Likes
 					$likes                                      = $this->getLikes('photo', $photo->id, $this->IJUserID);
 					$pushcontentdata['photodetail']['likes']    = $likes->likes;
 					$pushcontentdata['photodetail']['dislikes'] = $likes->dislikes;
 					$pushcontentdata['photodetail']['liked']    = $likes->liked;
 					$pushcontentdata['photodetail']['disliked'] = $likes->disliked;
 
-					//comments
+					// Comments
 					$count                                          = $this->getCommentCount($photo->id, 'photos');
 					$pushcontentdata['photodetail']['commentCount'] = $count;
 
@@ -1702,6 +1797,7 @@ class jomHelper
 					$this->db->setQuery($query);
 					$puser    = $this->db->loadObject();
 					$ijparams = new CParameter($puser->jomsocial_params);
+
 					if ($ijparams->get('pushnotif_photos_like') == 1 && $photo->creator != $this->IJUserID && !empty($puser))
 					{
 						$sendpushflag = true;
@@ -1715,12 +1811,14 @@ class jomHelper
 			case 'album':
 				break;
 			case 'videos':
-				$video =  JTable::getInstance('Video', 'CTable');
+				$video = JTable::getInstance('Video', 'CTable');
 				$video->load($itemId);
+
 				if ($video->id)
 				{
 					$video_file = $video->path;
 					$p_url      = JURI::root();
+
 					if ($video->type == 'file')
 					{
 						$ext = JFile::getExt($video->path);
@@ -1741,6 +1839,7 @@ class jomHelper
 								if (!empty ($s3BucketPath))
 									$p_url = 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
 							}
+
 							$video_file = $p_url . $vname . ".mp4";
 						}
 					}
@@ -1761,21 +1860,23 @@ class jomHelper
 					$pushcontentdata['user_avatar']  = $usr->avatar;
 					$pushcontentdata['user_profile'] = $usr->profile;
 
-					//likes
+					// Likes
 					$likes                       = $this->getLikes('videos', $video->id, $this->IJUserID);
 					$pushcontentdata['likes']    = $likes->likes;
 					$pushcontentdata['dislikes'] = $likes->dislikes;
 					$pushcontentdata['liked']    = $likes->liked;
 					$pushcontentdata['disliked'] = $likes->disliked;
 
-					//comments
+					// Comments
 					$count                            = $this->getCommentCount($video->id, 'videos');
 					$pushcontentdata['commentCount']  = $count;
 					$pushcontentdata['deleteAllowed'] = intval(($video->creator or COwnerHelper::isCommunityAdmin($video->creator)));
+
 					if (SHARE_VIDEOS)
 					{
 						$pushcontentdata['shareLink'] = JURI::base() . "index.php?option=com_community&view=videos&task=video&userid={$video->creator}&videoid={$video->id}";
 					}
+
 					$pushcontentdata['type'] = 'videos';
 
 					$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
@@ -1798,6 +1899,7 @@ class jomHelper
 				break;
 			case 'profile':
 				$profile = CFactory::getUser($itemId);
+
 				if ($profile->id)
 				{
 					$query = "SELECT `jomsocial_params`,`device_token`,`device_type`
@@ -1806,6 +1908,7 @@ class jomHelper
 					$this->db->setQuery($query);
 					$puser    = $this->db->loadObject();
 					$ijparams = new CParameter($puser->jomsocial_params);
+
 					if ($ijparams->get('pushnotif_profile_like') == 1 && $profile->id != $this->IJUserID && !empty($puser))
 					{
 						$sendpushflag = true;
@@ -1816,7 +1919,7 @@ class jomHelper
 				}
 				break;
 			case 'profile.status':
-				$stream =  JTable::getInstance('Activity', 'CTable');
+				$stream = JTable::getInstance('Activity', 'CTable');
 				$stream->load($itemId);
 
 				if ($stream->id)
@@ -1872,14 +1975,14 @@ class jomHelper
 	/**
 	 * Dislike an item
 	 *
-	 * @param   string  $element Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
-	 * @param   mixed   $itemId  Unique id to identify object item
+	 * @param   string  $element  Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxDislike
-	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function Dislike($element, $itemId)
+	public function Dislike($element, $itemId)
 	{
 		$filter  = JFilterInput::getInstance();
 		$itemId  = $filter->clean($itemId, 'int');
@@ -1887,7 +1990,8 @@ class jomHelper
 
 		if (!COwnerHelper::isRegisteredUser())
 		{
-			IJReq::setResponse(401); // if user is not logged in or not registered one.
+			// If user is not logged in or not registered one.
+			IJReq::setResponse(401);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
@@ -1899,7 +2003,7 @@ class jomHelper
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album')
 		{
-			$act =  JTable::getInstance('Activity', 'CTable');
+			$act = JTable::getInstance('Activity', 'CTable');
 			$act->load($itemId);
 			$itemId = $act->like_id;
 		}
@@ -1907,7 +2011,8 @@ class jomHelper
 		{
 			if (!$dislike->enabled($element))
 			{
-				IJReq::setResponse(500); // if element on which like applied is not enabled/bloked to like.
+				// If element on which like applied is not enabled/bloked to like.
+				IJReq::setResponse(500);
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 				return false;
@@ -1922,14 +2027,15 @@ class jomHelper
 	/**
 	 * Unlike an item
 	 *
-	 * @param string $element Can either be core object (photos/videos) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
+	 * @param   string  $element  Can either be core object (photos/videos) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
 	 *
 	 * @filesource com_community/controllers/system.php
 	 * @method ajaxDislike
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function Unlike($element, $itemId)
+	public function Unlike($element, $itemId)
 	{
 		$filter  = JFilterInput::getInstance();
 		$itemId  = $filter->clean($itemId, 'int');
@@ -1937,7 +2043,8 @@ class jomHelper
 
 		if (!COwnerHelper::isRegisteredUser())
 		{
-			IJReq::setResponse(401); // if user is not logged in or not registered one.
+			// If user is not logged in or not registered one.
+			IJReq::setResponse(401);
 			IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 			return false;
@@ -1949,7 +2056,7 @@ class jomHelper
 
 		if ($element == 'groups.discussion' || $element == 'groups.discussion.reply' || $element == 'photos.album' || $element == 'albums' || $element == 'photos.wall.create')
 		{
-			$act =  JTable::getInstance('Activity', 'CTable');
+			$act = JTable::getInstance('Activity', 'CTable');
 			$act->load($itemId);
 			$itemId = $act->like_id;
 		}
@@ -1957,7 +2064,8 @@ class jomHelper
 		{
 			if (!$unlike->enabled($element))
 			{
-				IJReq::setResponse(500); // if element on which like applied is not enabled/bloked to like.
+				// If element on which like applied is not enabled/bloked to like.
+				IJReq::setResponse(500);
 				IJException::setErrorInfo(__FILE__, __LINE__, __CLASS__, __METHOD__, __FUNCTION__);
 
 				return false;
@@ -1969,19 +2077,19 @@ class jomHelper
 		return true;
 	}
 
-
 	/**
 	 * get like details
 	 *
-	 * @param string $element Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
-	 * @param mixed  $itemId  Unique id to identify object item
-	 * @param mixed  $userId
+	 * @param   string  $element  Can either be core object (photo/album/videos/profile/profile.status) or a plugins (plugins,plugin_name)
+	 * @param   mixed   $itemId   Unique id to identify object item
+	 * @param   mixed   $userId   userid
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function getLikes($element, $itemId, $userId)
+	public function getLikes($element, $itemId, $userId)
 	{
 		require_once JPATH_SITE . '/components/com_community/tables/like.php';
-		$like =  JTable::getInstance('Like', 'CTable');
+		$like = JTable::getInstance('Like', 'CTable');
 		$like->loadInfo($element, $itemId);
 		CFactory::load('libraries', 'like');
 		$likes                   = new CLike;
@@ -2008,15 +2116,15 @@ class jomHelper
 		return $result;
 	}
 
-
 	/**
 	 * This function returns the user permission over friend permission
 	 *
-	 * @param $userID   : the user who will be affected by the user permission.
-	 * @param $friendID : the user who set the permission.
+	 * @param   integer  $userID    the user who will be affected by the user permission.
+	 * @param   integer  $friendID  the user who set the permission.
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function getUserAccess($userID = null, $friendID = null)
+	public function getUserAccess($userID = null, $friendID = null)
 	{
 		$userID       = (isset($userID) && $userID) ? $userID : $this->IJUserID;
 		$friendID     = (isset($friendID) && $friendID) ? $friendID : $this->IJUserID;
@@ -2025,32 +2133,36 @@ class jomHelper
 
 		if ($user->id > 0)
 		{
-			$access_limit = PRIVACY_MEMBERS; // access level for member
+			// Access level for member
+			$access_limit = PRIVACY_MEMBERS;
 		}
 
 		$isfriend = $user->isFriendWith($friendID);
+
 		if ($isfriend)
 		{
-			$access_limit = PRIVACY_FRIENDS; // access level for friends
+			// Access level for friends
+			$access_limit = PRIVACY_FRIENDS;
 		}
 
 		if ($friendID == $this->IJUserID && $user->id != 0)
 		{
-			$access_limit = PRIVACY_PRIVATE; // access level for private
+			// Access level for private
+			$access_limit = PRIVACY_PRIVATE;
 		}
 
 		return $access_limit;
 	}
 
-
 	/**
 	 * This function returns comment count
 	 *
-	 * @param $uniqueID : id of the element.
-	 * @param $type     : type of the comment. // videos, albums, photos, profile.status,
+	 * @param   integer  $uniqueID  id    of the element.
+	 * @param   integer  $type      type  of the comment. // videos, albums, photos, profile.status,
 	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function getCommentCount($uniqueID, $type)
+	public function getCommentCount($uniqueID, $type)
 	{
 		$query = "SELECT COUNT(*)
 				FROM {$this->db->quoteName('#__community_wall')}
@@ -2062,16 +2174,20 @@ class jomHelper
 		return $count;
 	}
 
-
 	/**
-	 * This function is use to get user details
+	 * function getUserDetail
+	 *
+	 * @param   [type]  $userID     userid
+	 * @param   [type]  $frontUser  frontuser
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
-	function getUserDetail($userID, $frontUser = null)
+	public function getUserDetail($userID, $frontUser = null)
 	{
 		$userObj   = CFactory::getUser($userID);
 		$frontUser = ($frontUser) ? $frontUser : $this->IJUserID;
 
-		//get storage path
+		// Get storage path
 		if ($this->config->get('user_avatar_storage') == 'file')
 		{
 			$p_url = JURI::base();
@@ -2085,12 +2201,14 @@ class jomHelper
 				$p_url = JURI::base();
 		}
 
-		// get access level and profile view permission.
-		$params       =  $userObj->getParams();
+		// Get access level and profile view permission.
+		$params       = $userObj->getParams();
 		$access_limit = $this->getUserAccess($frontUser, $userObj->_userid);
-		$profileview  = $params->get('privacyProfileView'); // get profile view access
 
-		//get latitude longitude
+		// Get profile view access
+		$profileview  = $params->get('privacyProfileView');
+
+		// Get latitude longitude
 		if ($userObj->latitude != '255' && $userObj->longitude != '255' && $userObj->latitude != '' && $userObj->longitude != '')
 		{
 			$latitude  = $userObj->latitude;
@@ -2119,6 +2237,7 @@ class jomHelper
 			{
 				$addrss = $city = $state = $country = '';
 			}
+
 			$latlong   = $this->GetLatLong($addrss, $city, $state, $country);
 			$value     = explode(',', $latlong);
 			$latitude  = $value[1];
@@ -2130,7 +2249,7 @@ class jomHelper
 		$user->id        = ($this->IJUserID == $userObj->id) ? 0 : intval($userObj->id);
 		$user->name      = $this->getName($userObj);
 		$user->status    = $userObj->_status;
-		$user->avatar    = $userObj->getAvatar();//($userObj->_avatar) ? $p_url.$userObj->_avatar : JURI::base().'components/com_community/assets/user_thumb.png';
+		$user->avatar    = $userObj->getAvatar();
 		$user->latitude  = $latitude;
 		$user->longitude = $longitude;
 		$user->online    = ($userObj->_isonline != '') ? 1 : 0;
@@ -2140,6 +2259,7 @@ class jomHelper
 
 		return $user;
 	}
+
 	/**
 	 * getTitleTag function
 	 *
@@ -2195,13 +2315,14 @@ class jomHelper
 				if ($param->get('style') == COMMUNITY_STREAM_STYLE || strpos($html_data->title, '{multiple}'))
 				{
 					$count = $param->get('count', 1);
+
 					if (CStringHelper::isPlural($count))
 					{
 						$titletag = $username . JText::sprintf('COM_COMMUNITY_ACTIVITY_PHOTO_UPLOAD_TITLE_MANY', $count, '', CStringHelper::escape($html_data->album->name));
 					}
 					else
 					{
-						$titletag = $username . JText::sprintf('COM_COMMUNITY_ACTIVITY_PHOTO_UPLOAD_TITLE', '', CStringHelper::escape($html_data->album->name));;
+						$titletag = $username . JText::sprintf('COM_COMMUNITY_ACTIVITY_PHOTO_UPLOAD_TITLE', '', CStringHelper::escape($html_data->album->name));
 					}
 				}
 				break;
@@ -2223,19 +2344,23 @@ class jomHelper
 			case 'events.attend':
 				$event = JTable::getInstance('Event', 'CTable');
 				$event->load($html_data->eventid);
+
 				if ($action == 'events.attendence.attend')
 				{
 					$actors = $param->get('actors');
 					$users  = explode(',', $actors);
+
 					foreach ($users as $actor)
 					{
 						if (!$actor)
 						{
 							$actor = $html_data->actor;
 						}
+
 						$user         = CFactory::getUser($actor);
 						$actorsHTML[] = $user->getDisplayName();
 					}
+
 					$titletag = implode(', ', $actorsHTML) . JText::sprintf('COM_COMMUNITY_ACTIVITIES_EVENT_ATTEND', $event->getLink(), $event->title);
 				}
 				break;
@@ -2260,11 +2385,13 @@ class jomHelper
 
 					case 'group.join':
 						$users = explode(',', $actors);
+
 						foreach ($users as $actor)
 						{
 							$user         = CFactory::getUser($actor);
 							$actorsHTML[] = $user->getDisplayName();
 						}
+
 						$users    = implode(', ', $actorsHTML);
 						$titletag = $users . JText::sprintf('COM_COMMUNITY_GROUPS_GROUP_JOIN', $group->getLink(), $group->name);
 						break;
@@ -2357,7 +2484,6 @@ class jomHelper
 						else
 						{
 							$titletag = JText::sprintf('COM_COMMUNITY_MOST_POPULAR_GROUP_ACTIVITY_TITLE', CRoute::_('index.php?option=com_community&view=groups&task=viewgroup&groupid=' . $activeGroup->id), $activeGroup->name);
-
 						}
 						break;
 
@@ -2378,6 +2504,7 @@ class jomHelper
 				$user      = CFactory::getUser($html_data->actor);
 				$users     = explode(',', $actors);
 				$userCount = count($users);
+
 				switch ($html_data->app)
 				{
 					case 'profile.like':
@@ -2432,10 +2559,12 @@ class jomHelper
 				}
 
 				$others = '';
+
 				if ($userCount > 2)
 				{
 					$others = JText::sprintf('COM_COMMUNITY_STREAM_OTHERS_JOIN_GROUP', $userCount - 1);
 				}
+
 				$jtext = ($userCount > 1) ? 'COM_COMMUNITY_STREAM_LIKES_PLURAL' : 'COM_COMMUNITY_STREAM_LIKES_SINGULAR';
 
 				$titletag = implode(' ' . JText::_('COM_COMMUNITY_AND') . ' ', $actorsHTML) . $others . JText::sprintf($jtext, $urlLink, $name, JText::_($element));
@@ -2446,6 +2575,7 @@ class jomHelper
 				$params       = new JRegistry($html_data->params);
 				$type         = $params->get('type');
 				$extraMessage = '';
+
 				if (strtolower($type) !== 'profile')
 				{
 					$id     = $type . 'id';
@@ -2456,6 +2586,7 @@ class jomHelper
 					{
 						$extraMessage = JText::sprintf('COM_COMMUNITY_PHOTOS_COVER_TYPE_LINK', $cTable->getLink(), $cTable->name);
 					}
+
 					if ($type == 'event')
 					{
 						$extraMessage = JText::sprintf('COM_COMMUNITY_PHOTOS_COVER_TYPE_LINK', CUrlHelper::eventLink($cTable->id), $cTable->title);
@@ -2464,11 +2595,11 @@ class jomHelper
 
 				$titletag = $user->getDisplayName() . ' ' . JText::sprintf('COM_COMMUNITY_PHOTOS_COVER_UPLOAD', strtolower($type)) . $extraMessage;
 				break;
-
 		}
 
 		return trim(strip_tags($titletag));
 	}
+
 	/**
 	 * getAlbumContetn function
 	 *
@@ -2483,10 +2614,10 @@ class jomHelper
 		$photoid = $param->get('photoid', false);
 		$count   = $param->get('count', 1);
 
-		$photos =  JTable::getInstance('photo', 'CTable');
+		$photos = JTable::getInstance('photo', 'CTable');
 		$photos->load($photoid);
 
-		$album =  JTable::getInstance('Album', 'CTable');
+		$album = JTable::getInstance('Album', 'CTable');
 		$album->load($photos->albumid);
 
 		if ($count == 1 && !empty($html_data->title))
@@ -2505,6 +2636,7 @@ class jomHelper
 		}
 
 		$photos = array();
+
 		foreach ($photoresult as $row)
 		{
 			$photo = JTable::getInstance('Photo', 'CTable');
@@ -2525,6 +2657,7 @@ class jomHelper
 	public function getVideos($html_data)
 	{
 		$video = array();
+
 		if ($html_data->app == 'videos')
 		{
 			$data                = CVideos::getActivityTitleHTML($html_data);
@@ -2574,25 +2707,29 @@ class jomHelper
 			}
 			else
 			{
-				//TODO File not uploded sucessfully
+				// TODO File not uploded sucessfully
 				return false;
 			}
 		}
 		else
 		{
-			//TODO bad extension for file uppload
+			// TODO bad extension for file uppload
 			return false;
 		}
 	}
+
 	/**
 	 * addAudioFile function
 	 *
-	 * @param  [type]  $content  content
+	 * @param   [type]  $content  content
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
 	 */
 	public function addAudioFile($content)
 	{
 		preg_match_all('/{voice}(.*?){\/voice}/', $content, $matches);
 		$i = 0;
+
 		foreach ($matches[1] as $match)
 		{
 			$content = preg_replace('/{voice}(.*?){\/voice}/', '{voice}' . JURI::base() . 'components/com_ijoomeradv/assets/voice' . '/' . $match . '{/voice}', $content, 1);

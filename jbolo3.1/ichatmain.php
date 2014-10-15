@@ -18,31 +18,41 @@ jimport('joomla.filesystem.folder');
  * @subpackage  jbolo3.1
  * @since       1.0
  */
-class ichatmain
+class Ichatmain
 {
 	private $IJUserID;
+
 	private $mainframe;
+
 	private $db;
+
 	private $my;
+
 	private $jsonarray = array();
+
 	protected $options;
 
 	/**
 	 * constructor
 	 *
-	 * @param  array  $options
+	 * @param   array  $options  options
 	 */
-	function __construct($options = null)
+	public function __construct($options = null)
 	{
 		$this->mainframe = JFactory::getApplication();
-		$this->db        = JFactory::getDBO(); // set database object
-		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0); //get login user id
+
+		// Set database object
+		$this->db        = JFactory::getDBO();
+
+		// Get login user id
+		$this->IJUserID  = $this->mainframe->getUserState('com_ijoomeradv.IJUserID', 0);
 		$this->my        = JFactory::getUser($this->IJUserID);
 
 		$this->options = array(
-			'script_url'                       => '',//$this->get_full_url().'/',
-			'upload_dir'                       => JPATH_SITE . '/components/com_jbolo/uploads' . '/',//dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-			'upload_url'                       => 'components/com_jbolo/uploads' . '/',// $this->get_full_url().'/files/',
+			// $this->get_full_url().'/',
+			'script_url'                       => '',
+			'upload_dir'                       => JPATH_SITE . '/components/com_jbolo/uploads' . '/',
+			'upload_url'                       => 'components/com_jbolo/uploads' . '/',
 			'user_dirs'                        => false,
 			'mkdir_mode'                       => 0755,
 			'param_name'                       => 'files',
@@ -93,6 +103,7 @@ class ichatmain
 				)
 			)
 		);
+
 		if ($options)
 		{
 			$this->options = array_merge($this->options, $options);
@@ -100,7 +111,8 @@ class ichatmain
 	}
 
 	/**
-	 * @uses    to fetch all online users detail,status,status mrssage and their messages
+	 * used to fetch all online users detail,status,status mrssage and their messages
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -111,12 +123,13 @@ class ichatmain
 	 *    }
 	 * @return array of json
 	 */
-	function polling()
+	public function polling()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid  = $this->IJUserID;
 		$user = JFactory::getUser($uid);
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -124,8 +137,10 @@ class ichatmain
 
 			return false;
 		}
+
 		$this->jsonarray['code'] = 200;
 		$data = jbolousersHelper::getOnlineUsersInfo($uid);
+
 		foreach ($data as $dataK => $dataV)
 		{
 			if ($dataV->uid == $uid)
@@ -133,11 +148,13 @@ class ichatmain
 				unset($data[$dataK]);
 			}
 		}
-		//
+
 		$params = JComponentHelper::getParams('com_jbolo');
+
 		foreach ($data as $ukey => $uval)
 		{
 			$this->jsonarray['users'][$ukey]['userId'] = $uval->uid;
+
 			if ($params->get('chatusertitle'))
 			{
 				$userName = $uval->username;
@@ -146,27 +163,34 @@ class ichatmain
 			{
 				$userName = $uval->name;
 			}
+
 			$this->jsonarray['users'][$ukey]['userName']  = $userName;
 			$this->jsonarray['users'][$ukey]['status']    = $uval->sts;
 			$this->jsonarray['users'][$ukey]['statusMsg'] = $uval->stsm;
 			$this->jsonarray['users'][$ukey]['avtr']      = $uval->avtr;
 		}
+
 		$nodesHelper = new nodesHelper;
 		$nodes       = $nodesHelper->getActiveChatNodes($uid);
-		$messages    = array(); //to get msg data
 
-		//for each node get participants and unread messages for this user
+		// To get msg data
+		$messages    = array();
+
+		// For each node get participants and unread messages for this user
 		for ($nc = 0; $nc < count($nodes); $nc++)
 		{
 			$messages = $this->getUnreadMessages($nodes[$nc]->nid, $uid);
+
 			if (count($messages))
 			{
 				$participants   = $nodesHelper->getNodeParticipants($nodes[$nc]->nid, $uid);
 				$nodes[$nc]->wt = $nodesHelper->getNodeTitle($nodes[$nc]->nid, $uid, $nodes[$nc]->ctyp);
 				$nodes[$nc]->ns = $nodesHelper->getNodeStatus($nodes[$nc]->nid, $uid, $nodes[$nc]->ctyp);
+
 				for ($k = 0; $k < count($messages); $k++)
 				{
 					$this->jsonarray['messages'][$k]['msgID'] = $messages[$k]->mid;
+
 					if ($messages[$k]->msgtype == 'file')
 					{
 						if (strstr($messages[$k]->msg, "You have sent this file"))
@@ -180,7 +204,7 @@ class ichatmain
 							$this->jsonarray['messages'][$k]['fromName'] = JFactory::getUser($messages[$k]->fid)->name;
 						}
 					}
-					else if ($messages[$k]->fid == 0)
+					elseif ($messages[$k]->fid == 0)
 					{
 						$this->jsonarray['messages'][$k]['fromID']   = -1;
 						$this->jsonarray['messages'][$k]['fromName'] = '';
@@ -190,12 +214,14 @@ class ichatmain
 						$this->jsonarray['messages'][$k]['fromID']   = $messages[$k]->fid;
 						$this->jsonarray['messages'][$k]['fromName'] = JFactory::getUser($messages[$k]->fid)->name;
 					}
+
 					$this->jsonarray['messages'][$k]['message']   = $messages[$k]->msg;
 					$this->jsonarray['messages'][$k]['timestamp'] = strtotime($messages[$k]->ts);
 					$this->jsonarray['messages'][$k]['msgType']   = $messages[$k]->msgtype;
 					$this->jsonarray['messages'][$k]['nodeID']    = $nodes[$nc]->nid;
 					$nodeType                                     = $nodesHelper->getNodeType($nodes[$nc]->nid);
 					$this->jsonarray['messages'][$k]['Type']      = $nodeType;
+
 					foreach ($data as $key => $value)
 					{
 						if ($value->uid == $messages[$k]->fid)
@@ -203,6 +229,7 @@ class ichatmain
 							$this->jsonarray['messages'][$k]['avtr'] = $value->avtr;
 						}
 					}
+
 					$msg_id           = $messages[$k]->mid;
 					$messages[$k]->ts = JFactory::getDate($messages[$k]->ts)->format(JText::_('COM_JBOLO_SENT_AT_FORMAT'));
 					$db               = JFactory::getDBO();
@@ -211,6 +238,7 @@ class ichatmain
 							AND x.to_user_id=" . $uid .
 						" AND x.msg_id=" . $msg_id;
 					$this->db->setQuery($query);
+
 					if (!$this->db->execute())
 					{
 						IJReq::setResponse(500);
@@ -220,13 +248,14 @@ class ichatmain
 					}
 				}
 
-				//add msgs to session for particular node
-				if (isset($_SESSION['jbolo']['nodes']))//if nodes array is set
+				// Add msgs to session for particular node
+				// If nodes array is set
+				if (isset($_SESSION['jbolo']['nodes']))
 				{
 					$node_ids  = array();
 					$nodecount = count($_SESSION['jbolo']['nodes']);
 
-					//get all node ids for nodes which are present in session
+					// Get all node ids for nodes which are present in session
 					for ($d = 0; $d < $nodecount; $d++)
 					{
 						if (isset($_SESSION['jbolo']['nodes'][$d]))
@@ -235,75 +264,89 @@ class ichatmain
 						}
 					}
 
-					//if current node is not in session, add nodeinfo & particpants in session
+					// If current node is not in session, add nodeinfo & particpants in session
 					if (!in_array($nodes[$nc]->nid, $node_ids))
 					{
 						if ($nodecount)
 						{
-							//if node data not in session, push new nodedata at end	of array
-							//push nodeinfo
+							// If node data not in session, push new nodedata at end	of array
+							// Push nodeinfo
 							$_SESSION['jbolo']['nodes'][$nodecount]['nodeinfo'] = $nodes[$nc];
-							//push node participants
+
+							// Push node participants
 							$_SESSION['jbolo']['nodes'][$nodecount]['participants'] = $participants['participants'];
 						}
 						else
 						{
-							//if no node is present in session
-							//add a new node in session
-							//push nodeinfo
+							/* If no node is present in session
+							   Add a new node in session
+							   Push nodeinfo*/
 							$_SESSION['jbolo']['nodes'][0]['nodeinfo'] = $nodes[$nc];
-							//push node participants
+
+							// Push node participants
 							$_SESSION['jbolo']['nodes'][0]['participants'] = $participants['participants'];
 						}
 					}
 
-					//loop through all nodes
+					// Loop through all nodes
 					for ($k = 0; $k < count($_SESSION['jbolo']['nodes']); $k++)
 					{
-						//if node found
+						// If node found
 						if ($_SESSION['jbolo']['nodes'][$k]['nodeinfo']->nid == $nodes[$nc]->nid)
 						{
-							//this is important
-							//update node participants
+							// This is important
+							// Update node participants
 							$_SESSION['jbolo']['nodes'][$k]['participants'] = $participants['participants'];
 
-							$mcnt = 0;//initialize mesasge count for node found to 0
-							//check if the node found has messages stored in session
+							// Initialize mesasge count for node found to 0
+							$mcnt = 0;
+
+							// Check if the node found has messages stored in session
 							if (isset($_SESSION['jbolo']['nodes'][$k]['messages']))
 							{
-								//if yes count msgs
+								// If yes count msgs
 								$mcnt = count($_SESSION['jbolo']['nodes'][$k]['messages']);
 							}
+
 							for ($m = 0; $m < count($messages); $m++)
 							{
-								//add new mesage at the end
-								$_SESSION['jbolo']['nodes'][$k]['messages'][$mcnt] = $messages[$m];//changed
-								$mcnt++;//increasemesage count for messages in session for current node
+								// Add new mesage at the end
+								// Changed
+								$_SESSION['jbolo']['nodes'][$k]['messages'][$mcnt] = $messages[$m];
+
+								// Increasemesage count for messages in session for current node
+								$mcnt++;
 							}
 						}
 					}
-
-				}//end if
-				else//if no nodes in session
+				}
+				// If no nodes in session
+				else
 				{
-					//if no node is present in session
-					//add a new node in session
-					//push nodeinfo
+					/* If no node is present in session
+					   aAdd a new node in session
+					   Push nodeinfo */
 					$_SESSION['jbolo']['nodes'][0]['nodeinfo'] = $nodes[$nc];
-					//push node participants
+
+					// Push node participants
 					$_SESSION['jbolo']['nodes'][0]['participants'] = $participants['participants'];
-					//push unread messages
+
+					// Push unread messages
 					$mcnt = 0;
+
 					for ($m = 0; $m < count($messages); $m++)
 					{
-						$_SESSION['jbolo']['nodes'][0]['messages'][$mcnt] = $messages[$m]; //changed
+						// Changed
+						$_SESSION['jbolo']['nodes'][0]['messages'][$mcnt] = $messages[$m];
 						$mcnt++;
 					}
 				}
-			}//if messages
-		}//for loop for nodes
+			// If messages
+			}
+		// For loop for nodes
+		}
 
-		//check if nodes array is present in session
+		// Check if nodes array is present in session
 		if (isset($_SESSION['jbolo']['nodes']))
 		{
 			$nodeStatusArray         = $nodesHelper->getNodeStatusArray($_SESSION['jbolo']['nodes'], $uid);
@@ -318,7 +361,8 @@ class ichatmain
 	}
 
 	/**
-	 * @uses    to get nodeId of whatever user selected(depending upon userId passed in pid).
+	 * used to get nodeId of whatever user selected(depending upon userId passed in pid).
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -328,14 +372,15 @@ class ichatmain
 	 *            "pid":"pid"
 	 *        }
 	 *    }
-	 *    @return array of json
+	 * @return  array of json
 	 */
-	function initiateNode()
+	public function initiateNode()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$pid = IJReq::getTaskData('pid', 0, 'int');
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -343,6 +388,7 @@ class ichatmain
 
 			return false;
 		}
+
 		if (!$pid)
 		{
 			IJReq::setResponse(400);
@@ -350,32 +396,41 @@ class ichatmain
 
 			return false;
 		}
+
 		$nodesHelper   = new nodesHelper;
 		$node_id_found = $nodesHelper->checkNodeExists($uid, $pid);
+
 		if (!$node_id_found)
 		{
 			$myobj        = new stdclass;
 			$myobj->title = null;
 			$myobj->type  = 1;
 			$myobj->owner = $uid;
-			$myobj->time  = date("Y-m-d H:i:s");//note
+
+			// Note
+			$myobj->time  = date("Y-m-d H:i:s");
 			$this->db->insertObject('#__jbolo_nodes', $myobj);
-			//get last insert id
+
+			// Get last insert id
 			$new_node_id = $this->db->insertid();
+
 			if ($this->db->insertid())
 			{
 				for ($i = 0; $i < 2; $i++)
 				{
 					$myobj          = new stdclass;
 					$myobj->node_id = $new_node_id;
-					$myobj->user_id = ($i == 0) ? $uid : $pid;//add entry for both users one after other
+
+					// Add entry for both users one after other
+					$myobj->user_id = ($i == 0) ? $uid : $pid;
 					$myobj->status  = 1;
 					$this->db->insertObject('#__jbolo_node_users', $myobj);
 				}
 			}
 		}
 		else
-		{//node already exists
+		{
+			// Node already exists
 			$new_node_id = $node_id_found;
 		}
 
@@ -387,42 +442,51 @@ class ichatmain
 
 		$this->jsonarray['code']     = 200;
 		$this->jsonarray['nodeinfo'] = $node_d;
-		//get chat window title(wt)
+
+		// Get chat window title(wt)
 		$this->jsonarray['nodeinfo']->wt = $nodesHelper->getNodeTitle($new_node_id, $uid, $this->jsonarray['nodeinfo']->ctyp);
-		//get chatbox status (node status - ns)
+
+		// Get chatbox status (node status - ns)
 		$this->jsonarray['nodeinfo']->ns = $nodesHelper->getNodeStatus($new_node_id, $uid, $this->jsonarray['nodeinfo']->ctyp);
 		$participants                    = $nodesHelper->getNodeParticipants($new_node_id, $uid);
 
-		//update this node info in session
+		// Update this node info in session
 		$d = 0;
-		if (!isset($_SESSION['jbolo']['nodes']))//check if 'nodes' array is set
+
+		// Check if 'nodes' array is set
+		if (!isset($_SESSION['jbolo']['nodes']))
 		{
-			//if nodes array is not set, push new node at the start in nodes array
+			// If nodes array is not set, push new node at the start in nodes array
 			$_SESSION['jbolo']['nodes'][0]['nodeinfo']     = $this->jsonarray['nodeinfo'];
 			$_SESSION['jbolo']['nodes'][0]['participants'] = $participants['participants'];
 		}
-		else//if nodes array is set
+		// If nodes array is set
+		else
 		{
 			$node_ids  = array();
 			$nodecount = count($_SESSION['jbolo']['nodes']);
+
 			for ($d = 0; $d < $nodecount; $d++)
 			{
 				if (isset($_SESSION['jbolo']['nodes'][$d]))
 				{
-					//get all node ids set in session
+					// Get all node ids set in session
 					$node_ids[$d] = $_SESSION['jbolo']['nodes'][$d]['nodeinfo']->nid;
 				}
 			}
-			//if the current node is not present in session,
-			//we add it into session
+
+			// If the current node is not present in session,
+			// We add it into session
 			if (!in_array($this->jsonarray['nodeinfo']->nid, $node_ids))
 			{
-				if ($nodecount)//if nodecount is >0, push new node data at the end of array
+				// If nodecount is >0, push new node data at the end of array
+				if ($nodecount)
 				{
 					$_SESSION['jbolo']['nodes'][$nodecount]['nodeinfo']     = $this->jsonarray['nodeinfo'];
 					$_SESSION['jbolo']['nodes'][$nodecount]['participants'] = $participants['participants'];
 				}
-				else//if nodecount is 0, push this at start i.e. 0th position in array
+				// If nodecount is 0, push this at start i.e. 0th position in array
+				else
 				{
 					$_SESSION['jbolo']['nodes'][0]['nodeinfo']     = $this->jsonarray['nodeinfo'];
 					$_SESSION['jbolo']['nodes'][0]['participants'] = $participants['participants'];
@@ -434,7 +498,8 @@ class ichatmain
 	}
 
 	/**
-	 * @uses    to send message to nid of particular userid(whom we want to send a message)
+	 * used to send message to nid of particular userid(whom we want to send a message)
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -447,13 +512,14 @@ class ichatmain
 	 *    }
 	 * @return array of json
 	 */
-	function pushChatToNode()
+	public function pushChatToNode()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid', 0, 'int');
 		$msg = IJReq::getTaskData('message', '');
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -461,6 +527,7 @@ class ichatmain
 
 			return false;
 		}
+
 		if (!$nid)
 		{
 			IJReq::setResponse(400);
@@ -468,6 +535,7 @@ class ichatmain
 
 			return false;
 		}
+
 		if (!$msg)
 		{
 			IJReq::setResponse(400);
@@ -475,66 +543,86 @@ class ichatmain
 
 			return false;
 		}
+
 		$user               = JFactory::getUser($uid);
-		$msg               = preg_replace("/%u([0-9a-f]{3,4})/i", "&#x\\1;", urldecode($msg)); //2.9.5
-		$msg               = html_entity_decode($msg, null, 'UTF-8');//2.9.5
+
+		// 2.9.5
+		$msg               = preg_replace("/%u([0-9a-f]{3,4})/i", "&#x\\1;", urldecode($msg));
+
+		// 2.9.5
+		$msg               = html_entity_decode($msg, null, 'UTF-8');
 		$msg               = str_replace("\'", "'", $msg);
 		$nodesHelper       = new nodesHelper;
 		$isNodeParticipant = $nodesHelper->isNodeParticipant($uid, $nid);
-		if ($isNodeParticipant == 2)//error handling for inactive user
+
+		// Error handling for inactive user
+		if ($isNodeParticipant == 2)
 		{
 			IJReq::setResponse(400);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_INACTIVE_MEMBER_MSG'));
 
 			return false;
 		}
-		if (!$isNodeParticipant)//error handling for not member/unauthorized access to this group chat
+
+		// Error handling for not member/unauthorized access to this group chat
+		if (!$isNodeParticipant)
 		{
 			IJReq::setResponse(400);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_NON_MEMBER_MSG'));
 
 			return false;
 		}
+
 		$this->jsonarray['code'] = 200;
 
-		//trigger plugins to process message text
+		// Trigger plugins to process message text
 		$dispatcher = JDispatcher::getInstance();
 		JPluginHelper::importPlugin('jbolo', 'plg_jbolo_textprocessing');
-		//process urls
+
+		// Process urls
 		$processedText = $dispatcher->trigger('processUrls', array($msg));
 		$msg           = $processedText[0];
-		//process smilies
+
+		// Process smilies
 		$processedText = $this->processSmilies(array($msg));
 		$msg           = $processedText[0];
-		//process bad words
+
+		// Process bad words
 		$processedText = $dispatcher->trigger('processBadWords', array($msg));
 		$msg           = $processedText[0];
 
-		//add msg to database
+		// Add msg to database
 		$myobj             = new stdclass;
 		$myobj->from       = $uid;
 		$myobj->to_node_id = $nid;
 		$myobj->msg        = $msg;
 		$myobj->msg_type   = 'txt';
-		$myobj->time       = date("Y-m-d H:i:s");//NOTE - date format
-		$myobj->sent       = 1;//@TODO need to chk if this is really used or is it for future proofing
+
+		// NOTE - date format
+		$myobj->time       = date("Y-m-d H:i:s");
+
+		// @TODO need to chk if this is really used or is it for future proofing
+		$myobj->sent       = 1;
 		$this->db->insertObject('#__jbolo_chat_msgs', $myobj);
-		//get last insert id
+
+		// Get last insert id
 		$new_mid = $this->db->insertid();
 
-		//update msg xref table
+		// Update msg xref table
 		if ($new_mid)
 		{
-			//get participants for this node
+			// Get participants for this node
+			// Status indicates that user is still part of node
 			$query = "SELECT user_id
 					FROM #__jbolo_node_users
 					WHERE node_id = " . $nid . "
 					AND user_id <> " . $uid . "
-					AND status=1";//status indicates that user is still part of node
+					AND status=1";
 			$this->db->setQuery($query);
 			$participant = $this->db->loadColumn();
 			$count       = count($participant);
-			//add entry for all users against this msg
+
+			// Add entry for all users against this msg
 			for ($i = 0; $i < $count; $i++)
 			{
 				$myobj             = new stdclass;
@@ -546,7 +634,8 @@ class ichatmain
 				$this->db->insertObject('#__jbolo_chat_msgs_xref', $myobj);
 			}
 		}
-		//prepare json response
+
+		// Prepare json response
 		$query = "SELECT chm.to_node_id AS nid, chm.from AS uid, chm.msg_id AS mid, chm.sent,
 	 			chm.msg, chm.time, chm.msg_type as msgtype
 	 			FROM #__jbolo_chat_msgs AS chm
@@ -566,7 +655,7 @@ class ichatmain
 		$this->jsonarray['messages']['avtr']      = $u_data->avtr;
 		$this->jsonarray['messages']['msgType']   = $node_d->msgtype;
 
-		//add this msg to session
+		// Add this msg to session
 		$query = "SELECT m.msg_id AS mid, m.from AS fid, m.msg, m.time AS ts
 				FROM #__jbolo_chat_msgs AS m
 				LEFT JOIN #__jbolo_chat_msgs_xref AS mx ON mx.msg_id=m.msg_id
@@ -575,48 +664,62 @@ class ichatmain
 		$msg_dt     = $this->db->loadObject();
 		$msg_dt->ts = JFactory::getDate($msg_dt->ts)->Format(JText::_('COM_JBOLO_SENT_AT_FORMAT'));
 
-		//update session by adding this msg against corresponding node
-		if (isset($_SESSION['jbolo']['nodes']))//if jbolo nodes array is set
+		// Update session by adding this msg against corresponding node
+		// If jbolo nodes array is set
+		if (isset($_SESSION['jbolo']['nodes']))
 		{
-			//count nodes in session
+			// Count nodes in session
 			$nodecount = count($_SESSION['jbolo']['nodes']);
-			for ($k = 0; $k < $nodecount; $k++)//loop through all nodes
+
+			// Loop through all nodes
+			for ($k = 0; $k < $nodecount; $k++)
 			{
-				if (isset($_SESSION['jbolo']['nodes'][$k]))//if k'th node is set
+				// If k'th node is set
+				if (isset($_SESSION['jbolo']['nodes'][$k]))
 				{
-					if (isset($_SESSION['jbolo']['nodes'][$k]['nodeinfo']))//if nodeinfo is set
+					// If nodeinfo is set
+					if (isset($_SESSION['jbolo']['nodes'][$k]['nodeinfo']))
 					{
-						//if the required node is found in session
+						// If the required node is found in session
 						if ($_SESSION['jbolo']['nodes'][$k]['nodeinfo']->nid == $nid)
 						{
-							$mcnt = 0;//initialize mesasge count for node found to 0
-							//check if the node found has messages stored in session
+							// Initialize mesasge count for node found to 0
+							$mcnt = 0;
+
+							// Check if the node found has messages stored in session
 							if (isset($_SESSION['jbolo']['nodes'][$k]['messages']))
 							{
-								//if yes count msgs
+								// If yes count msgs
 								$mcnt = count($_SESSION['jbolo']['nodes'][$k]['messages']);
-								//add new mesage at the end
+
+								// Add new mesage at the end
 								$_SESSION['jbolo']['nodes'][$k]['messages'][$mcnt] = $msg_dt;
 							}
 							else
-							{//add new mesage at the start
+							{
+								// Add new mesage at the start
 								$_SESSION['jbolo']['nodes'][$k]['messages'][0] = $msg_dt;
 							}
 						}
 					}
 				}
-				else//@TODO remaining...
+				// @TODO remaining...
+				else
 				{
-					//if node is not present in session
-					//this situation is not expected ideally
+					// If node is not present in session
+					// This situation is not expected ideally
 				}
-			}//end for
-		}//end if
+			// End for
+			}
+		// End if
+		}
+
 		return $this->jsonarray;
 	}
 
 	/**
-	 * @uses    to fetch chat history between two users.
+	 * used to fetch chat history between two users.
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -629,7 +732,7 @@ class ichatmain
 	 *    }
 	 * @return array  jsonarray
 	 */
-	function chatHistory()
+	public function chatHistory()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
@@ -637,11 +740,14 @@ class ichatmain
 		$nid       = IJReq::getTaskData('nid', 0, 'int');
 		$pageNO    = IJReq::getTaskData('pageNO');
 		$pageLimit = 10;
+
 		if (!$pageLimit)
 		{
 			$pageLimit = 10;
 		}
+
 		$startFrom = ($pageNO == 0 || $pageNO == 1) ? 0 : $pageLimit * ($pageNO - 1);
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -649,6 +755,7 @@ class ichatmain
 
 			return false;
 		}
+
 		if (!$nid)
 		{
 			IJReq::setResponse(400);
@@ -656,8 +763,10 @@ class ichatmain
 
 			return false;
 		}
+
 		$params = JComponentHelper::getParams('com_jbolo');
-		//show username OR name
+
+		// Show username OR name
 		if ($params->get('chatusertitle'))
 		{
 			$chattitle = 'username';
@@ -666,6 +775,7 @@ class ichatmain
 		{
 			$chattitle = 'name';
 		}
+
 		$query      = "SELECT DISTINCT(m.msg_id) AS mid, m.from AS fid, m.msg, m.time AS ts, m.msg_type as msgtype, m.to_node_id as nid, u.$chattitle AS uname
 				FROM #__jbolo_chat_msgs_xref AS mx
 				LEFT JOIN #__jbolo_chat_msgs AS m ON m.msg_id=mx.msg_id
@@ -674,6 +784,7 @@ class ichatmain
 				AND (mx.to_user_id =" . $uid . " OR m.from=" . $uid . ")
 				AND (mx.to_user_id =" . $uid . " OR m.from=" . $uid . " AND m.msg_type<>'file')
 				ORDER BY m.msg_id DESC ";
+
 		$queryLimit = $query;
 		$query .= " LIMIT $startFrom, $pageLimit";
 		$this->db->setQuery($query);
@@ -683,15 +794,17 @@ class ichatmain
 		$me    = JText::_('me');
 		$data   = jbolousersHelper::getOnlineUsersInfo($uid);
 		$u_data = jbolousersHelper::getLoggedinUserInfo($uid);
+
 		for ($i = 0; $i < count($chats); $i++)
 		{
 			$udetails = JFactory::getUser($chats[$i]->fid);
+
 			if ($chats[$i]->fid == $uid)
 			{
 				$chatfromId = 0;
 				$chatfrom   = $me;
 			}
-			else if ($chats[$i]->fid == 0)
+			elseif ($chats[$i]->fid == 0)
 			{
 				$chatfromId = -1;
 				$chatfrom   = '';
@@ -701,6 +814,7 @@ class ichatmain
 				$chatfromId = $chats[$i]->fid;
 				$chatfrom   = $chats[$i]->uname;
 			}
+
 			$chats[$i]->msg                               = $this->sanitize($chats[$i]->msg);
 			$this->jsonarray['messages'][$i]['fromID']    = $chatfromId;
 			$this->jsonarray['messages'][$i]['fromName']  = $chatfrom;
@@ -709,6 +823,7 @@ class ichatmain
 			$this->jsonarray['messages'][$i]['msgType']   = $chats[$i]->msgtype;
 			$this->jsonarray['messages'][$i]['nodeID']    = $chats[$i]->nid;
 			$this->jsonarray['messages'][$i]['timestamp'] = strtotime($chats[$i]->ts);
+
 			foreach ($data as $key => $value)
 			{
 				if ($value->uid == $chats[$i]->fid)
@@ -721,6 +836,7 @@ class ichatmain
 				}
 			}
 		}
+
 		$this->jsonarray['code']      = ($total > 0) ? 200 : 204;
 		$this->jsonarray['total']     = $total;
 		$this->jsonarray['pageLimit'] = $pageLimit;
@@ -732,19 +848,22 @@ class ichatmain
 	/**
 	 * function for upload file of different extensions which allowed from jbolo config.
 	 *
-	 * @param   boolean  $print_response print_response
+	 * @param   boolean  $print_response  print_response
 	 *
 	 * @return  array
 	 */
-	function uploadFile($print_response = true)
+	public function uploadFile($print_response = true)
 	{
 		if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE')
 		{
 			return $this->delete($print_response);
 		}
+
 		$upload = isset($_FILES[$this->options['param_name']]) ? $_FILES[$this->options['param_name']] : null;
-		//Parse the Content-Disposition header, if available:
+
+		// Parse the Content-Disposition header, if available:
 		$file_name = isset($_SERVER['HTTP_CONTENT_DISPOSITION']) ? rawurldecode(preg_replace('/(^[^"]+")|("$)/', '', $_SERVER['HTTP_CONTENT_DISPOSITION'])) : null;
+
 		// Parse the Content-Range header, which has the following form:
 		// Content-Range: bytes 0-524287/2000000
 		$content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ? preg_split('/[^0-9]+/', $_SERVER['HTTP_CONTENT_RANGE']) : null;
@@ -753,11 +872,12 @@ class ichatmain
 
 		if ($upload && is_array($upload['tmp_name']))
 		{
-			// param_name is an array identifier like "files[]",
+			// Param_name is an array identifier like "files[]",
 			// $_FILES is a multi-dimensional array:
 			foreach ($upload['tmp_name'] as $index => $value)
 			{
-				$files[] = $this->handle_file_upload($upload['tmp_name'][$index],
+				$files[] = $this->handle_file_upload(
+					$upload['tmp_name'][$index],
 					$file_name ? $file_name : $upload['name'][$index],
 					$size ? $size : $upload['size'][$index],
 					$upload['type'][$index],
@@ -769,7 +889,7 @@ class ichatmain
 		}
 		else
 		{
-			// param_name is a single object identifier like "file",
+			// Param_name is a single object identifier like "file",
 			// $_FILES is a one-dimensional array:
 			$files[] = $this->handle_file_upload(
 				isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
@@ -781,6 +901,7 @@ class ichatmain
 				$content_range
 			);
 		}
+
 		$this->prepareChatMsgs($files);
 
 		return $this->generate_response(array($this->options['param_name'] => $files), false);
@@ -793,7 +914,7 @@ class ichatmain
 	 *
 	 * @return  boolean
 	 */
-	function prepareChatMsgs($files)
+	public function prepareChatMsgs($files)
 	{
 		foreach ($files as $file)
 		{
@@ -802,11 +923,12 @@ class ichatmain
 				$particularUID = $this->IJUserID;
 				$nid           = IJReq::getTaskData('nid', 0, 'int');
 				$msgType       = 'file';
-				//for sender
+
+				// For sender
 				$msg = $file->name;
 				$this->pushChat($msgType, $nid, $msg, $particularUID, 0);
 
-				//for all receivers
+				// For all receivers
 				$msg = $file->name;
 				$this->pushChat($msgType, $nid, $msg, 0, 0);
 			}
@@ -818,49 +940,58 @@ class ichatmain
 	/**
 	 * function for pushChat
 	 *
-	 * @param   string   $msgType         type of msg
-	 * @param   integer   $nid            node id
-	 * @param   string   $msg             message
-	 * @param   integer  $particularUID   particularUID
-	 * @param   integer  $sendToActor     sendToActor
+	 * @param   string   $msgType        type of msg
+	 * @param   integer  $nid            node id
+	 * @param   string   $msg            message
+	 * @param   integer  $particularUID  particularUID
+	 * @param   integer  $sendToActor    sendToActor
 	 *
 	 * @return  boolean
 	 */
 	function pushChat($msgType, $nid, $msg, $particularUID = 0, $sendToActor = 0)
 	{
 		$actorid = $this->IJUserID;
-		//process text for urls & download links
+
+		// Process text for urls & download links
 		$dispatcher = JDispatcher::getInstance();
 		JPluginHelper::importPlugin('jbolo', 'plg_jbolo_textprocessing');
+
 		if ($msgType == 'file')
 		{
-			//process download link
-			//note - another parameter passed here - particularUID
+			// Process download link
+			// Note - another parameter passed here - particularUID
 			$processedText = $dispatcher->trigger('processDownloadLink', array($msg, $particularUID));
 		}
 		else
 		{
-			//process urls
+			// Process urls
 			$processedText = $dispatcher->trigger('processUrls', array($msg));
 		}
+
 		$msg = $processedText[0];
-		//process smilies
+
+		// Process smilies
 		$processedText = $this->processSmilies(array($msg));
 		$msg           = $processedText[0];
-		//process bad words
+
+		// Process bad words
 		$processedText = $dispatcher->trigger('processBadWords', array($msg));
 		$msg           = $processedText[0];
 
-		//add msg to database
+		// Add msg to database
 		$myobj = new stdclass;
+
 		if ($msgType == 'gbc')
 		{
-			$myobj->from = 0;//set userid to 0 for gbc messages
+			// Set userid to 0 for gbc messages
+			$myobj->from = 0;
 		}
 		else
 		{
-			$myobj->from = $actorid;//set userid to 0 for gbc messages
+			// Set userid to 0 for gbc messages
+			$myobj->from = $actorid;
 		}
+
 		$myobj->to_node_id = $nid;
 		$myobj->msg        = $msg;
 		$myobj->msg_type   = $msgType;
@@ -868,10 +999,11 @@ class ichatmain
 		$myobj->sent       = 1;
 
 		$this->db->insertObject('#__jbolo_chat_msgs', $myobj);
-		//get last insert id
+
+		// Get last insert id
 		$new_mid = $this->db->insertid();
 
-		//update msg xref table
+		// Update msg xref table
 		if ($new_mid)
 		{
 			if ($particularUID)
@@ -884,19 +1016,23 @@ class ichatmain
 				$myobj->read       = 0;
 				$this->db->insertObject('#__jbolo_chat_msgs_xref', $myobj);
 			}
+			// Status indicates of user is still part of node (only active users)
 			else
 			{
 				$query = "SELECT user_id
 				FROM #__jbolo_node_users
 				WHERE node_id = " . $nid . "
-				AND status=1";//status indicates of user is still part of node (only active users)
+				AND status=1";
+
 				if (!$sendToActor)
 				{
 					$query .= " AND user_id <> " . $actorid;
 				}
+
 				$this->db->setQuery($query);
 				$participant = $this->db->loadColumn();
 				$count       = count($participant);
+
 				for ($i = 0; $i < $count; $i++)
 				{
 					$myobj             = new stdclass;
@@ -910,86 +1046,105 @@ class ichatmain
 			}
 
 			return 1;
-			//add this msg to session
+
+			// Add this msg to session
 			$query = "SELECT m.msg_id AS mid, m.from AS fid, m.msg, m.time AS ts
 			FROM #__jbolo_chat_msgs AS m
 			LEFT JOIN #__jbolo_chat_msgs_xref AS mx ON mx.msg_id=m.msg_id
 			WHERE m.msg_id=" . $new_mid . " AND m.sent=1";
 			$this->db->setQuery($query);
 			$msg_dt = $this->db->loadObject();
-			//update session by adding this msg against corresponding node
-			if (isset($_SESSION['jbolo']['nodes']))//if jbolo nodes array is set
+
+			// Update session by adding this msg against corresponding node
+			// If jbolo nodes array is set
+			if (isset($_SESSION['jbolo']['nodes']))
 			{
-				//count nodes in session
+				// Count nodes in session
 				$nodecount = count($_SESSION['jbolo']['nodes']);
-				for ($k = 0; $k < $nodecount; $k++)//loop through all nodes
+
+				// Loop through all nodes
+				for ($k = 0; $k < $nodecount; $k++)
 				{
-					if (isset($_SESSION['jbolo']['nodes'][$k]))//if k'th node is set
+					// If k'th node is set
+					if (isset($_SESSION['jbolo']['nodes'][$k]))
 					{
-						if (isset($_SESSION['jbolo']['nodes'][$k]['nodeinfo']))//if nodeinfo is set
+						// If nodeinfo is set
+						if (isset($_SESSION['jbolo']['nodes'][$k]['nodeinfo']))
 						{
-							//if the required node is found in session
+							// If the required node is found in session
 							if ($_SESSION['jbolo']['nodes'][$k]['nodeinfo']->nid == $nid)
 							{
-								$mcnt = 0;//initialize mesasge count for node found to 0
-								//check if the node found has messages stored in session
+								// Initialize mesasge count for node found to 0
+								$mcnt = 0;
+
+								// Check if the node found has messages stored in session
 								if (isset($_SESSION['jbolo']['nodes'][$k]['messages']))
 								{
-									//if yes count msgs
+									// If yes count msgs
 									$mcnt = count($_SESSION['jbolo']['nodes'][$k]['messages']);
-									//add new mesage at the end
+
+									// Add new mesage at the end
 									$_SESSION['jbolo']['nodes'][$k]['messages'][$mcnt] = $msg_dt;
 								}
 								else
-								{//add new mesage at the start
+								{
+									// Add new mesage at the start
 									$_SESSION['jbolo']['nodes'][$k]['messages'][0] = $msg_dt;
 								}
 							}
 						}
 					}
-					else//@TODO remaining...
+					// @TODO remaining...
+					else
 					{
-						//if node is not present in session
-						//this situation is not expected ideally
+						// If node is not present in session
+						// This situation is not expected ideally
 					}
-				}//end for
-			}//end if
-
+				// End for
+				}
+			// End if
+			}
 		}
 	}
 
 	/**
 	 * function for handle_file_upload
 	 *
-	 * @param   string  $uploaded_file  uploaded_file
-	 * @param   string  $name           name of file
-	 * @param   byte    $size             size of file
-	 * @param   string  $type           type of file
-	 * @param   string  $error          error
-	 * @param   integer $index          index
-	 * @param   [type]  $content_range  range of content
+	 * @param   string   $uploaded_file  uploaded_file
+	 * @param   string   $name           name of file
+	 * @param   byte     $size           size of file
+	 * @param   string   $type           type of file
+	 * @param   string   $error          error
+	 * @param   integer  $index          index
+	 * @param   [type]   $content_range  range of content
 	 *
 	 * @return  string  $file
 	 */
-	function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null, $content_range = null)
+	public function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null, $content_range = null)
 	{
 		$file = new stdClass;
-		$file->name = $this->get_file_name($name, $type, $index, $content_range, $uploaded_file);//manoj
+
+		// Manoj
+		$file->name = $this->get_file_name($name, $type, $index, $content_range, $uploaded_file);
 		$file->size = $this->fix_integer_overflow(intval($size));
 		$file->type = $type;
+
 		if ($this->validate($uploaded_file, $file, $error, $index))
 		{
 			$this->handle_form_data($file, $index);
 			$upload_dir = $this->get_upload_path();
+
 			if (!is_dir($upload_dir))
 			{
 				mkdir($upload_dir, $this->options['mkdir_mode'], true);
 			}
+
 			$file_path   = $this->get_upload_path($file->name);
 			$append_file = $content_range && is_file($file_path) && $file->size > $this->get_file_size($file_path);
+
 			if ($uploaded_file && is_uploaded_file($uploaded_file))
 			{
-				// multipart/formdata uploads (POST method uploads)
+				// Multipart/formdata uploads (POST method uploads)
 				if ($append_file)
 				{
 					file_put_contents($file_path, fopen($uploaded_file, 'r'), FILE_APPEND);
@@ -1001,18 +1156,21 @@ class ichatmain
 			}
 			else
 			{
-				//Non-multipart uploads (PUT method support)
+				// Non-multipart uploads (PUT method support)
 				file_put_contents($file_path, fopen('php://input', 'r'), $append_file ? FILE_APPEND : 0);
 			}
 
 			$file_size = $this->get_file_size($file_path, $append_file);
+
 			if ($file_size === $file->size)
 			{
 				if ($this->options['orient_image'])
 				{
 					$this->orient_image($file_path);
 				}
+
 				$file->url = $this->get_download_url($file->name);
+
 				foreach ($this->options['image_versions'] as $version => $options)
 				{
 					if ($this->create_scaled_image($file->name, $version, $options))
@@ -1028,11 +1186,12 @@ class ichatmain
 					}
 				}
 			}
-			else if (!$content_range && $this->options['discard_aborted_uploads'])
+			elseif (!$content_range && $this->options['discard_aborted_uploads'])
 			{
 				unlink($file_path);
 				$file->error = 'abort';
 			}
+
 			$file->size = $file_size;
 		}
 
@@ -1042,22 +1201,26 @@ class ichatmain
 	/**
 	 * function for get_file_name
 	 *
-	 * @param   string  $name           name of file
-	 * @param   string  $type           type of file
-	 * @param   integer  $index         index
-	 * @param   [type]  $content_range  range of content
-	 * @param   string  $uploaded_file  uploaded_file
+	 * @param   string   $name           name of file
+	 * @param   string   $type           type of file
+	 * @param   integer  $index          index
+	 * @param   [type]   $content_range  range of content
+	 * @param   string   $uploaded_file  uploaded_file
 	 *
 	 * @return  void
+	 * Manoj
 	 */
-	function get_file_name($name, $type, $index, $content_range, $uploaded_file)//manoj
+	public function get_file_name($name, $type, $index, $content_range, $uploaded_file)
 	{
+		// Manoj
 		return $this->get_unique_filename(
-			$this->trim_file_name($name, $type, $index, $content_range, $uploaded_file),//manoj
+			$this->trim_file_name($name, $type, $index, $content_range, $uploaded_file),
 			$type,
 			$index,
-			//$content_range
-			$content_range,//manoj
+
+			// $content_range
+			// Manoj
+			$content_range,
 			$uploaded_file
 		);
 	}
@@ -1065,26 +1228,34 @@ class ichatmain
 	/**
 	 * funtion for trim the file name
 	 *
-	 * @param   string  $name           file name
-	 * @param   string  $type           file tye
-	 * @param   integer $index          file index
-	 * @param   [type]  $content_range  content range
-	 * @param   string  $uploaded_file  uploaded file
+	 * @param   string   $name           file name
+	 * @param   string   $type           file tye
+	 * @param   integer  $index          file index
+	 * @param   [type]   $content_range  content range
+	 * @param   string   $uploaded_file  uploaded file
 	 *
 	 * @return  string  $fileName
 	 */
-	function trim_file_name($name, $type, $index, $content_range, $uploaded_file)
+	public function trim_file_name($name, $type, $index, $content_range, $uploaded_file)
 	{
 		$fileInfo = pathinfo($name);
-		$fileExt  = $fileInfo['extension'];//file extension
-		$fileBase = $fileInfo['filename'];//base name
-		//Clean up filename to get rid of strange characters like spaces etc
+
+		// File extension
+		$fileExt  = $fileInfo['extension'];
+
+		// Base name
+		$fileBase = $fileInfo['filename'];
+
+		// Clean up filename to get rid of strange characters like spaces etc
 		$fileBase = JFile::makeSafe($fileBase);
-		//lose any special characters in the filename
+
+		// Lose any special characters in the filename
 		$fileBase = preg_replace("/[^A-Za-z0-9]/i", "-", $fileBase);
-		//use lowercase
+
+		// Use lowercase
 		$fileBase = strtolower($fileBase);
-		//add timestamp to file name
+
+		// Add timestamp to file name
 		$timestamp = time();
 		$fileName  = $fileBase . '_' . $timestamp . '.' . $fileExt;
 
@@ -1101,23 +1272,25 @@ class ichatmain
 	 * @param   string   $uploaded_file  uploaded file
 	 *
 	 * @return  string $name
+	 * manoj
 	 */
-	function get_unique_filename($name, $type, $index, $content_range, $uploaded_file)//manoj
+	public function get_unique_filename($name, $type, $index, $content_range, $uploaded_file)
 	{
 		while (is_dir($this->get_upload_path($name)))
 		{
 			$name = $this->upcount_name($name);
 		}
+
 		// Keep an existing filename if this is part of a chunked upload:
 		$uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
+
 		while (is_file($this->get_upload_path($name)))
 		{
-			if ($uploaded_bytes === $this->get_file_size(
-					$this->get_upload_path($name))
-			)
+			if ($uploaded_bytes === $this->get_file_size($this->get_upload_path($name)))
 			{
 				break;
 			}
+
 			$name = $this->upcount_name($name);
 		}
 
@@ -1128,11 +1301,11 @@ class ichatmain
 	 * function for get_upload_path
 	 *
 	 * @param   string  $file_name  name of file
-	 * @param   float   $version     version
+	 * @param   float   $version    version
 	 *
 	 * @return  array
 	 */
-	function get_upload_path($file_name = null, $version = null)
+	public function get_upload_path($file_name = null, $version = null)
 	{
 		$file_name    = $file_name ? $file_name : '';
 		$version_path = empty($version) ? '' : $version . '/';
@@ -1145,9 +1318,9 @@ class ichatmain
 	 *
 	 * @param   float  $size  size
 	 *
-	 * @return  float $size
+	 * @return  float  $size
 	 */
-	function fix_integer_overflow($size)
+	public function fix_integer_overflow($size)
 	{
 		if ($size < 0)
 		{
@@ -1160,14 +1333,14 @@ class ichatmain
 	/**
 	 * function for validation of file
 	 *
-	 * @param   string  $uploaded_file  uploaded_file
-	 * @param   string  $file           file name
-	 * @param   string  $error          error
-	 * @param   integer  $index         index
+	 * @param   string   $uploaded_file  uploaded_file
+	 * @param   string   $file           file name
+	 * @param   string   $error          error
+	 * @param   integer  $index          index
 	 *
 	 * @return  boolean
 	 */
-	function validate($uploaded_file, $file, $error, $index)
+	public function validate($uploaded_file, $file, $error, $index)
 	{
 		if ($error)
 		{
@@ -1175,20 +1348,24 @@ class ichatmain
 
 			return false;
 		}
+
 		$content_length = $this->fix_integer_overflow(intval($_SERVER['CONTENT_LENGTH']));
 		$post_max_size  = $this->get_config_bytes(ini_get('post_max_size'));
+
 		if ($post_max_size && ($content_length > $post_max_size))
 		{
 			$file->error = $this->get_error_message('post_max_size');
 
 			return false;
 		}
+
 		if (!preg_match($this->options['accept_file_types'], $file->name))
 		{
 			$file->error = $this->get_error_message('accept_file_types');
 
 			return false;
 		}
+
 		if ($uploaded_file && is_uploaded_file($uploaded_file))
 		{
 			$file_size = $this->get_file_size($uploaded_file);
@@ -1197,6 +1374,7 @@ class ichatmain
 		{
 			$file_size = $content_length;
 		}
+
 		if ($this->options['max_file_size'] && ($file_size > $this->options['max_file_size'] || $file->size > $this->options['max_file_size']))
 		{
 			$file->error = $this->get_error_message('max_file_size');
@@ -1228,18 +1406,21 @@ class ichatmain
 
 				return false;
 			}
+
 			if ($this->options['max_height'] && $img_height > $this->options['max_height'])
 			{
 				$file->error = $this->get_error_message('max_height');
 
 				return false;
 			}
+
 			if ($this->options['min_width'] && $img_width < $this->options['min_width'])
 			{
 				$file->error = $this->get_error_message('min_width');
 
 				return false;
 			}
+
 			if ($this->options['min_height'] && $img_height < $this->options['min_height'])
 			{
 				$file->error = $this->get_error_message('min_height');
@@ -1254,12 +1435,12 @@ class ichatmain
 	/**
 	 * function for handle_form_data
 	 *
-	 * @param   string  $file   file name
+	 * @param   string   $file   file name
 	 * @param   integer  $index  index
 	 *
 	 * @return  void
 	 */
-	function handle_form_data($file, $index)
+	public function handle_form_data($file, $index)
 	{
 		// Handle form data, e.g. $_REQUEST['description'][$index]
 	}
@@ -1269,7 +1450,7 @@ class ichatmain
 	 *
 	 * @return  some value
 	 */
-	function get_user_path()
+	public function get_user_path()
 	{
 		if ($this->options['user_dirs'])
 		{
@@ -1284,7 +1465,7 @@ class ichatmain
 	 *
 	 * @return  integer
 	 */
-	function get_user_id()
+	public function get_user_id()
 	{
 		@session_start();
 
@@ -1298,10 +1479,9 @@ class ichatmain
 	 *
 	 * @return  array
 	 */
-	function upcount_name($name)
+	public function upcount_name($name)
 	{
-		return preg_replace_callback('/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/',
-			array($this, 'upcount_name_callback'), $name, 1);
+		return preg_replace_callback('/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/', array($this, 'upcount_name_callback'), $name, 1);
 	}
 
 	/**
@@ -1311,7 +1491,7 @@ class ichatmain
 	 *
 	 * @return  mixed
 	 */
-	function upcount_name_callback($matches)
+	public function upcount_name_callback($matches)
 	{
 		$index = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
 		$ext   = isset($matches[2]) ? $matches[2] : '';
@@ -1326,7 +1506,7 @@ class ichatmain
 	 *
 	 * @return  [type]        [description]
 	 */
-	function get_query_separator($url)
+	public function get_query_separator($url)
 	{
 		return strpos($url, '?') === false ? '?' : '&';
 	}
@@ -1335,7 +1515,7 @@ class ichatmain
 	 * function for get_download_url
 	 *
 	 * @param   string  $file_name  file_name
-	 * @param   float  $version    version
+	 * @param   float   $version    version
 	 *
 	 * @return  $url
 	 */
@@ -1346,6 +1526,7 @@ class ichatmain
 			$url = $this->options['script_url']
 				. $this->get_query_separator($this->options['script_url'])
 				. 'file=' . rawurlencode($file_name);
+
 			if ($version)
 			{
 				$url .= '&version=' . rawurlencode($version);
@@ -1353,6 +1534,7 @@ class ichatmain
 
 			return $url . '&download=1';
 		}
+
 		$version_path = empty($version) ? '' : rawurlencode($version) . '/';
 
 		return $this->options['upload_url'] . $this->get_user_path()
@@ -1360,20 +1542,24 @@ class ichatmain
 	}
 
 	/**
-	 * function for set_file_delete_properties
+	 * function set_file_delete_properties
 	 *
-	 * @param  void
+	 * @param   [type]  $file  file
+	 *
+	 * @return void
 	 */
-	function set_file_delete_properties($file)
+	public function set_file_delete_properties($file)
 	{
 		$file->delete_url  = $this->options['script_url']
 			. $this->get_query_separator($this->options['script_url'])
 			. 'file=' . rawurlencode($file->name);
 		$file->delete_type = $this->options['delete_type'];
+
 		if ($file->delete_type !== 'DELETE')
 		{
 			$file->delete_url .= '&_method=DELETE';
 		}
+
 		if ($this->options['access_control_allow_credentials'])
 		{
 			$file->delete_with_credentials = true;
@@ -1388,7 +1574,7 @@ class ichatmain
 	 *
 	 * @return  some value
 	 */
-	function get_file_size($file_path, $clear_stat_cache = false)
+	public function get_file_size($file_path, $clear_stat_cache = false)
 	{
 		if ($clear_stat_cache)
 		{
@@ -1401,13 +1587,14 @@ class ichatmain
 	/**
 	 * function for check is_valid_file_object
 	 *
-	 * @param   string   $file_name  file name
+	 * @param   string  $file_name  file name
 	 *
 	 * @return  boolean
 	 */
-	function is_valid_file_object($file_name)
+	public function is_valid_file_object($file_name)
 	{
 		$file_path = $this->get_upload_path($file_name);
+
 		if (is_file($file_path) && $file_name[0] !== '.')
 		{
 			return true;
@@ -1423,7 +1610,7 @@ class ichatmain
 	 *
 	 * @return  null
 	 */
-	function get_file_object($file_name)
+	public function get_file_object($file_name)
 	{
 		if ($this->is_valid_file_object($file_name))
 		{
@@ -1433,6 +1620,7 @@ class ichatmain
 				$this->get_upload_path($file_name)
 			);
 			$file->url  = $this->get_download_url($file->name);
+
 			foreach ($this->options['image_versions'] as $version => $options)
 			{
 				if (!empty($version))
@@ -1463,15 +1651,13 @@ class ichatmain
 	function get_file_objects($iteration_method = 'get_file_object')
 	{
 		$upload_dir = $this->get_upload_path();
+
 		if (!is_dir($upload_dir))
 		{
 			return array();
 		}
 
-		return array_values(array_filter(array_map(
-			array($this, $iteration_method),
-			scandir($upload_dir)
-		)));
+		return array_values(array_filter(array_map(array($this, $iteration_method), scandir($upload_dir))));
 	}
 
 	/**
@@ -1479,7 +1665,7 @@ class ichatmain
 	 *
 	 * @return  integer
 	 */
-	function count_file_objects()
+	public function count_file_objects()
 	{
 		return count($this->get_file_objects('is_valid_file_object'));
 	}
@@ -1488,36 +1674,43 @@ class ichatmain
 	 * function for create_scaled_image
 	 *
 	 * @param   string  $file_name  name of file
-	 * @param   float  $version    version
-	 * @param   array  $options    options
+	 * @param   float   $version    version
+	 * @param   array   $options    options
 	 *
 	 * @return  $success
 	 */
-	function create_scaled_image($file_name, $version, $options)
+	public function create_scaled_image($file_name, $version, $options)
 	{
 		$file_path = $this->get_upload_path($file_name);
+
 		if (!empty($version))
 		{
 			$version_dir = $this->get_upload_path(null, $version);
+
 			if (!is_dir($version_dir))
 			{
 				mkdir($version_dir, $this->options['mkdir_mode'], true);
 			}
+
 			$new_file_path = $version_dir . '/' . $file_name;
 		}
 		else
 		{
 			$new_file_path = $file_path;
 		}
+
 		list($img_width, $img_height) = @getimagesize($file_path);
+
 		if (!$img_width || !$img_height)
 		{
 			return false;
 		}
+
 		$scale = min(
 			$options['max_width'] / $img_width,
 			$options['max_height'] / $img_height
 		);
+
 		if ($scale >= 1)
 		{
 			if ($file_path !== $new_file_path)
@@ -1527,9 +1720,11 @@ class ichatmain
 
 			return true;
 		}
+
 		$new_width  = $img_width * $scale;
 		$new_height = $img_height * $scale;
 		$new_img    = @imagecreatetruecolor($new_width, $new_height);
+
 		switch (strtolower(substr(strrchr($file_name, '.'), 1)))
 		{
 			case 'jpg':
@@ -1557,6 +1752,7 @@ class ichatmain
 			default:
 				$src_img = null;
 		}
+
 		$success = $src_img && @imagecopyresampled(
 					$new_img,
 					$src_img,
@@ -1566,6 +1762,7 @@ class ichatmain
 					$img_width,
 					$img_height
 				) && $write_image($new_img, $new_file_path, $image_quality);
+
 		// Free up memory (imagedestroy does not delete files):
 		@imagedestroy($src_img);
 		@imagedestroy($new_img);
@@ -1580,7 +1777,7 @@ class ichatmain
 	 *
 	 * @return  [type]
 	 */
-	function get_error_message($error)
+	public function get_error_message($error)
 	{
 		return array_key_exists($error, $this->error_messages) ?
 			$this->error_messages[$error] : $error;
@@ -1593,10 +1790,11 @@ class ichatmain
 	 *
 	 * @return  integer val
 	 */
-	function get_config_bytes($val)
+	public function get_config_bytes($val)
 	{
 		$val  = trim($val);
 		$last = strtolower($val[strlen($val) - 1]);
+
 		switch ($last)
 		{
 			case 'g':
@@ -1609,6 +1807,7 @@ class ichatmain
 
 		return $this->fix_integer_overflow($val);
 	}
+
 	/**
 	 * function for orient image
 	 *
@@ -1616,23 +1815,29 @@ class ichatmain
 	 *
 	 * @return  $success
 	 */
-	function orient_image($file_path)
+	public function orient_image($file_path)
 	{
 		if (!function_exists('exif_read_data'))
 		{
 			return false;
 		}
+
 		$exif = @exif_read_data($file_path);
+
 		if ($exif === false)
 		{
 			return false;
 		}
+
 		$orientation = intval(@$exif['Orientation']);
+
 		if (!in_array($orientation, array(3, 6, 8)))
 		{
 			return false;
 		}
+
 		$image = @imagecreatefromjpeg($file_path);
+
 		switch ($orientation)
 		{
 			case 3:
@@ -1647,12 +1852,15 @@ class ichatmain
 			default:
 				return false;
 		}
+
 		$success = imagejpeg($image, $file_path);
+
 		// Free up memory (imagedestroy does not delete files):
 		@imagedestroy($image);
 
 		return $success;
 	}
+
 	/**
 	 * function for read a file
 	 *
@@ -1660,11 +1868,10 @@ class ichatmain
 	 *
 	 * @return   string $file_path
 	 */
-	function readfile($file_path)
+	public function readfile($file_path)
 	{
 		return readfile($file_path);
 	}
-
 
 	/**
 	 * body function
@@ -1673,7 +1880,7 @@ class ichatmain
 	 *
 	 * @return  string
 	 */
-	function body($str)
+	public function body($str)
 	{
 		echo $str;
 	}
@@ -1685,7 +1892,7 @@ class ichatmain
 	 *
 	 * @return  string  $str
 	 */
-	function header($str)
+	public function header($str)
 	{
 		header($str);
 	}
@@ -1698,31 +1905,37 @@ class ichatmain
 	 *
 	 * @return  array  jsonarray
 	 */
-	function generate_response($content, $print_response = true)
+	public function generate_response($content, $print_response = true)
 	{
 		if ($print_response)
 		{
 			$json     = json_encode($content);
 			$redirect = isset($_REQUEST['redirect']) ?
 				stripslashes($_REQUEST['redirect']) : null;
+
 			if ($redirect)
 			{
 				$this->header('Location: ' . sprintf($redirect, rawurlencode($json)));
 
 				return;
 			}
+
 			$this->head();
+
 			if (isset($_SERVER['HTTP_CONTENT_RANGE']))
 			{
 				$files = isset($content[$this->options['param_name']]) ?
 					$content[$this->options['param_name']] : null;
+
 				if ($files && is_array($files) && is_object($files[0]) && $files[0]->size)
 				{
 					$this->header('Range: 0-' . ($this->fix_integer_overflow(intval($files[0]->size)) - 1));
 				}
 			}
+
 			$this->body($json);
 		}
+
 		$this->jsonarray['code']  = 200;
 		$this->jsonarray['files'] = $content['files'];
 
@@ -1734,7 +1947,7 @@ class ichatmain
 	 *
 	 * @return  boolean
 	 */
-	function get_version_param()
+	public function get_version_param()
 	{
 		return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
 	}
@@ -1744,7 +1957,7 @@ class ichatmain
 	 *
 	 * @return  [type]
 	 */
-	function get_file_name_param()
+	public function get_file_name_param()
 	{
 		return isset($_GET['file']) ? basename(stripslashes($_GET['file'])) : null;
 	}
@@ -1756,7 +1969,7 @@ class ichatmain
 	 *
 	 * @return  string
 	 */
-	function get_file_type($file_path)
+	public function get_file_type($file_path)
 	{
 		switch (strtolower(pathinfo($file_path, PATHINFO_EXTENSION)))
 		{
@@ -1777,7 +1990,7 @@ class ichatmain
 	 *
 	 * @return  header
 	 */
-	function download()
+	public function download()
 	{
 		if (!$this->options['download_via_php'])
 		{
@@ -1785,10 +1998,13 @@ class ichatmain
 
 			return;
 		}
+
 		$file_name = $this->get_file_name_param();
+
 		if ($this->is_valid_file_object($file_name))
 		{
 			$file_path = $this->get_upload_path($file_name, $this->get_version_param());
+
 			if (is_file($file_path))
 			{
 				if (!preg_match($this->options['inline_file_types'], $file_name))
@@ -1805,6 +2021,7 @@ class ichatmain
 					$this->header('Content-Type: ' . $this->get_file_type($file_path));
 					$this->header('Content-Disposition: inline; filename="' . $file_name . '"');
 				}
+
 				$this->header('Content-Length: ' . $this->get_file_size($file_path));
 				$this->header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', filemtime($file_path)));
 				$this->readfile($file_path);
@@ -1817,12 +2034,11 @@ class ichatmain
 	 *
 	 * @return  void
 	 */
-	function send_content_type_header()
+	public function send_content_type_header()
 	{
 		$this->header('Vary: Accept');
-		if (isset($_SERVER['HTTP_ACCEPT']) &&
-			(strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
-		)
+
+		if (isset($_SERVER['HTTP_ACCEPT']) && (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false))
 		{
 			$this->header('Content-type: application/json');
 		}
@@ -1837,15 +2053,12 @@ class ichatmain
 	 *
 	 * @return  void
 	 */
-	function send_access_control_headers()
+	public function send_access_control_headers()
 	{
 		$this->header('Access-Control-Allow-Origin: ' . $this->options['access_control_allow_origin']);
-		$this->header('Access-Control-Allow-Credentials: '
-			. ($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
-		$this->header('Access-Control-Allow-Methods: '
-			. implode(', ', $this->options['access_control_allow_methods']));
-		$this->header('Access-Control-Allow-Headers: '
-			. implode(', ', $this->options['access_control_allow_headers']));
+		$this->header('Access-Control-Allow-Credentials: ' . ($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
+		$this->header('Access-Control-Allow-Methods: ' . implode(', ', $this->options['access_control_allow_methods']));
+		$this->header('Access-Control-Allow-Headers: ' . implode(', ', $this->options['access_control_allow_headers']));
 	}
 
 	/**
@@ -1858,12 +2071,15 @@ class ichatmain
 		$this->header('Pragma: no-cache');
 		$this->header('Cache-Control: no-store, no-cache, must-revalidate');
 		$this->header('Content-Disposition: inline; filename="files.json"');
+
 		// Prevent Internet Explorer from MIME-sniffing the content-type:
 		$this->header('X-Content-Type-Options: nosniff');
+
 		if ($this->options['access_control_allow_origin'])
 		{
 			$this->send_access_control_headers();
 		}
+
 		$this->send_content_type_header();
 	}
 
@@ -1880,12 +2096,13 @@ class ichatmain
 		{
 			return $this->download();
 		}
+
 		$file_name = $this->get_file_name_param();
+
 		if ($file_name)
 		{
 			$response = array(
-				substr($this->options['param_name'], 0, -1) => $this->get_file_object($file_name)
-			);
+				substr($this->options['param_name'], 0, -1) => $this->get_file_object($file_name));
 		}
 		else
 		{
@@ -1896,6 +2113,7 @@ class ichatmain
 
 		return $this->generate_response($response, $print_response);
 	}
+
 	/**
 	 * function for delete a file
 	 *
@@ -1908,6 +2126,7 @@ class ichatmain
 		$file_name = $this->get_file_name_param();
 		$file_path = $this->get_upload_path($file_name);
 		$success   = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
+
 		if ($success)
 		{
 			foreach ($this->options['image_versions'] as $version => $options)
@@ -1915,6 +2134,7 @@ class ichatmain
 				if (!empty($version))
 				{
 					$file = $this->get_upload_path($file_name, $version);
+
 					if (is_file($file))
 					{
 						unlink($file);
@@ -1933,7 +2153,7 @@ class ichatmain
 	 *
 	 * @return  string text
 	 */
-	function sanitize($text)
+	public function sanitize($text)
 	{
 		$text = str_replace("\n\r", "\n", $text);
 		$text = str_replace("\r\n", "\n", $text);
@@ -1956,12 +2176,14 @@ class ichatmain
 		$template    = $params->get('template');
 		$smiliesfile = JFile::read(JPATH_SITE . '/components/com_jbolo/jbolo/assets/smileys.txt');
 		$smilies     = explode("\n", $smiliesfile);
+
 		foreach ($smilies as $smiley)
 		{
 			if (trim($smiley) == '')
 			{
 				continue;
 			}
+
 			$pcs    = explode('=', $smiley);
 			$img    = JURI::base() . 'components/com_jbolo/jbolo/view/' . $template . '/images/smileys/default/' . $pcs[1];
 			$imgsrc = "<img src=\"{$img}\" border=\"0\" />";
@@ -1972,7 +2194,8 @@ class ichatmain
 	}
 
 	/**
-	 * @uses    to get users to invite for group chat based on search
+	 * used to get users to invite for group chat based on search
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -1984,11 +2207,12 @@ class ichatmain
 	 *    }
 	 * @return array jsonarray
 	 */
-	function getAutoCompleteUserList()
+	public function getAutoCompleteUserList()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		$uid = $this->IJUserID;
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -1996,7 +2220,9 @@ class ichatmain
 
 			return false;
 		}
+
 		$filterText = IJReq::getTaskData('filterText');
+
 		if (!$filterText)
 		{
 			IJReq::setResponse(400);
@@ -2004,7 +2230,8 @@ class ichatmain
 
 			return false;
 		}
-		//addslashes, user might enter anything to search
+
+		// Addslashes, user might enter anything to search
 		$filterText               = addslashes($filterText);
 		$data                     = jbolousersHelper::getAutoCompleteUserList($uid, $filterText);
 		$total                    = count($data);
@@ -2015,7 +2242,8 @@ class ichatmain
 	}
 
 	/**
-	 * @uses    to invite users to join group chat
+	 * used to invite users to join group chat
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -2028,12 +2256,13 @@ class ichatmain
 	 *    }
 	 * @return array jsonarray
 	 */
-	function addNodeUser()
+	public function addNodeUser()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$uid = $this->IJUserID;
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -2041,8 +2270,10 @@ class ichatmain
 
 			return false;
 		}
+
 		$nid = IJReq::getTaskData('nid', 0, 'int');
 		$pid = IJReq::getTaskData('pid', 0, 'int');
+
 		if (!$nid)
 		{
 			IJReq::setResponse(400);
@@ -2063,8 +2294,9 @@ class ichatmain
 		$maxChatUsers = $params->get('maxChatUsers');
 		$nodesHelper  = new nodesHelper;
 
-		//validate max allowed users for group chat
+		// Validate max allowed users for group chat
 		$activeNodeParticipantsCount = $nodesHelper->getActiveNodeParticipantsCount($nid);
+
 		if ($activeNodeParticipantsCount >= $maxChatUsers)
 		{
 			IJReq::setResponse(400);
@@ -2072,27 +2304,36 @@ class ichatmain
 
 			return false;
 		}
-		//validate if this user is participant of this node
+
+		// Validate if this user is participant of this node
 		$isNodeParticipant = $nodesHelper->isNodeParticipant($uid, $nid);
-		if ($isNodeParticipant == 2)//error handling for inactive user
+
+		// Error handling for inactive user
+		if ($isNodeParticipant == 2)
 		{
 			IJReq::setResponse(400);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_INACTIVE_MEMBER_MSG'));
 
 			return false;
 		}
-		if (!$isNodeParticipant)//error handling for not member/unauthorized access to this group chat
+
+		// Error handling for not member/unauthorized access to this group chat
+		if (!$isNodeParticipant)
 		{
 			IJReq::setResponse(400);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_NON_MEMBER_MSG'));
 
 			return false;
 		}
-		//get node type
-		$nodeType = $nodesHelper->getNodeType($nid);//important
-		if ($nodeType == 1)//if adding a new user to 1to1 chat
+
+		// Get node type
+		// Important
+		$nodeType = $nodesHelper->getNodeType($nid);
+
+		// If adding a new user to 1to1 chat
+		if ($nodeType == 1)
 		{
-			//create a new node for this group chat
+			// Create a new node for this group chat
 			$myobj        = new stdclass;
 			$myobj->title = null;
 			$myobj->type  = 2;
@@ -2102,17 +2343,17 @@ class ichatmain
 			$this->db->stderr();
 			$new_node_id = $this->db->insertid();
 
-			if ($new_node_id)//when new node is created
+			// When new node is created
+			if ($new_node_id)
 			{
-				//get old node users
+				// Get old node users
 				$query = "SELECT user_id
 				FROM #__jbolo_node_users AS nu
 				WHERE node_id=" . $nid . "";
 				$this->db->setQuery($query);
 				$old_node_users = $this->db->loadColumn();
-				//print_r($old_node_users);
 
-				//add participants from old node(i.e. current 1to1 node) to newly created group chat node
+				// Add participants from old node(i.e. current 1to1 node) to newly created group chat node
 				for ($i = 0; $i < count($old_node_users); $i++)
 				{
 					$myobj          = new stdclass;
@@ -2120,57 +2361,67 @@ class ichatmain
 					$myobj->user_id = $old_node_users[$i];
 					$myobj->status  = 1;
 					$this->db->insertObject('#__jbolo_node_users', $myobj);
+
 					if ($uid != $myobj->user_id)
 					{
 						$first_one2one_chat_user = $myobj->user_id;
 					}
 				}
 
-				//after adding existing users from 1to1 chat, add new user to new node
+				// After adding existing users from 1to1 chat, add new user to new node
 				$myobj          = new stdclass;
 				$myobj->node_id = $new_node_id;
 				$myobj->user_id = $pid;
 				$myobj->status  = 1;
 				$this->db->insertObject('#__jbolo_node_users', $myobj);
 
-				//push welcome messages for actor and others
+				// Push welcome messages for actor and others
 				$this->pushWelcomeMsgBroadcast('gbc', $new_node_id, 0, 1, $uid);
-				//push invited messages for actor and others
-				//invited first user
+
+				// Push invited messages for actor and others
+				// Invited first user
 				$this->pushInvitedMsgBroadcast('gbc', $new_node_id, 0, 1, $uid, $first_one2one_chat_user);
-				//the added user
+
+				// The added user
 				$this->pushInvitedMsgBroadcast('gbc', $new_node_id, 0, 1, $uid, $pid);
-				//push who has joined messages to actor and others
+
+				// Push who has joined messages to actor and others
 				$this->pushJoinedMsgBroadcast('gbc', $new_node_id, 0, 1, $uid);
 			}
 		}
-		else if ($nodeType == 2)//called from group chat
+		// Called from group chat
+		elseif ($nodeType == 2)
 		{
-			//check if user being added is already participant
+			// Check if user being added is already participant
 			$isNodeParticipant = $nodesHelper->isNodeParticipant($pid, $nid);
-			$new_node_id       = $nid;//@TODO chk /test
+
+			// @TODO chk /test
+			$new_node_id       = $nid;
+
 			if (!$isNodeParticipant)
 			{
-				//after adding existing users from 1to1 chat add new user
+				// After adding existing users from 1to1 chat add new user
 				$myobj          = new stdclass;
 				$myobj->node_id = $nid;
 				$myobj->user_id = $pid;
 				$myobj->status  = 1;
 				$this->db->insertObject('#__jbolo_node_users', $myobj);
 
-				//push welcome message only to newly added user
+				// Push welcome message only to newly added user
 				$particularUID = $pid;
 				$this->pushWelcomeMsgBroadcast('gbc', $new_node_id, $particularUID, 0, $uid);
-				//push invited messages for actor and others
-				//the added user
-				$this->pushInvitedMsgBroadcast('gbc', $new_node_id, 0, 1, $uid, $pid);
-				//push who has joined messages to actor and others
-				$this->pushJoinedMsgBroadcast('gbc', $new_node_id, $particularUID, 0, $uid);
 
+				// Push invited messages for actor and others
+				// The added user
+				$this->pushInvitedMsgBroadcast('gbc', $new_node_id, 0, 1, $uid, $pid);
+
+				// Push who has joined messages to actor and others
+				$this->pushJoinedMsgBroadcast('gbc', $new_node_id, $particularUID, 0, $uid);
 			}
-			elseif ($isNodeParticipant == 2)//re adding user
+			// Re adding user
+			elseif ($isNodeParticipant == 2)
 			{
-				//re-add existing user
+				// Re-add existing user
 				$query = "UPDATE #__jbolo_node_users
 				SET status=1
 				WHERE node_id=" . $nid . "
@@ -2179,16 +2430,18 @@ class ichatmain
 				$this->db->setQuery($query);
 				$this->db->execute();
 
-				//use broadcast helper
+				// Use broadcast helper
 				$chatBroadcastHelper = new chatBroadcastHelper;
 
-				//push welcome message only to newly added user
+				// Push welcome message only to newly added user
 				$particularUID = $pid;
 				$this->pushWelcomeMsgBroadcast('gbc', $new_node_id, $particularUID, 0, $uid);
-				//push invited messages for actor and others
-				//the added user
+
+				// Push invited messages for actor and others
+				// The added user
 				$this->pushInvitedMsgBroadcast('gbc', $new_node_id, 0, 1, $uid, $pid);
-				//push who has joined messages to actor and others
+
+				// Push who has joined messages to actor and others
 				$this->pushJoinedMsgBroadcast('gbc', $new_node_id, $particularUID, 0, $uid);
 			}
 		}
@@ -2201,47 +2454,55 @@ class ichatmain
 		$this->jsonarray['code']         = 200;
 		$this->jsonarray['nodeinfo']     = $node_d;
 		$this->jsonarray['nodeinfo']->wt = $nodesHelper->getNodeTitle($new_node_id, $pid, $this->jsonarray['nodeinfo']->ctyp);
-		//get chatbox status
+
+		// Get chatbox status
 		$this->jsonarray['nodeinfo']->ns = $nodesHelper->getNodeStatus($this->jsonarray['nodeinfo']->nid, $pid, $this->jsonarray['nodeinfo']->ctyp);
 		$user                            = JFactory::getUser($pid);
 
-		//add node data to session
+		// Add node data to session
 		$d            = 0;
 		$participants = $nodesHelper->getNodeParticipants($new_node_id, $pid);
-		if (isset($_SESSION['jbolo']['nodes']))//check if node array is set
+
+		// Check if node array is set
+		if (isset($_SESSION['jbolo']['nodes']))
 		{
 			$node_ids = array();
+
 			for ($d = 0; $d < count($_SESSION['jbolo']['nodes']); $d++)
 			{
 				$node_info['nodeinfo'] = array();
+
 				if (isset($_SESSION['jbolo']['nodes'][$d]))
 				{
 					$node_ids[$d] = $_SESSION['jbolo']['nodes'][$d]['nodeinfo']->nid;
 				}
 			}
-			//if entry for node found in session, update it
+
+			// If entry for node found in session, update it
 			if (in_array($this->jsonarray['nodeinfo']->nid, $node_ids))
 			{
-
 			}
-			else//if node data not session, push new nodedata at end
+			// If node data not session, push new nodedata at end
+			else
 			{
 				$_SESSION['jbolo']['nodes'][$d]['nodeinfo'] = $this->jsonarray['nodeinfo'];
-				//push node participants
-				$_SESSION['jbolo']['nodes'][$d]['participants'] = $participants['participants'];//??//
+
+				// Push node participants
+				$_SESSION['jbolo']['nodes'][$d]['participants'] = $participants['participants'];
 			}
 		}
 		else
 		{
 			$_SESSION['jbolo']['nodes'][0]['nodeinfo']     = $this->jsonarray['nodeinfo'];
-			$_SESSION['jbolo']['nodes'][0]['participants'] = $participants['participants'];//??//
+			$_SESSION['jbolo']['nodes'][0]['participants'] = $participants['participants'];
 		}
 
 		return $this->jsonarray;
 	}
 
 	/**
-	 * @uses    to change status of particular user
+	 * used to change status of particular user
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -2254,9 +2515,10 @@ class ichatmain
 	 *    }
 	 * @return array jsonarray
 	 */
-	function changeStatus()
+	public function changeStatus()
 	{
 		$uid = $this->IJUserID;
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -2264,8 +2526,10 @@ class ichatmain
 
 			return false;
 		}
+
 		$sts  = IJReq::getTaskData('status', 0, 'int');
 		$stsm = IJReq::getTaskData('statusMsg');
+
 		if ($sts >= 5 || $sts < 0)
 		{
 			IJReq::setResponse(400);
@@ -2273,21 +2537,28 @@ class ichatmain
 
 			return false;
 		}
+
 		$stsm  = addslashes(strip_tags($stsm));
 		$query = "UPDATE #__jbolo_users SET status_msg='" . $stsm . "'";
+
 		if ($sts)
-		{//update chat sts only if it is there in posted data
+		{
+			// Update chat sts only if it is there in posted data
 			$query .= " , chat_status=" . $sts;
 		}
+
 		$query .= " WHERE user_id=" . $uid;
 		$this->db->setQuery($query);
-		if (!$this->db->execute())//error updating
+
+		// Error updating
+		if (!$this->db->execute())
 		{
 			IJReq::setResponse(500);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_DB_ERROR'));
 
 			return false;
 		}
+
 		$this->jsonarray['code'] = 200;
 
 		return $this->jsonarray;
@@ -2298,13 +2569,13 @@ class ichatmain
 	 *
 	 * @param   string   $msgType        message type
 	 * @param   integer  $nid            node id
+	 * @param   [type]   $uid            uid
 	 * @param   integer  $particularUID  particularUID
 	 * @param   integer  $sendToActor    sendToActor
-	 * @param   [type]   $uid            uid
 	 *
 	 * @return  boolead  true
 	 */
-	function pushWelcomeMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
+	public function pushWelcomeMsgBroadcast($msgType, $nid, $uid, $particularUID = 0, $sendToActor = 0)
 	{
 		$chatBroadcastHelper = new chatBroadcastHelper;
 		$msg                 = JText::_('COM_JBOLO_GC_BC_WELCOME_MSG');
@@ -2318,18 +2589,19 @@ class ichatmain
 	 *
 	 * @param   string   $msgType        message type
 	 * @param   integer  $nid            node id
-	 * @param   integer  $particularUID  particularUID
-	 * @param   integer  $sendToActor    sendToActor
 	 * @param   integer  $uid            uid
 	 * @param   integer  $pid            pid
+	 * @param   integer  $particularUID  particularUID
+	 * @param   integer  $sendToActor    sendToActor
 	 *
 	 * @return  boolean true
 	 */
-	function pushInvitedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid, $pid)
+	public function pushInvitedMsgBroadcast($msgType, $nid, $uid, $pid, $particularUID = 0, $sendToActor = 0)
 	{
 		$chatBroadcastHelper = new chatBroadcastHelper;
 		$params              = JComponentHelper::getParams('com_jbolo');
-		//show username OR name
+
+		// Show username OR name
 		if ($params->get('chatusertitle'))
 		{
 			$msg = $broadcast_msg = JFactory::getUser($uid)->username . ' <i>' . JText::_('COM_JBOLO_GC_INVITED') . ' </i>' . JFactory::getUser($pid)->username;
@@ -2338,6 +2610,7 @@ class ichatmain
 		{
 			$msg = $broadcast_msg = JFactory::getUser($uid)->name . ' <i>' . JText::_('COM_JBOLO_GC_INVITED') . ' </i>' . JFactory::getUser($pid)->name;
 		}
+
 		$chatBroadcastHelper->pushChat($msgType, $nid, $msg, $particularUID, $sendToActor);
 
 		return true;
@@ -2348,30 +2621,34 @@ class ichatmain
 	 *
 	 * @param   string   $msgType        message type
 	 * @param   integer  $nid            node id
+	 * @param   integer  $uid            uid
 	 * @param   integer  $particularUID  particularUID
 	 * @param   integer  $sendToActor    sendToActor
-	 * @param   integer  $uid            uid
 	 *
 	 * @return  boolean true
 	 */
-	function pushJoinedMsgBroadcast($msgType, $nid, $particularUID = 0, $sendToActor = 0, $uid)
+	public function pushJoinedMsgBroadcast($msgType, $nid, $uid, $particularUID = 0, $sendToActor = 0)
 	{
 		$nodesHelper  = new nodesHelper;
 		$participants = $nodesHelper->getActiveNodeParticipants($nid);
-		//use broadcast helper
+
+		// Use broadcast helper
 		$chatBroadcastHelper = new chatBroadcastHelper;
 		$msg                 = "";
+
 		foreach ($participants as $p)
 		{
 			$msg .= $p->name . ' <i>' . JText::_('COM_JBOLO_GC_JOINED') . "</i><br/>";
 		}
+
 		$chatBroadcastHelper->pushChat($msgType, $nid, $msg, $particularUID, $sendToActor);
 
 		return true;
 	}
 
 	/**
-	 * @uses    to get participants online and involved in particular groupchat of particular nodeid
+	 * used to get participants online and involved in particular groupchat of particular nodeid
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -2384,13 +2661,14 @@ class ichatmain
 	 *    }
 	 * @return  array jsonarray
 	 */
-	function getgroupParticipants()
+	public function getgroupParticipants()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$uid = $this->IJUserID;
 		$nid = IJReq::getTaskData('nid', 0, 'int');
+
 		if (!$uid)
 		{
 			IJReq::setResponse(704);
@@ -2398,6 +2676,7 @@ class ichatmain
 
 			return false;
 		}
+
 		if (!$nid)
 		{
 			IJReq::setResponse(400);
@@ -2405,9 +2684,11 @@ class ichatmain
 
 			return false;
 		}
+
 		$integrationsHelper = new integrationsHelper;
 		$nodesHelper        = new nodesHelper;
 		$params             = JComponentHelper::getParams('com_jbolo');
+
 		if ($params->get('chatusertitle'))
 		{
 			$chattitle = 'username';
@@ -2416,8 +2697,10 @@ class ichatmain
 		{
 			$chattitle = 'name';
 		}
+
 		$db = JFactory::getDBO();
-		//get node participants info
+
+		// Get node participants info
 		$query = "SELECT DISTINCT u.id AS uid, u.$chattitle AS uname, u.name, u.username,
 				ju.chat_status AS sts, ju.status_msg AS stsm
 				FROM #__users AS u
@@ -2429,9 +2712,11 @@ class ichatmain
 		$this->db->setQuery($query);
 		$participants = $this->db->loadObjectList();
 		$total        = count($participants);
+
 		foreach ($participants as $pKe => $pVal)
 		{
 			$participant['participants'][$pKe]['userId'] = $pVal->uid;
+
 			if ($params->get('chatusertitle'))
 			{
 				$userName = $pVal->uname;
@@ -2440,19 +2725,25 @@ class ichatmain
 			{
 				$userName = $pVal->name;
 			}
+
 			$participant['participants'][$pKe]['userName']  = $userName;
 			$participant['participants'][$pKe]['statusMsg'] = $pVal->stsm;
 			$onlineStatus                                   = jbolousersHelper::checkOnlineStatus($pVal->uid);
+
 			if ($onlineStatus)
 			{
-				$participant['participants'][$pKe]['status'] = $pVal->sts;//online
+				// Online
+				$participant['participants'][$pKe]['status'] = $pVal->sts;
 			}
 			else
 			{
-				$participant['participants'][$pKe]['status'] = 4;//offline
+				// Offline
+				$participant['participants'][$pKe]['status'] = 4;
 			}
+
 			$participant['participants'][$pKe]['avtr'] = $integrationsHelper->getUserAvatar($pVal->uid);
 		}
+
 		$this->jsonarray['code']  = ($total > 0) ? 200 : 204;
 		$this->jsonarray['total'] = $total;
 		$this->jsonarray['users'] = $participant['participants'];
@@ -2461,7 +2752,8 @@ class ichatmain
 	}
 
 	/**
-	 * @uses    If particular login user wants to leave groupchat for particular nodeid
+	 * If particular login user wants to leave groupchat for particular nodeid
+	 *
 	 * @example the json string will be like, :
 	 *    {
 	 *        "extName":"jbolo",
@@ -2473,12 +2765,13 @@ class ichatmain
 	 *    }
 	 * @return array jsonarray
 	 */
-	function leaveChat()
+	public function leaveChat()
 	{
 		require JPATH_SITE . '/components/com_jbolo/helpers/integrations.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/nodes.php';
 		require JPATH_SITE . '/components/com_jbolo/helpers/chatBroadcast.php';
 		$actorid = $this->IJUserID;
+
 		if (!$actorid)
 		{
 			IJReq::setResponse(704);
@@ -2486,7 +2779,9 @@ class ichatmain
 
 			return false;
 		}
+
 		$nid = IJReq::getTaskData('nid', 0, 'int');
+
 		if (!$nid)
 		{
 			IJReq::setResponse(400);
@@ -2494,26 +2789,33 @@ class ichatmain
 
 			return false;
 		}
+
 		$this->jsonarray = $this->validateNodeParticipant($actorid, $nid);
 		$nodesHelper     = new nodesHelper;
-		$nodeType        = $nodesHelper->getNodeType($nid);//important Coz only group chat can be left
 
-		if ($nodeType == 2)//called from group chat
+		// Important Coz only group chat can be left
+		$nodeType        = $nodesHelper->getNodeType($nid);
+
+		// Called from group chat
+		if ($nodeType == 2)
 		{
-			//mark user as inactive for this group chat
+			// Mark user as inactive for this group chat
 			$query = "UPDATE #__jbolo_node_users
 					SET status=0
 					WHERE node_id=" . $nid . "
 					AND user_id=" . $actorid;
 			$this->db->setQuery($query);
+
 			if (!$this->db->query($query))
 			{
 				echo $this->db->stderr();
 
 				return false;
 			}
+
 			$params = JComponentHelper::getParams('com_jbolo');
-			//show username OR name
+
+			// Show username OR name
 			if ($params->get('chatusertitle'))
 			{
 				$broadcast_msg = JFactory::getUser($actorid)->username . ' <i>' . JText::_('COM_JBOLO_GC_LEFT_CHAT_MSG') . '</i>';
@@ -2522,13 +2824,17 @@ class ichatmain
 			{
 				$broadcast_msg = JFactory::getUser($actorid)->name . ' <i>' . JText::_('COM_JBOLO_GC_LEFT_CHAT_MSG') . '</i>';
 			}
+
 			$chatBroadcastHelper = new chatBroadcastHelper;
-			//send to one who left chat
+
+			// Send to one who left chat
 			$chatBroadcastHelper->pushChat('gbc', $nid, $broadcast_msg, $actorid, 0);
-			//send to all
+
+			// Send to all
 			$chatBroadcastHelper->pushChat('gbc', $nid, $broadcast_msg, 0, 0);
 			$this->jsonarray['code'] = 200;
-			//set message to be sent back to ajax request
+
+			// Set message to be sent back to ajax request
 			$this->jsonarray['lcresponse']->msg = JText::_('COM_JBOLO_YOU') . ' ' . JText::_('COM_JBOLO_GC_LEFT_CHAT_MSG');
 
 			return $this->jsonarray;
@@ -2543,24 +2849,27 @@ class ichatmain
 	 *
 	 * @return  array jsonarray
 	 */
-	function validateNodeParticipant($uid, $nid)
+	public function validateNodeParticipant($uid, $nid)
 	{
 		$this->jsonarray['validate'] = new stdclass;
 		$nodesHelper                 = new nodesHelper;
 		$isNodeParticipant           = $nodesHelper->isNodeParticipant($uid, $nid);
 
-		if ($isNodeParticipant == 1)//active participant
+		// Active participant
+		if ($isNodeParticipant == 1)
 		{
 			return $this->jsonarray;
 		}
-		else if ($isNodeParticipant == 2)//inactive participant (who left chat)
+		// Inactive participant (who left chat)
+		elseif ($isNodeParticipant == 2)
 		{
 			IJReq::setResponse(400);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_INACTIVE_MEMBER_MSG'));
 
 			return false;
 		}
-		else if (!$isNodeParticipant)// 0 - not a valid group chat participant
+		// 0 - not a valid group chat participant
+		elseif (!$isNodeParticipant)
 		{
 			IJReq::setResponse(400);
 			IJReq::setResponseMessage(JText::_('COM_JBOLO_NON_MEMBER_MSG'));
@@ -2579,9 +2888,9 @@ class ichatmain
 	 *
 	 * @return  string  $messages
 	 */
-	function getUnreadMessages($nid, $uid)
+	public function getUnreadMessages($nid, $uid)
 	{
-		//get all unread messages against current node for this user
+		// Get all unread messages against current node for this user
 		$query = "SELECT m.msg_id AS mid,m.from AS fid, m.msg, m.time AS ts, m.msg_type as msgtype
 				 FROM #__jbolo_chat_msgs AS m
 				 LEFT JOIN #__jbolo_chat_msgs_xref AS mx ON mx.msg_id=m.msg_id
@@ -2602,7 +2911,7 @@ class ichatmain
 	 *
 	 * @return  mixed    ichatmain data object on success, false on failure.
 	 */
-	function getBlockedUser($uid)
+	public function getBlockedUser($uid)
 	{
 		$db = JFactory::getDBO();
 
@@ -2622,7 +2931,7 @@ class ichatmain
 	 *
 	 * @return  boolean  ichatmain data object on success, false on failure.
 	 */
-	function getBlockedByUsers($uid)
+	public function getBlockedByUsers($uid)
 	{
 		$db = JFactory::getDBO();
 

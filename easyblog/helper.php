@@ -16,14 +16,14 @@ defined('_JEXEC') or die;
  * @subpackage  easyblog
  * @since       1.0
  */
-class easyblog_helper
+class Easyblog_Helper
 {
 	private $db_helper;
 
 	/**
 	 * constructor
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->db_helper = JFactory::getDBO();
 	}

@@ -14,10 +14,10 @@
  * @subpackage  k2_2.6.5
  * @since       1.0
  */
-
-class k2
+class K2
 {
 	public $classname = "k2";
+
 	public $sessionWhiteList = array('items.items',
 		'items.getitemdetail',
 		'items.TagRelatedItems',
@@ -41,9 +41,9 @@ class k2
 	 *
 	 * @return void
 	 */
-	function init()
+	public function init()
 	{
-		$lang =  JFactory::getLanguage();
+		$lang = JFactory::getLanguage();
 		$lang->load('com_k2');
 		$lang->load('k2', JPATH_COMPONENT_SITE . '/extensions/k2', $lang->getTag(), true);
 	}
@@ -53,10 +53,10 @@ class k2
 	 *
 	 * @return json array
 	 */
-	function getconfig()
+	public function getconfig()
 	{
 		$jsonarray = array();
-		$db        =  JFactory::getDBO();
+		$db        = JFactory::getDBO();
 		$query     = "SELECT value
 				From #__ijoomeradv_k2_config
 				WHERE name='COMMENT_SETTINGS'";
@@ -67,21 +67,23 @@ class k2
 		$jsonarray['isEnableComment'] = ($configVal == 0 && empty($user->id)) ? 0 : 1;
 
 		return $jsonarray;
-
 	}
 
 	/**
-	 * write_configuration function
+	 * write_configuration
 	 *
-	 * @return void
+	 * @param   [type]  &$d  d
+	 *
+	 * @return  void
 	 */
-	function write_configuration(&$d)
+	public function write_configuration(&$d)
 	{
 		$db    = JFactory::getDbo();
 		$query = 'SELECT *
 				  FROM #__ijoomeradv_k2_config';
 		$db->setQuery($query);
 		$my_config_array = $db->loadObjectList();
+
 		foreach ($my_config_array as $ke => $val)
 		{
 			if (isset($d[$val->name]))
@@ -96,13 +98,14 @@ class k2
 	}
 
 	/**
-	 * prepareHTML function
+	 * function prepareHTML
 	 *
-	 * @return void
+	 * @param   [type]  &$config  configuration
+	 *
+	 * @return  void
 	 */
-	function prepareHTML(&$config)
+	public function prepareHTML(&$config)
 	{
-		//k2 related html tags
 	}
 }
 
@@ -113,14 +116,24 @@ class k2
  * @subpackage  k2_2.6.5
  * @since       1.0
  */
-class k2_menu
+class K2_Menu
 {
+	/**
+	 * function getRequiredInput
+	 *
+	 * @param   string  $extension    extension
+	 * @param   string  $extTask      extension task
+	 * @param   array   $menuoptions  menuoption
+	 *
+	 * @return array/boolean  true on success and false on failure and Jsonarray
+	 */
 	public function getRequiredInput($extension, $extTask, $menuoptions)
 	{
 		require_once JPATH_ADMINISTRATOR . '/components/com_k2/models/categories.php';
-		$class1      = new K2ModelCategories();
+		$class1      = new K2ModelCategories;
 		$menuoptions = json_decode($menuoptions, true);
 		$db          = JFactory::getDbo();
+
 		switch ($extTask)
 		{
 			case 'items':
@@ -138,7 +151,7 @@ class k2_menu
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
 
 				require_once JPATH_ADMINISTRATOR . '/components/com_k2/models/categories.php';
-				$class = new K2ModelCategories();
+				$class = new K2ModelCategories;
 				$items = $class->categoriesTree();
 
 				$html = '<fieldset class="panelform">
@@ -151,6 +164,7 @@ class k2_menu
 				foreach ($items as $key1 => $value1)
 				{
 					$selected = '';
+
 					for ($j = 0; $j < count($menuoptions['remoteUse']['catId']); $j++)
 					{
 						if ($menuoptions['remoteUse']['catId'][$j] == $value1->value)
@@ -158,6 +172,7 @@ class k2_menu
 							$selected = 'selected';
 						}
 					}
+
 					$html .= '<option value="' . $value1->value . '" ' . $selected . '>' . $value1->text . '</option>';
 				}
 
@@ -198,10 +213,11 @@ class k2_menu
 				$html .= '<select name="jform[request][pagelayout]" id="jform_request_pagelayout" ' . $disable . '>';
 
 				$values = array("simpleList"    => "Simple List",
-				                "scrollingGrid" => "Scrolling Grid",
-				                "news"          => "News",
-				                "directory"     => "Directory",
-				                "catalog"       => "Catalog");
+								"scrollingGrid" => "Scrolling Grid",
+								"news"          => "News",
+								"directory"     => "Directory",
+								"catalog"       => "Catalog");
+
 				foreach ($values as $plk => $plv)
 				{
 					$select = ($menuoptions['remoteUse']['pageLayout'] == $plk) ? 'selected="selected"' : '';
@@ -217,30 +233,31 @@ class k2_menu
 				$html .= '<select name="jform[request][itemordering]" id="jform_request_itemordering" ' . $disable . '>';
 
 				$itemArray = array('Inherit from category'                 => "",
-				                   'Oldest First(by date created)'         => "date",
-				                   'Most recent First(by date created)'    => "rdate",
-				                   'Most recent first (by date published)' => "publishUp",
-				                   'Title - alphabetical'                  => "alpha",
-				                   'Title - reverse alphabetical'          => "ralpha",
-				                   'Ordering'                              => "order",
-				                   'Ordering reverse'                      => "rorder",
-				                   'Featured first'                        => "featured",
-				                   'Most popular'                          => "hits",
-				                   'Highest rated'                         => "best",
-				                   'Latest modified'                       => "modified",
-				                   'Random'                                => "rand"
+										'Oldest First(by date created)'         => "date",
+										'Most recent First(by date created)'    => "rdate",
+										'Most recent first (by date published)' => "publishUp",
+										'Title - alphabetical'                  => "alpha",
+										'Title - reverse alphabetical'          => "ralpha",
+										'Ordering'                              => "order",
+										'Ordering reverse'                      => "rorder",
+										'Featured first'                        => "featured",
+										'Most popular'                          => "hits",
+										'Highest rated'                         => "best",
+										'Latest modified'                       => "modified",
+										'Random'                                => "rand"
 				);
+
 				foreach ($itemArray as $k => $v)
 				{
 					$select = ($menuoptions['remoteUse']['ordering'] == $v) ? 'selected' : '';
 					$html .= '<option ' . $select . ' value="' . $v . '">' . $k . '</option>';
 				}
+
 				$html .= '</select></div>';
 				$html .= '</fieldset>';
 
 				return $html;
 				break;
-
 
 			case 'ItemDetail':
 				$queryy = "SELECT i.title
@@ -263,10 +280,12 @@ class k2_menu
 
 				// Add the script to the document head.
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
+
 				// Setup variables for display.
 				$html = array();
 
 				$link = 'index.php?option=com_k2&view=items&task=element&tmpl=component&object=jform[request][id];';
+
 				// The current user display field.
 				$html[] = '<label id="jform_request_id-lbl" for="jform_request_id">' . JText::_('COM_IJOOMERADV_SELECT_ITEM') . '<span class="star">&nbsp;*</span></label>';
 				$html[] = '<div class="fltlft">';
@@ -281,13 +300,13 @@ class k2_menu
 				$html[] = '</div>';
 
 				$html[] = '<input type="hidden" id="jform[request][id]_id" name="jform[request][id]" value="' . $menuoptions['remoteUse']['itemID'] . '" />';
-				//
 				$html[] = '<label title="" for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_SELECT_PAGELAYOUT') . '
 								<span class="star">&nbsp;*</span>
 							</label>';
 				$html[] = '<select name="jform[request][pagelayout]" id="jform_request_pagelayout">';
 
 				$values = array("simpleDetail" => "Simple List", "newsDetail" => "News", "catalogDetail" => "Catalog");
+
 				foreach ($values as $plk => $plv)
 				{
 					$select = ($menuoptions['remoteUse']['pageLayout'] == $plk) ? 'selected="selected"' : '';
@@ -296,12 +315,11 @@ class k2_menu
 
 				$html[] = '</select>';
 
-				//
 				return implode("\n", $html);
 				break;
 
-
 			case 'TagRelatedItems':
+
 				// Load the modal behavior script.
 				JHtml::_('behavior.modal', 'a.modal');
 				$script   = array();
@@ -313,10 +331,12 @@ class k2_menu
 
 				// Add the script to the document head.
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
+
 				// Setup variables for display.
 				$html = array();
 
 				$link = 'index.php?option=com_k2&view=tags&task=element&tmpl=component&object=jform[request][tag];';
+
 				// The current user display field.
 				$html[] = '<label id="jform_request_tag-lbl" for="jform_request_tag">' . JText::_('COM_IJOOMERADV_SELECT_TAG') . '<span class="star">&nbsp;*</span></label>';
 				$html[] = '<div class="fltlft">';
@@ -332,7 +352,7 @@ class k2_menu
 				$html[] = '<input type="hidden" id="jform[request][tag]_id" name="jform[request][tag]" value="' . $menuoptions['remoteUse']['tag'] . '" />';
 
 				require_once JPATH_ADMINISTRATOR . '/components/com_k2/models/categories.php';
-				$class1  = new K2ModelCategories();
+				$class1  = new K2ModelCategories;
 				$Allcats = $class1->categoriesTree();
 
 				$html[] = '<label title=""  for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_FILTER_CATEGORIES') . '
@@ -340,9 +360,11 @@ class k2_menu
 							</label>';
 
 				$html[] = '<select multiple="multiple" style="height: 200px;" name="jform[request][catid][]" id="jform_request_catid">';
+
 				foreach ($Allcats as $keyy => $vall)
 				{
 					$selcat = '';
+
 					for ($i = 0; $i < count($menuoptions['remoteUse']['catId']); $i++)
 					{
 						if ($menuoptions['remoteUse']['catId'][$i] == $vall->value)
@@ -361,19 +383,20 @@ class k2_menu
 				$html[] = '<select name="jform[request][item_order]" id="jform_request_item_order">';
 
 				$itemsArray = array('Inherit from category'                 => "",
-				                    'Default'                               => "id",
-				                    'Oldest First(by date created)'         => "date",
-				                    'Most recent First(by date created)'    => "rdate",
-				                    'Most recent first (by date published)' => "publishUp",
-				                    'Title - alphabetical'                  => "alpha",
-				                    'Title - reverse alphabetical'          => "ralpha",
-				                    'Ordering'                              => "order",
-				                    'Ordering reverse'                      => "rorder",
-				                    'Featured first'                        => "featured",
-				                    'Most popular'                          => "hits",
-				                    'Highest rated'                         => "best",
-				                    'Latest modified'                       => "modified",
-				                    'Random'                                => "rand");
+									'Default'                               => "id",
+									'Oldest First(by date created)'         => "date",
+									'Most recent First(by date created)'    => "rdate",
+									'Most recent first (by date published)' => "publishUp",
+									'Title - alphabetical'                  => "alpha",
+									'Title - reverse alphabetical'          => "ralpha",
+									'Ordering'                              => "order",
+									'Ordering reverse'                      => "rorder",
+									'Featured first'                        => "featured",
+									'Most popular'                          => "hits",
+									'Highest rated'                         => "best",
+									'Latest modified'                       => "modified",
+									'Random'                                => "rand");
+
 				foreach ($itemsArray as $ke => $ve)
 				{
 					$selorder = ($menuoptions['remoteUse']['itemorder'] == $ve) ? 'selected' : '';
@@ -386,8 +409,8 @@ class k2_menu
 							</label>';
 				$html[] = '<select name="jform[request][pagelayout]" id="jform_request_pagelayout">';
 
-				$values = array("simpleList"    => "Simple List",
-				                "scrollingGrid" => "Scrolling Grid");
+				$values = array("simpleList"    => "Simple List", "scrollingGrid" => "Scrolling Grid");
+
 				foreach ($values as $plk => $plv)
 				{
 					$select = ($menuoptions['remoteUse']['pageLayout'] == $plk) ? 'selected="selected"' : '';
@@ -403,7 +426,6 @@ class k2_menu
 
 				return implode("\n", $html);
 				break;
-
 
 			case 'Userpage':
 				$queryy = "SELECT u.name
@@ -421,9 +443,11 @@ class k2_menu
 
 				// Add the script to the document head.
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
+
 				// Setup variables for display.
 				$html = array();
 				$link = 'index.php?option=com_k2&view=users&task=element&tmpl=component&object=jform[request][id];';
+
 				// The current user display field.
 				$html[] = '<label id="jform_request_id-lbl" for="jform_request_id">' . JText::_('COM_IJOOMERADV_SELECT_USER') . '<span class="star">&nbsp;*</span></label>';
 				$html[] = '<div class="fltlft">';
@@ -444,9 +468,11 @@ class k2_menu
 							</label>';
 
 				$html[] = '<select multiple="multiple" style="height: 200px;" name="jform[request][userCategoriesFilter][]" id="jform_request_userCategoriesFilter">';
+
 				foreach ($Allcategories as $ke => $val)
 				{
 					$catselected = '';
+
 					for ($i = 0; $i < count($menuoptions['remoteUse']['catId']); $i++)
 					{
 						if ($menuoptions['remoteUse']['catId'][$i] == $val->value)
@@ -457,6 +483,7 @@ class k2_menu
 
 					$html[] = '<option value="' . $val->value . '" ' . $catselected . '>' . $val->text . '</option>';
 				}
+
 				$html[] = '</select>';
 
 				$html[] = '<label title="" for="jform_request_userOrdering" id="jform_request_userOrdering-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_ITEM_ORDERING') . '
@@ -465,22 +492,22 @@ class k2_menu
 				$html[] = '<select name="jform[request][userOrdering]" id="jform_request_item_order">';
 
 				$itemsArray = array('Inherit from category'                 => "",
-				                    'Default'                               => "id",
-				                    'Oldest First(by date created)'         => "date",
-				                    'Most recent First(by date created)'    => "rdate",
-				                    'Most recent first (by date published)' => "publishUp",
-				                    'Title - alphabetical'                  => "alpha",
-				                    'Title - reverse alphabetical'          => "ralpha",
-				                    'Ordering'                              => "order",
-				                    'Ordering reverse'                      => "rorder",
-				                    'Featured first'                        => "featured",
-				                    'Most popular'                          => "hits",
-				                    'Highest rated'                         => "best",
-				                    'Latest modified'                       => "modified",
-				                    'Random'                                => "rand");
+									'Default'                               => "id",
+									'Oldest First(by date created)'         => "date",
+									'Most recent First(by date created)'    => "rdate",
+									'Most recent first (by date published)' => "publishUp",
+									'Title - alphabetical'                  => "alpha",
+									'Title - reverse alphabetical'          => "ralpha",
+									'Ordering'                              => "order",
+									'Ordering reverse'                      => "rorder",
+									'Featured first'                        => "featured",
+									'Most popular'                          => "hits",
+									'Highest rated'                         => "best",
+									'Latest modified'                       => "modified",
+									'Random'                                => "rand");
+
 				foreach ($itemsArray as $ke => $ve)
 				{
-
 					if ($menuoptions['remoteUse']['ordering'] == $ve)
 					{
 						$orderselected = 'selected';
@@ -489,14 +516,17 @@ class k2_menu
 					{
 						$orderselected = '';
 					}
+
 					$html[] = '<option ' . $orderselected . ' value="' . $ve . '">' . $ke . '</option>';
 				}
+
 				$html[] = '</select>';
 				$html[] = '<label title="" for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_SELECT_PAGELAYOUT') . '
 								<span class="star">&nbsp;*</span>
 							</label>';
 				$html[] = '<select name="jform[request][pagelayout]" id="jform_request_pagelayout">';
 				$values = array("simpleList" => "Simple List", "scrollingGrid" => "Scrolling Grid");
+
 				foreach ($values as $plk => $plv)
 				{
 					$select = ($menuoptions['remoteUse']['pageLayout'] == $plk) ? 'selected="selected"' : '';
@@ -560,23 +590,26 @@ class k2_menu
 
 				// Add the script to the document head.
 				JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
-				// Setup variables for display.
 
+				// Setup variables for display.
 				$html   = array();
 				$html[] = '<label id="jform_request_source-lbl" for="jform_request_source">' . JText::_('COM_IJOOMERADV_CHOOSE_CONTENT_SOURCE') . '<span class="star">&nbsp;*</span></label>';
 				$html[] = '<select name="jform[request][source]" id="jform_request_source">';
 				$values = array("Users", "Categories");
+
 				for ($l = 0; $l < count($values); $l++)
 				{
 					$sourceselected = ($menuoptions['remoteUse']['source'] == $values[$l]) ? 'selected' : '';
 				}
+
 				$html[] = '<option value="Users" ' . $sourceselected . '>Users</option><option value="Categories" ' . $sourceselected . '>Categories</option>';
 				$html[] = '</select>';
 
-
 				$link = 'index.php?option=com_k2&view=users&task=element&tmpl=component';
+
 				// The current user display field.
 				$html[] = '<label id="jform_request_userIDs-lbl"  for="jform_request_userIDs">' . JText::_('COM_IJOOMERADV_SELECTED_USERS') . '<span class="star">&nbsp;*</span></label>';
+
 				// The user select button.
 				$html[] = '<div class="button2-left">';
 				$html[] = '  <div class="blank">';
@@ -600,8 +633,10 @@ class k2_menu
 						$html[]   = '<li><div id=removediv_' . $vv . '><img onclick=deletediv(' . $vv . ') id=remove_' . $vv . ' alt=Removeentryfromthelist src=' . JURI::root() . 'administrator/templates/bluestork/images/admin/publish_x.png /><span class=handle>' . $UserName . '</span><input type=hidden name=jform[request][userIDs][] value=' . $vv . '></div></li>';
 					}
 				}
+
 				$html[] = '</ul>';
 				$link1  = 'index.php?option=com_k2&view=categories&task=element&tmpl=component';
+
 				// The current user display field.
 				$html[] = '<label id="jform_request_categoryIDs-lbl"  for="jform_request_categoryIDs">' . JText::_('COM_IJOOMERADV_SELECTED_CATEGORIES') . '<span class="star">&nbsp;*</span></label>';
 
@@ -628,17 +663,20 @@ class k2_menu
 						$html[]  = '<li><div id=removecatdiv_' . $ve . '><img onclick=deletecatdiv(' . $ve . ') id=removecat_' . $ve . ' alt=Removeentryfromthelist src=' . JURI::root() . 'administrator/templates/bluestork/images/admin/publish_x.png /><span class=handle>' . $CatName . '</span><input type=hidden name=jform[request][categoryIDs][] value=' . $ve . '></div></li>';
 					}
 				}
+
 				$html[] = '</ul>';
 				$html[] = '<label title=""  for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_SELECT_PAGELAYOUT') . '
 								<span class="star">&nbsp;*</span>
 							</label>';
 				$html[] = '<select name="jform[request][pagelayout]" id="jform_request_pagelayout">';
 				$values = array("simpleList" => "Simple List", "scrollingGrid" => "Scrolling Grid");
+
 				foreach ($values as $plk => $plv)
 				{
 					$select = ($menuoptions['remoteUse']['pageLayout'] == $plk) ? 'selected="selected"' : '';
 					$html[] = '<option ' . $select . ' value="' . $plk . '">' . $plv . '</option>';
 				}
+
 				$html[] = '</select>';
 				$html[] = '<div><label title=""  for="jform_request_id" id="jform_request_id-lbl" aria-invalid="false">' . JText::_('COM_IJOOMERADV_ITEMS_PER_PAGE') . '
 								<span class="star">&nbsp;*</span></div>
@@ -667,6 +705,7 @@ class k2_menu
 	{
 		$db      = JFactory::getDBO();
 		$options = null;
+
 		switch ($extTask)
 		{
 			case 'items':
