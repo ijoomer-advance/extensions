@@ -181,6 +181,7 @@ class wall
 			return false;
 		}
 
+		$isCommunityAdmin = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
 
 		foreach ($htmldata as $key => $html)
 		{
@@ -189,7 +190,6 @@ class wall
 			$titletag         = $this->jomHelper->getTitleTag($html);
 			$likeAllowed      = $html->likeAllowed == "" ? 0 : 1;
 			$commentAllowed   = $html->commentAllowed == "" ? 0 : 1;
-			$isCommunityAdmin = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
 
 			if ($type == 'activity' or $type == 'wall')
 			{
@@ -215,12 +215,12 @@ class wall
 					$uids        = json_decode($html->actors);
 					$html->actor = $uids->userid[0]->id;
 				}
-				$usr                                                       = $this->jomHelper->getUserDetail($html->actor);
+				$usr                                                       = $this->jomHelper->getUserDetailMini($html->actor);
 				$this->jsonarray['update'][$inc]['user_detail']['user_id'] = $usr->id;
 
 				if (!empty($html->target) && $html->target != $html->actor)
 				{
-					$targetUser                                                  = $this->jomHelper->getUserDetail($html->target);
+					$targetUser                                                  = $this->jomHelper->getUserDetailMini($html->target);
 					$this->jsonarray['update'][$inc]['user_detail']['user_name'] = $usr->name . " ➜ " . $targetUser->name;
 				}
 				else
@@ -272,7 +272,7 @@ class wall
 						$rplc                                        = array($actor->getDisplayName(), "►", "\"");
 						$this->jsonarray['update'][$inc]['titletag'] = str_replace($srch, $rplc, strip_tags($titletag));
 
-						$usrtar                                                          = $this->jomHelper->getUserDetail($html->target);
+						$usrtar                                                          = $this->jomHelper->getUserDetailMini($html->target);
 						$this->jsonarray['update'][$inc]['content_data']['user_id']      = $usrtar->id;
 						$this->jsonarray['update'][$inc]['content_data']['user_name']    = $usrtar->name;
 						$this->jsonarray['update'][$inc]['content_data']['user_avatar']  = $usrtar->avatar;
@@ -621,7 +621,7 @@ class wall
 							$this->jsonarray['update'][$inc]['content_data']['id']             = $bulletin->id;
 							$this->jsonarray['update'][$inc]['content_data']['title']          = $bulletin->title;
 							$this->jsonarray['update'][$inc]['content_data']['message']        = strip_tags($bulletin->message);
-							$usr                                                               = $this->jomHelper->getUserDetail($bulletin->created_by);
+							$usr                                                               = $this->jomHelper->getUserDetailMini($bulletin->created_by);
 							$this->jsonarray['update'][$inc]['content_data']['user_id']        = $usr->id;
 							$this->jsonarray['update'][$inc]['content_data']['user_name']      = $usr->name;
 							$this->jsonarray['update'][$inc]['content_data']['user_avatar']    = $usr->avatar;
@@ -672,7 +672,7 @@ class wall
 							$this->jsonarray['update'][$inc]['content_data']['id']           = $discussion->id;
 							$this->jsonarray['update'][$inc]['content_data']['title']        = $discussion->title;
 							$this->jsonarray['update'][$inc]['content_data']['message']      = strip_tags($discussion->message);
-							$usr                                                             = $this->jomHelper->getUserDetail($discussion->creator);
+							$usr                                                             = $this->jomHelper->getUserDetailMini($discussion->creator);
 							$this->jsonarray['update'][$inc]['content_data']['user_id']      = $usr->id;
 							$this->jsonarray['update'][$inc]['content_data']['user_name']    = $usr->name;
 							$this->jsonarray['update'][$inc]['content_data']['user_avatar']  = $usr->avatar;
@@ -911,7 +911,6 @@ class wall
 						break;
 				}
 			}
-			$i++;
 			$inc++;
 		}
 
@@ -1389,7 +1388,7 @@ class wall
 				$createdTime = (!empty($createdTime)) ? $createdTime : '';
 
 				$act->created        = $createdTime;
-				$act->createdDate    = (C_JOOMLA_15 == 1) ? $date->toFormat(JText::_('DATE_FORMAT_LC2')) : $date->Format(JText::_('DATE_FORMAT_LC2'));
+				$act->createdDate    = (defined('C_JOOMLA_15') && C_JOOMLA_15==1) ? $date->toFormat(JText::_('DATE_FORMAT_LC2')) : $date->Format(JText::_('DATE_FORMAT_LC2'));
 				$act->app            = $oRow->app;
 				$act->eventid        = $oRow->eventid;
 				$act->groupid        = $oRow->groupid;
@@ -1726,7 +1725,7 @@ class wall
 				$pushOptions['detail'] = array();
 				$pushOptions           = gzcompress(json_encode($pushOptions));
 
-				$usr          = $this->jomHelper->getUserDetail($this->my->id);
+				$usr          = $this->jomHelper->getUserDetailMini($this->my->id);
 				$match        = array('{actor}', '{stream}');
 				$replace      = array($usr->name, JText::_('COM_COMMUNITY_SINGULAR_STREAM'));
 				$message      = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_EMAIL_SUBJECT'));
@@ -1818,7 +1817,7 @@ class wall
 					CNotificationLibrary::add('profile_activity_add_comment', $this->my->id, $act->actor, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_EMAIL_SUBJECT'), '', 'profile.activitycomment', $params);
 
 					// get user push notification params and user device token and device type
-					$usr     = $this->jomHelper->getUserDetail($this->IJUserID);
+					$usr     = $this->jomHelper->getUserDetailMini($this->IJUserID);
 					$match   = array('{actor}', '{stream}');
 					$replace = array($usr->name, JText::_('COM_COMMUNITY_SINGULAR_STREAM'));
 					$message = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_EMAIL_SUBJECT'));
@@ -1835,7 +1834,7 @@ class wall
 					{
 						CNotificationLibrary::add('profile_activity_reply_comment', $this->my->id, $users, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_REPLY_EMAIL_SUBJECT'), '', 'profile.activityreply', $params);
 
-						$usr         = $this->jomHelper->getUserDetail($this->IJUserID);
+						$usr         = $this->jomHelper->getUserDetailMini($this->IJUserID);
 						$match       = array('{stream}');
 						$replace     = array(JText::_('COM_COMMUNITY_SINGULAR_STREAM'));
 						$message     = str_replace($match, $replace, JText::sprintf('COM_COMMUNITY_ACITIVY_WALL_REPLY_EMAIL_SUBJECT'));
@@ -1859,7 +1858,7 @@ class wall
 				$pushcontentdata['id'] = $html->id;
 
 				// add user detail
-				$usr                                            = $this->jomHelper->getUserDetail($html->actor);
+				$usr                                            = $this->jomHelper->getUserDetailMini($html->actor);
 				$pushcontentdata['user_detail']['user_id']      = $usr->id;
 				$pushcontentdata['user_detail']['user_name']    = $usr->name;
 				$pushcontentdata['user_detail']['user_avatar']  = $usr->avatar;
@@ -1898,7 +1897,7 @@ class wall
 						$rplc                        = array("►", "\"");
 						$pushcontentdata['titletag'] = str_replace($srch, $rplc, strip_tags($titletag));
 
-						$usrtar                                          = $this->jomHelper->getUserDetail($html->target);
+						$usrtar                                          = $this->jomHelper->getUserDetailMini($html->target);
 						$pushcontentdata['content_data']['user_id']      = $usrtar->id;
 						$pushcontentdata['content_data']['user_name']    = $usrtar->name;
 						$pushcontentdata['content_data']['user_avatar']  = $usrtar->avatar;
@@ -2152,7 +2151,7 @@ class wall
 							$pushcontentdata['content_data']['id']             = $bulletin->id;
 							$pushcontentdata['content_data']['title']          = $bulletin->title;
 							$pushcontentdata['content_data']['message']        = strip_tags($bulletin->message);
-							$usr                                               = $this->jomHelper->getUserDetail($bulletin->created_by);
+							$usr                                               = $this->jomHelper->getUserDetailMini($bulletin->created_by);
 							$pushcontentdata['content_data']['user_id']        = $usr->id;
 							$pushcontentdata['content_data']['user_name']      = $usr->name;
 							$pushcontentdata['content_data']['user_avatar']    = $usr->avatar;
@@ -2203,7 +2202,7 @@ class wall
 							$pushcontentdata['content_data']['id']           = $discussion->id;
 							$pushcontentdata['content_data']['title']        = $discussion->title;
 							$pushcontentdata['content_data']['message']      = strip_tags($discussion->message);
-							$usr                                             = $this->jomHelper->getUserDetail($discussion->creator);
+							$usr                                             = $this->jomHelper->getUserDetailMini($discussion->creator);
 							$pushcontentdata['content_data']['user_id']      = $usr->id;
 							$pushcontentdata['content_data']['user_name']    = $usr->name;
 							$pushcontentdata['content_data']['user_avatar']  = $usr->avatar;
@@ -2617,7 +2616,7 @@ class wall
 				{
 					foreach ($likes as $key => $userlike)
 					{
-						$usr                                            = $this->jomHelper->getUserDetail($userlike);
+						$usr                                            = $this->jomHelper->getUserDetailMini($userlike);
 						$this->jsonarray['likes'][$key]['user_id']      = $usr->id;
 						$this->jsonarray['likes'][$key]['user_name']    = $usr->name;
 						$this->jsonarray['likes'][$key]['user_profile'] = $usr->profile;
@@ -2698,7 +2697,7 @@ class wall
 			$isCommunityAdmin = intval(COwnerHelper::isCommunityAdmin($this->IJUserID));
 			foreach ($comments as $key => $comment)
 			{
-				$usr = $this->jomHelper->getUserDetail($comment->post_by);
+				$usr = $this->jomHelper->getUserDetailMini($comment->post_by);
 				CFactory::load('libraries', 'comment');
 				$com_obj     = new CComment;
 				$wall        = $com_obj->stripCommentData($comment->comment);

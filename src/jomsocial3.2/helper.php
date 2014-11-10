@@ -1235,6 +1235,46 @@ class jomHelper
 		return $count;
 	}
 
+	/**
+	* This function only retrieve following details
+	* id, name, avatar, profile
+	*/
+	function getUserDetailMini($userID,$frontUser=NULL)
+	{
+		$query = 'SELECT c.userid,u.name,c.avatar,c.params FROM `#__community_users` as c JOIN `#__users` as u '
+			. ' ON u.id=c.userid WHERE u.id = ' . $userID;
+		$this->db->setQuery($query);
+		$user_detail = $this->db->loadObject();
+
+		$frontUser = ($frontUser) ? $frontUser : $this->IJUserID;
+
+		// Get storage path
+		if ($this->config->get('user_avatar_storage') == 'file')
+		{
+			$p_url	= JURI::base();
+		}
+		else
+		{
+			$s3BucketPath = $this->config->get('storages3bucket');
+			if (!empty($s3BucketPath))
+				$p_url	= 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
+			else
+				$p_url	= JURI::base();
+		}
+
+		// Get access level and profile view permission.
+		$params	= new JRegistry($user_detail->params);
+		$access_limit = $this->getUserAccess($frontUser, $user_detail->userid);
+		$profileview = $params->get('privacyProfileView'); // get profile view access
+
+		$user = new stdClass;
+		$user->id			= ($this->IJUserID == $user_detail->userid) ? 0 : intval($user_detail->userid);
+		$user->name			= $user_detail->name;
+		$user->avatar		= ($user_detail->avatar) ? $p_url . $user_detail->avatar : JURI::base() . 'components/com_community/assets/user_thumb.png';
+		$user->profile		= ($profileview == 40 OR $profileview > $access_limit) ? 0 : 1;
+
+		return $user;
+	}
 
 	/**
 	 * getUserDetail function
