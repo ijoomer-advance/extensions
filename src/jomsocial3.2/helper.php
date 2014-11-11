@@ -1236,15 +1236,30 @@ class jomHelper
 	}
 
 	/**
-	* This function only retrieve following details
-	* id, name, avatar, profile
-	*/
-	function getUserDetailMini($userID,$frontUser=NULL)
+	 * getRequiredUserDetail only retrieve data which are required.
+	 *
+	 * @param   int  $userID     logged in user id
+	 * @param   int  $frontUser  is front user
+	 *
+	 * @return  array            user data in array
+	 */
+	public function getRequiredUserDetail($userID, $frontUser = null)
 	{
-		$query = 'SELECT c.userid,u.name,c.avatar,c.params FROM `#__community_users` as c JOIN `#__users` as u '
-			. ' ON u.id=c.userid WHERE u.id = ' . $userID;
+		$query = $this->db->getQuery(true);
+		$query->select($this->db->quoteName(array('c.userid', 'u.name','c.avatar','c.params')))
+			->from($this->db->quoteName('#__community_users', 'c'))
+			->join('INNER', $this->db->quoteName('#__users', 'u') . ' ON (' . $this->db->quoteName('u.id') . ' = ' . $this->db->quoteName('c.userid') . ')')
+			->where($this->db->quoteName('u.id') . ' = ' . $this->db->quote($userID));
 		$this->db->setQuery($query);
-		$user_detail = $this->db->loadObject();
+
+		try
+		{
+			$user_detail = $this->db->loadObjectList();
+		}
+		catch (RuntimeException $e)
+		{
+			throw new RuntimeException($e->getMessage(), $e->getCode());
+		}
 
 		$frontUser = ($frontUser) ? $frontUser : $this->IJUserID;
 
@@ -1256,22 +1271,54 @@ class jomHelper
 		else
 		{
 			$s3BucketPath = $this->config->get('storages3bucket');
+
 			if (!empty($s3BucketPath))
+			{
 				$p_url	= 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
+			}
 			else
+			{
 				$p_url	= JURI::base();
+			}
 		}
 
 		// Get access level and profile view permission.
 		$params	= new JRegistry($user_detail->params);
 		$access_limit = $this->getUserAccess($frontUser, $user_detail->userid);
-		$profileview = $params->get('privacyProfileView'); // get profile view access
 
+		// Get profile view access
+		$profileview = $params->get('privacyProfileView');
 		$user = new stdClass;
-		$user->id			= ($this->IJUserID == $user_detail->userid) ? 0 : intval($user_detail->userid);
+
+		if ($this->IJUserID == $user_detail->userid)
+		{
+			$user->id = 0;
+		}
+		else
+		{
+			$user->id = intval($user_detail->userid);
+		}
+
 		$user->name			= $user_detail->name;
-		$user->avatar		= ($user_detail->avatar) ? $p_url . $user_detail->avatar : JURI::base() . 'components/com_community/assets/user_thumb.png';
-		$user->profile		= ($profileview == 40 OR $profileview > $access_limit) ? 0 : 1;
+
+		if ($user_detail->avatar)
+		{
+			$user->avatar = $p_url . $user_detail->avatar;
+		}
+		else
+		{
+			$user->avatar = JURI::base() . 'components/com_community/assets/user_thumb.png';
+		}
+
+
+		if ($profileview == 40 || $profileview > $access_limit)
+		{
+			$user->profile = 0;
+		}
+		else
+		{
+			$user->profile = 1;
+		}
 
 		return $user;
 	}
