@@ -1249,19 +1249,22 @@ class jomHelper
 		$query->select($this->db->quoteName(array('c.userid', 'u.name','c.avatar','c.params')))
 			->from($this->db->quoteName('#__community_users', 'c'))
 			->join('INNER', $this->db->quoteName('#__users', 'u') . ' ON (' . $this->db->quoteName('u.id') . ' = ' . $this->db->quoteName('c.userid') . ')')
-			->where($this->db->quoteName('u.id') . ' = ' . $this->db->quote($userID));
+			->where($this->db->qn('u.id') . ' = ' . (int) $userID);
 		$this->db->setQuery($query);
 
 		try
 		{
-			$user_detail = $this->db->loadObjectList();
+			$userDetail = $this->db->loadObjectList();
 		}
 		catch (RuntimeException $e)
 		{
 			throw new RuntimeException($e->getMessage(), $e->getCode());
 		}
 
-		$frontUser = ($frontUser) ? $frontUser : $this->IJUserID;
+		if (!$frontUser)
+		{
+			$frontUser = $this->IJUserID;
+		}
 
 		// Get storage path
 		if ($this->config->get('user_avatar_storage') == 'file')
@@ -1283,27 +1286,25 @@ class jomHelper
 		}
 
 		// Get access level and profile view permission.
-		$params	= new JRegistry($user_detail->params);
-		$access_limit = $this->getUserAccess($frontUser, $user_detail->userid);
+		$params	= new JRegistry($userDetail->params);
+		$access_limit = $this->getUserAccess($frontUser, $userDetail->userid);
 
 		// Get profile view access
 		$profileview = $params->get('privacyProfileView');
 		$user = new stdClass;
 
-		if ($this->IJUserID == $user_detail->userid)
+		$user->id = 0;
+
+		if ($this->IJUserID != $userDetail->userid)
 		{
-			$user->id = 0;
-		}
-		else
-		{
-			$user->id = intval($user_detail->userid);
+			$user->id = intval($userDetail->userid);
 		}
 
-		$user->name			= $user_detail->name;
+		$user->name			= $userDetail->name;
 
-		if ($user_detail->avatar)
+		if ($userDetail->avatar)
 		{
-			$user->avatar = $p_url . $user_detail->avatar;
+			$user->avatar = $p_url . $userDetail->avatar;
 		}
 		else
 		{
