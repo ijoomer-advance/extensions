@@ -1235,6 +1235,94 @@ class jomHelper
 		return $count;
 	}
 
+	/**
+	 * getRequiredUserDetail only retrieve data which are required.
+	 *
+	 * @param   int  $userID     logged in user id
+	 * @param   int  $frontUser  is front user
+	 *
+	 * @return  array            user data in array
+	 */
+	public function getRequiredUserDetail($userID, $frontUser = null)
+	{
+		$query = $this->db->getQuery(true);
+		$query->select($this->db->quoteName(array('c.userid', 'u.name','c.avatar','c.params')))
+			->from($this->db->quoteName('#__community_users', 'c'))
+			->join('INNER', $this->db->quoteName('#__users', 'u') . ' ON (' . $this->db->quoteName('u.id') . ' = ' . $this->db->quoteName('c.userid') . ')')
+			->where($this->db->qn('u.id') . ' = ' . (int) $userID);
+		$this->db->setQuery($query);
+
+		try
+		{
+			$userDetail = $this->db->loadObjectList();
+		}
+		catch (RuntimeException $e)
+		{
+			throw new RuntimeException($e->getMessage(), $e->getCode());
+		}
+
+		if (!$frontUser)
+		{
+			$frontUser = $this->IJUserID;
+		}
+
+		// Get storage path
+		if ($this->config->get('user_avatar_storage') == 'file')
+		{
+			$p_url	= JURI::base();
+		}
+		else
+		{
+			$s3BucketPath = $this->config->get('storages3bucket');
+
+			if (!empty($s3BucketPath))
+			{
+				$p_url	= 'http://' . $s3BucketPath . '.s3.amazonaws.com/';
+			}
+			else
+			{
+				$p_url	= JURI::base();
+			}
+		}
+
+		// Get access level and profile view permission.
+		$params	= new JRegistry($userDetail->params);
+		$access_limit = $this->getUserAccess($frontUser, $userDetail->userid);
+
+		// Get profile view access
+		$profileview = $params->get('privacyProfileView');
+		$user = new stdClass;
+
+		$user->id = 0;
+
+		if ($this->IJUserID != $userDetail->userid)
+		{
+			$user->id = intval($userDetail->userid);
+		}
+
+		$user->name			= $userDetail->name;
+
+		if ($userDetail->avatar)
+		{
+			$user->avatar = $p_url . $userDetail->avatar;
+		}
+		else
+		{
+			$user->avatar = JURI::base() . 'components/com_community/assets/user_thumb.png';
+		}
+
+
+		if ($profileview == 40 || $profileview > $access_limit)
+		{
+			$user->profile = 0;
+		}
+		else
+		{
+			$user->profile = 1;
+		}
+
+		return $user;
+	}
 
 	/**
 	 * getUserDetail function
