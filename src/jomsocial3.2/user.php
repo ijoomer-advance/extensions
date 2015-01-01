@@ -3,7 +3,7 @@
  * @package     IJoomer.Extensions
  * @subpackage  jomsocial3.2
  *
- * @copyright   Copyright (C) 2010 - 2014 Tailored Solutions PVT. Ltd. All rights reserved.
+ * @copyright   Copyright (C) 2010 - 2015 Tailored Solutions PVT. Ltd. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -1104,7 +1104,7 @@ class user
 
 			switch ($value->cmd_type)
 			{
-				// Add new case of notification DT (28-05-2014 6:30)
+				// Add new case of notification DT (28-05-2015 6:30)
 				case "notif_profile_status_update":
 					$usr                                                              = $this->jomHelper->getUserDetail($value->actor);
 					$this->jsonarray['notifications']['global'][$ind]['notif_title']  = str_replace('{actor}', $usr->name, $value->content);
