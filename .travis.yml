@@ -5,6 +5,7 @@ php:
 
 before_script:
   - pear install PHP_CodeSniffer-1.5.3
+  - phpenv config-add .travis.ini
   - phpenv rehash
 
 script:
