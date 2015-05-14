@@ -4,9 +4,12 @@ php:
   - 5.3
 
 before_script:
-  - pear install PHP_CodeSniffer-1.5.3
-  - phpenv config-add .travis.ini
-  - phpenv rehash
+  # Composer
+  - composer self-update
+  - composer update
+
+  # Cloning Joomla Coding standards
+  - git clone https://github.com/joomla/coding-standards.git .tmp/Joomla/
 
 script:
-  - phpcs --report=summary --extensions=php -p -n --standard=.build/phpcs/Joomla src/
+  - vendor/bin/phpcs --report=summary --extensions=php -p -n --standard=.tmp/Joomla src/
