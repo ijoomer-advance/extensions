@@ -2,6 +2,10 @@
 .build
 vendor/
 
+# Gulp Build
+gulp-config.json
+node_modules/
+
 # OSX
 .DS_Store
 ._*
