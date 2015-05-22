@@ -20,7 +20,7 @@ Copy and change default information given in sample config file.
 
 This command is to release the extensions.
 
-    gulp release:extensions
+    gulp release
 
 
 This command will read the base directory and create zip files for each of the folder.
